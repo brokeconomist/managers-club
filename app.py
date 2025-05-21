@@ -1,34 +1,22 @@
 import streamlit as st
 
-st.set_page_config(page_title="Break-Even Tool", layout="centered")
+st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 
-st.title("🔍 Break-Even Υπολογιστής")
+st.title("📊 Managers’ Club")
+st.subheader("Ο οικονομικός βοηθός κάθε μικρομεσαίας επιχείρησης.")
 
-# Εισαγωγή δεδομένων
-fixed_costs = st.number_input("Σταθερά Κόστη (€)", min_value=0.0, value=1000.0, step=100.0)
-price_per_unit = st.number_input("Τιμή Πώλησης ανά Μονάδα (€)", min_value=0.01, value=10.0, step=0.5)
-variable_cost_per_unit = st.number_input("Μεταβλητό Κόστος ανά Μονάδα (€)", min_value=0.0, value=5.0, step=0.5)
+st.markdown("""
+Καλώς ήρθες!
 
-# Υπολογισμός
-if price_per_unit > variable_cost_per_unit:
-    break_even_units = fixed_costs / (price_per_unit - variable_cost_per_unit)
-    st.success(f"📈 Break-Even Point: {break_even_units:.0f} μονάδες")
-else:
-    st.error("Η Τιμή Πώλησης πρέπει να είναι μεγαλύτερη από το Μεταβλητό Κόστος.")
+Το **Managers’ Club** είναι μια online εφαρμογή που σε βοηθά να παίρνεις οικονομικές αποφάσεις **χωρίς να χρειάζεται να είσαι λογιστής**.
 
-# Γράφημα (προαιρετικά)
-import matplotlib.pyplot as plt
+### Τι μπορείς να κάνεις:
+- ✅ Υπολογίσεις break-even και ανάλυση κόστους
+- ✅ Πλάνο πληρωμών & εισπράξεων
+- ✅ Υποστήριξη τιμολόγησης και πιστωτικής πολιτικής
 
-units = list(range(0, int(break_even_units * 2) + 10, 10))
-revenues = [price_per_unit * x for x in units]
-costs = [fixed_costs + variable_cost_per_unit * x for x in units]
+---
 
-fig, ax = plt.subplots()
-ax.plot(units, revenues, label="Έσοδα", color="green")
-ax.plot(units, costs, label="Κόστη", color="red")
-ax.axvline(break_even_units, linestyle="--", color="blue", label="Break-Even")
-ax.set_xlabel("Ποσότητα")
-ax.set_ylabel("€")
-ax.set_title("Break-Even Ανάλυση")
-ax.legend()
-st.pyplot(fig)
+🧮 Εδώ, τα οικονομικά μιλάνε απλά.  
+Δεν αντικαθιστούμε τους συμβούλους σου – **τους διευκολύνουμε**.
+""")
