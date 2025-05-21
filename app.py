@@ -17,7 +17,7 @@ def credit_control(CurrentCreditDays, NewCreditDays, SalesIncrease, CurrentSales
     return result
 
 # Sidebar για επιλογή σελίδας
-page = st.sidebar.selectbox("Μετάβαση σε:", ["🏠 Αρχική", "📊 Break-Even Υπολογιστής", "📉 Πίστωση"])
+page = st.sidebar.selectbox("Μετάβαση σε:", ["🏠 Αρχική", "📊 Break-Even", "📉 Πίστωση"])
 
 if page == "🏠 Αρχική":
     st.title("📊 Managers’ Club")
