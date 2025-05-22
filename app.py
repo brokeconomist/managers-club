@@ -166,7 +166,8 @@ def show_clv():
 ### MAIN ###
 
 def main():
-    page = st.sidebar.selectbox("Μετάβαση σε:", [
+    st.sidebar.title("Μενού")
+    page = st.sidebar.selectbox("Επίλεξε σελίδα:", [
         "🏠 Αρχική",
         "📊 Break-Even",
         "📉 Πίστωση",
