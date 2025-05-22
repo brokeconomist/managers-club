@@ -48,32 +48,6 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
-def plot_clv_tornado(clv, params_dict):
-    labels = list(params_dict.keys())
-    values = []
-    base = clv
-    for key, val in params_dict.items():
-        delta = 0.1 * val
-        new_params = params_dict.copy()
-        new_params[key] = val + delta
-        new_clv = calculate_clv(
-            avg_order_value=new_params["Μέση τιμή ανά παραγγελία (€)"],
-            orders_per_year=new_params["Αριθμός παραγγελιών ανά χρόνο"],
-            profit_margin=new_params["Ποσοστό κέρδους επί πωλήσεων (%)"]/100,
-            discount_rate=new_params["Ποσοστό έκπτωσης (discount rate) (%)"]/100
-        )
-        values.append(new_clv - base)
-
-    y_pos = np.arange(len(labels))
-    fig, ax = plt.subplots()
-    ax.barh(y_pos, values, align='center')
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(labels)
-    ax.invert_yaxis()
-    ax.set_xlabel("Επίδραση στην Αξία Πελάτη (€)")
-    ax.set_title("Ανάλυση Ευαισθησίας - Tornado Chart")
-    st.pyplot(fig)
-
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def show_home():
