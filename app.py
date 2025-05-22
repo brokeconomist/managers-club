@@ -80,7 +80,6 @@ def main():
         show_home()
     elif page == "📊 Break-Even":
         show_break_even()
-        show_clv()
 
 if __name__ == "__main__":
     main()
