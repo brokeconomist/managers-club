@@ -55,7 +55,7 @@ def show_break_even():
     st.title("📊 Υπολογιστής Νεκρού Σημείου (Break-Even)")
     price_per_unit = st.number_input("Τιμή πώλησης ανά μονάδα (€)", value=100.0, min_value=0.0)
     variable_cost = st.number_input("Μεταβλητό κόστος ανά μονάδα (€)", value=75.0, min_value=0.0)
-    fixed_costs = st.number_input("Σταθερά κόστη (€)", value=15,000.0, min_value=0.0)
+    fixed_costs = st.number_input("Σταθερά κόστη (€)", value=15000.0, min_value=0.0)
 
     break_even_units, break_even_revenue = calculate_break_even(price_per_unit, variable_cost, fixed_costs)
     if break_even_units is None:
