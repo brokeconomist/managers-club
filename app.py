@@ -88,3 +88,34 @@ elif page == "📉 Πίστωση":
         credit = credit_control(CurrentCreditDays, NewCreditDays, SalesIncrease, CurrentSales,
                                 UnitPrice, TotalUnitCost, VariableUnitCost, ExpectedBadDebts, InterestRateOnDebt)
         st.success(f"🔹 Υπολογιζόμενη Πίστωση: **{credit:,.2f} €**")
+
+elif page == "📈 Αξία Πελάτη":
+    st.title("📈 Υπολογισμός Αξίας Πελάτη (CLV)")
+    st.markdown("**Εκτίμησε την καθαρή αξία κάθε πελάτη σου με βάση τη διάρκεια σχέσης και τα οικονομικά δεδομένα.**")
+
+    # Εισαγωγή δεδομένων
+    price_per_unit = st.number_input("Τιμή πώλησης ανά μονάδα (€)", value=1000.0, min_value=0.0)
+    cost_per_unit = st.number_input("Κόστος ανά μονάδα (€)", value=800.0, min_value=0.0)
+    units_per_period = st.number_input("Μονάδες που αγοράζει ο πελάτης ανά περίοδο", value=1.0, min_value=0.0)
+    marketing_cost_per_period = st.number_input("Μέσο κόστος εξυπηρέτησης ή marketing ανά περίοδο (€)", value=20.0, min_value=0.0)
+    discount_rate = st.number_input("Προεξοφλητικό επιτόκιο (π.χ. 0.15 για 15%)", value=0.15, min_value=0.0)
+    periods = st.number_input("Διάρκεια σχέσης με τον πελάτη (σε περιόδους)", value=36, min_value=1, step=1)
+
+    # Υπολογισμός CLV
+    def calculate_clv(price_per_unit, cost_per_unit, units_per_period, marketing_cost_per_period, discount_rate, periods):
+        clv = 0.0
+        for t in range(1, periods + 1):
+            revenue = price_per_unit * units_per_period
+            cost = cost_per_unit * units_per_period + marketing_cost_per_period
+            net_cash_flow = revenue - cost
+            discounted_value = net_cash_flow / ((1 + discount_rate) ** t)
+            clv += discounted_value
+        return clv
+
+    if st.button("Υπολογισμός Αξίας Πελάτη"):
+        clv_result = calculate_clv(
+            price_per_unit, cost_per_unit, units_per_period,
+            marketing_cost_per_period, discount_rate, periods
+        )
+        st.success(f"📌 Η καθαρή αξία του πελάτη είναι: **€{clv_result:,.2f}**")
+
