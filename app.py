@@ -86,4 +86,56 @@ elif page == "📉 Πίστωση":
     UnitPrice = st.number_input("Τιμή ανά μονάδα (€)", min_value=0.0, value=1000.0)
     TotalUnitCost = st.number_input("Συνολικό κόστος ανά μονάδα (€)", min_value=0.0, value=800.0)
     VariableUnitCost = st.number_input("Μεταβλητό κόστος ανά μονάδα (€)", min_value=0.0, value=720.0)
-    ExpectedBadDebts = st.number_input("Αναμενόμενες ζημίες (%)", min_value=0.0, max_value=100.0, value=
+    ExpectedBadDebts = st.number_input("Αναμενόμενες ζημίες (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
+    InterestRateOnDebt = st.number_input("Επιτόκιο δανεισμού (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
+
+    impact = credit_control(CurrentCreditDays, NewCreditDays, SalesIncrease, CurrentSales,
+                            UnitPrice, TotalUnitCost, VariableUnitCost, ExpectedBadDebts, InterestRateOnDebt)
+
+    st.write(f"🧾 Οικονομικό αποτέλεσμα αλλαγής πίστωσης: **{impact:,.2f} €**")
+
+elif page == "📈 Αξία Πελάτη":
+    st.title("📈 Αξία Πελάτη (Customer Lifetime Value)")
+
+    params = {
+        "Μέση τιμή ανά παραγγελία (€)": 500,
+        "Αριθμός παραγγελιών ανά χρόνο": 3,
+        "Ποσοστό διατήρησης πελατών (%)": 80,
+        "Ποσοστό κέρδους επί πωλήσεων (%)": 40,
+        "Ποσοστό έκπτωσης (discount rate) (%)": 12,
+    }
+
+    st.markdown("**Ρύθμισε τις παραμέτρους:**")
+    for key in params:
+        params[key] = st.number_input(key, value=params[key], min_value=0.0)
+
+    avg_order_value = params["Μέση τιμή ανά παραγγελία (€)"]
+    orders_per_year = params["Αριθμός παραγγελιών ανά χρόνο"]
+    retention_rate = params["Ποσοστό διατήρησης πελατών (%)"] / 100
+    profit_margin = params["Ποσοστό κέρδους επί πωλήσεων (%)"] / 100
+    discount_rate = params["Ποσοστό έκπτωσης (discount rate) (%)"] / 100
+
+    clv = (avg_order_value * orders_per_year * profit_margin * retention_rate) / (1 + discount_rate - retention_rate)
+    st.success(f"💰 Αξία Πελάτη (CLV): **{clv:,.2f} €**")
+
+    # Tornado chart παραδειγματικό
+    tornado_df = pd.DataFrame({
+        "Παράμετρος": ["Μέση τιμή", "Παραγγελίες/έτος", "Ποσοστό διατήρησης", "Ποσοστό κέρδους", "Ποσοστό έκπτωσης"],
+        "Επίδραση": [avg_order_value * orders_per_year * profit_margin * retention_rate / (1 + discount_rate - retention_rate),
+                    avg_order_value * orders_per_year * profit_margin * retention_rate / (1 + discount_rate - retention_rate),
+                    avg_order_value * orders_per_year * profit_margin * retention_rate / (1 + discount_rate - retention_rate),
+                    avg_order_value * orders_per_year * profit_margin * retention_rate / (1 + discount_rate - retention_rate),
+                    -clv]
+    })
+
+    # Απλό παράδειγμα, βάλε εδώ πραγματικό sensitivity analysis αν θες
+
+    fig, ax = plt.subplots()
+    y_pos = np.arange(len(tornado_df))
+    ax.barh(y_pos, tornado_df["Επίδραση"], align='center')
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(tornado_df["Παράμετρος"])
+    ax.invert_yaxis()
+    ax.set_xlabel("Επίδραση στην Αξία Πελάτη (€)")
+    ax.set_title("Ανάλυση Ευαισθησίας - Tornado Chart")
+    st.pyplot(fig)
