@@ -28,10 +28,8 @@ def credit_control(CurrentCreditDays, NewCreditDays, SalesIncrease, CurrentSales
     result = term1 - (term2 + term3)
     return result
 
-def calculate_clv(avg_order_value, orders_per_year, retention_rate, profit_margin, discount_rate):
-    if retention_rate >= 1 + discount_rate:
-        return None  # Avoid division by zero or negative CLV
-    clv = (avg_order_value * orders_per_year * profit_margin * retention_rate) / (1 + discount_rate - retention_rate)
+def calculate_clv(avg_order_value, orders_per_year, profit_margin, discount_rate):
+    clv = (avg_order_value * orders_per_year * profit_margin) / discount_rate if discount_rate > 0 else None
     return clv
 
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
@@ -61,7 +59,6 @@ def plot_clv_tornado(clv, params_dict):
         new_clv = calculate_clv(
             avg_order_value=new_params.get("Μέση τιμή ανά παραγγελία (€)", val),
             orders_per_year=new_params.get("Αριθμός παραγγελιών ανά χρόνο", val),
-            retention_rate=new_params.get("Ποσοστό διατήρησης πελατών (%)", val)/100,
             profit_margin=new_params.get("Ποσοστό κέρδους επί πωλήσεων (%)", val)/100,
             discount_rate=new_params.get("Ποσοστό έκπτωσης (discount rate) (%)", val)/100
         )
@@ -84,20 +81,18 @@ def plot_clv_tornado(clv, params_dict):
 def show_home():
     st.title("📊 Managers’ Club")
     st.subheader("Ο οικονομικός βοηθός κάθε μικρομεσαίας επιχείρησης.")
-    st.markdown("""
-    Καλώς ήρθες!
+    st.markdown("""Καλώς ήρθες!
 
-    Το **Managers’ Club** είναι μια online εφαρμογή που σε βοηθά να παίρνεις οικονομικές αποφάσεις **χωρίς πολύπλοκα οικονομικά**.
+Το **Managers’ Club** είναι μια online εφαρμογή που σε βοηθά να παίρνεις οικονομικές αποφάσεις **χωρίς πολύπλοκα οικονομικά**.
 
-    ### Τι μπορείς να κάνεις:
-    - ✅ Υπολογίσεις break-even και ανάλυση κόστους
-    - ✅ Πλάνο πληρωμών & εισπράξεων
-    - ✅ Υποστήριξη τιμολόγησης και πιστωτικής πολιτικής
+### Τι μπορείς να κάνεις:
+- ✅ Υπολογισμοί νεκρού σημείου (break-even)
+- ✅ Αξιολόγηση πολιτικής πίστωσης
+- ✅ Υπολογισμός αξίας πελάτη (CLV)
 
-    ---
-    🧮 Εδώ, τα οικονομικά μιλάνε απλά.  
-    Δεν αντικαθιστούμε τους συμβούλους σου – **τους διευκολύνουμε**.
-    """)
+---  
+🧮 Εδώ, τα οικονομικά μιλάνε απλά.  
+Δεν αντικαθιστούμε τους συμβούλους σου – **τους διευκολύνουμε**.""")
 
 def show_break_even():
     st.title("📊 Υπολογιστής Νεκρού Σημείου (Break-Even)")
@@ -112,20 +107,19 @@ def show_break_even():
 
     st.success(f"🔹 Νεκρό Σημείο σε Μονάδες: **{break_even_units:.2f}**")
     st.success(f"🔹 Νεκρό Σημείο σε Πωλήσεις (€): **{break_even_revenue:,.2f}**")
-
     plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units)
 
 def show_credit():
     st.title("📉 Υπολογιστής Πίστωσης")
     CurrentCreditDays = st.number_input("Τρέχουσες μέρες πίστωσης", min_value=1, value=90)
     NewCreditDays = st.number_input("Νέες μέρες πίστωσης", min_value=1, value=60)
-    SalesIncrease = st.number_input("Αύξηση πωλήσεων (%)", min_value=0.0, max_value=100.0, value=0.0, step=0.1) / 100
+    SalesIncrease = st.number_input("Αύξηση πωλήσεων (%)", min_value=0.0, max_value=100.0, value=0.0) / 100
     CurrentSales = st.number_input("Τρέχουσες πωλήσεις (€)", min_value=0.0, value=1000.0)
     UnitPrice = st.number_input("Τιμή ανά μονάδα (€)", min_value=0.0, value=1000.0)
     TotalUnitCost = st.number_input("Συνολικό κόστος ανά μονάδα (€)", min_value=0.0, value=800.0)
     VariableUnitCost = st.number_input("Μεταβλητό κόστος ανά μονάδα (€)", min_value=0.0, value=720.0)
-    ExpectedBadDebts = st.number_input("Αναμενόμενες ζημίες (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
-    InterestRateOnDebt = st.number_input("Επιτόκιο δανεισμού (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
+    ExpectedBadDebts = st.number_input("Αναμενόμενες ζημίες (%)", min_value=0.0, max_value=100.0, value=5.0) / 100
+    InterestRateOnDebt = st.number_input("Επιτόκιο δανεισμού (%)", min_value=0.0, max_value=100.0, value=5.0) / 100
 
     impact = credit_control(CurrentCreditDays, NewCreditDays, SalesIncrease, CurrentSales,
                             UnitPrice, TotalUnitCost, VariableUnitCost, ExpectedBadDebts, InterestRateOnDebt)
@@ -138,7 +132,6 @@ def show_clv():
     params = {
         "Μέση τιμή ανά παραγγελία (€)": 500,
         "Αριθμός παραγγελιών ανά χρόνο": 3,
-        "Ποσοστό διατήρησης πελατών (%)": 80,
         "Ποσοστό κέρδους επί πωλήσεων (%)": 40,
         "Ποσοστό έκπτωσης (discount rate) (%)": 12,
     }
@@ -149,25 +142,22 @@ def show_clv():
 
     avg_order_value = params["Μέση τιμή ανά παραγγελία (€)"]
     orders_per_year = params["Αριθμός παραγγελιών ανά χρόνο"]
-    retention_rate = params["Ποσοστό διατήρησης πελατών (%)"] / 100
     profit_margin = params["Ποσοστό κέρδους επί πωλήσεων (%)"] / 100
     discount_rate = params["Ποσοστό έκπτωσης (discount rate) (%)"] / 100
 
-    clv = calculate_clv(avg_order_value, orders_per_year, retention_rate, profit_margin, discount_rate)
+    clv = calculate_clv(avg_order_value, orders_per_year, profit_margin, discount_rate)
 
     if clv is None:
-        st.warning("Παρακαλώ ελέγξτε τις παραμέτρους. Το ποσοστό διατήρησης πρέπει να είναι μικρότερο από 1 + το ποσοστό έκπτωσης.")
+        st.warning("Το ποσοστό έκπτωσης πρέπει να είναι θετικό.")
         return
 
     st.success(f"💰 Αξία Πελάτη (CLV): **{clv:,.2f} €**")
-
     plot_clv_tornado(clv, params)
 
-### MAIN ###
+### ΕΚΚΙΝΗΣΗ ###
 
 def main():
-    st.sidebar.title("Μενού")
-    page = st.sidebar.selectbox("Επίλεξε σελίδα:", [
+    page = st.sidebar.selectbox("Μετάβαση σε:", [
         "🏠 Αρχική",
         "📊 Break-Even",
         "📉 Πίστωση",
