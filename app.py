@@ -28,10 +28,6 @@ def credit_control(CurrentCreditDays, NewCreditDays, SalesIncrease, CurrentSales
     result = term1 - (term2 + term3)
     return result
 
-def calculate_clv(avg_order_value, orders_per_year, profit_margin, discount_rate):
-    clv = (avg_order_value * orders_per_year * profit_margin) / (1 + discount_rate)
-    return clv
-
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
 def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
@@ -100,31 +96,6 @@ def show_credit():
                             UnitPrice, TotalUnitCost, VariableUnitCost, ExpectedBadDebts, InterestRateOnDebt)
 
     st.write(f"🧾 Οικονομικό αποτέλεσμα αλλαγής πίστωσης: **{impact:,.2f} €**")
-
-def show_clv():
-    st.title("📈 Αξία Πελάτη (Customer Lifetime Value)")
-
-    params = {
-        "Μέση τιμή ανά παραγγελία (€)": 500,
-        "Αριθμός παραγγελιών ανά χρόνο": 3,
-        "Ποσοστό κέρδους επί πωλήσεων (%)": 40,
-        "Ποσοστό έκπτωσης (discount rate) (%)": 12,
-    }
-
-    st.markdown("**Ρύθμισε τις παραμέτρους:**")
-    for key in params:
-        params[key] = st.number_input(key, value=params[key], min_value=0.0)
-
-    clv = calculate_clv(
-        avg_order_value=params["Μέση τιμή ανά παραγγελία (€)"],
-        orders_per_year=params["Αριθμός παραγγελιών ανά χρόνο"],
-        profit_margin=params["Ποσοστό κέρδους επί πωλήσεων (%)"] / 100,
-        discount_rate=params["Ποσοστό έκπτωσης (discount rate) (%)"] / 100
-    )
-
-    st.success(f"💰 Αξία Πελάτη (CLV): **{clv:,.2f} €**")
-
-    plot_clv_tornado(clv, params)
 
 ### MAIN ###
 
