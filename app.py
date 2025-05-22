@@ -74,18 +74,12 @@ def main():
     page = st.sidebar.selectbox("Μετάβαση σε:", [
         "🏠 Αρχική",
         "📊 Break-Even",
-        "📉 Πίστωση",
-        "📈 Αξία Πελάτη"
     ])
 
     if page == "🏠 Αρχική":
         show_home()
     elif page == "📊 Break-Even":
         show_break_even()
-    elif page == "📉 Πίστωση":
-        show_credit()
-    elif page == "📈 Αξία Πελάτη":
-        show_clv()
 
 if __name__ == "__main__":
     main()
