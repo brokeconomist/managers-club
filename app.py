@@ -15,10 +15,8 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
 
-def calculate_clv(remaining_years, purchases_per_period, price_per_unit, unit_cost, marketing_cost, discount_rate):
-    future_cash_flows = purchases_per_period * (price_per_unit - unit_cost)
-    total_cash_flows = future_cash_flows - marketing_cost
-    clv = total_cash_flows / ((1 + discount_rate) ** remaining_years)
+def calculate_clv(avg_order_value, orders_per_year, profit_margin, discount_rate):
+    clv = (avg_order_value * orders_per_year * profit_margin) / (1 + discount_rate)
     return clv
 
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
@@ -37,23 +35,21 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
-def plot_clv_tornado(base_clv, params_dict):
+def plot_clv_tornado(clv, params_dict):
     labels = list(params_dict.keys())
     values = []
+    base = clv
     for key, val in params_dict.items():
         delta = 0.1 * val if val != 0 else 1
         new_params = params_dict.copy()
         new_params[key] = val + delta
-
         new_clv = calculate_clv(
-            remaining_years=new_params["Χρόνος παραμονής πελάτη (έτη)"],
-            purchases_per_period=new_params["Αγορές ανά περίοδο"],
-            price_per_unit=new_params["Τιμή πώλησης (€)"],
-            unit_cost=new_params["Κόστος ανά μονάδα (€)"],
-            marketing_cost=new_params["Ετήσιο κόστος marketing (€)"],
-            discount_rate=new_params["Προεξοφλητικό επιτόκιο (%)"] / 100
+            avg_order_value=new_params["Μέση τιμή ανά παραγγελία (€)"],
+            orders_per_year=new_params["Αριθμός παραγγελιών ανά χρόνο"],
+            profit_margin=new_params["Ποσοστό κέρδους επί πωλήσεων (%)"]/100,
+            discount_rate=new_params["Ποσοστό έκπτωσης (discount rate) (%)"]/100
         )
-        values.append(new_clv - base_clv)
+        values.append(new_clv - base)
 
     y_pos = np.arange(len(labels))
     fig, ax = plt.subplots()
@@ -79,11 +75,35 @@ def show_home():
     > 🧮 Εδώ, τα οικονομικά είναι στα χέρια σου. Απλά, καθαρά, χρήσιμα.
     """)
 
+    tab1, tab2, tab3 = st.tabs(["📊 Οικονομικά Εργαλεία", "📈 Σενάρια & Στρατηγικές", "💼 Πελάτες & Χρηματοδότηση"])
+
+    with tab1:
+        st.markdown("""
+        - 📊 Υπολογισμός Νεκρού Σημείου (Break-Even)
+        - 📦 Διαχείριση Αποθεμάτων (υπό υλοποίηση)
+        - 📥 Διαχείριση Εισπρακτέων Λογαριασμών (υπό υλοποίηση)
+        - 📤 Διαχείριση Πληρωτέων Λογαριασμών (υπό υλοποίηση)
+        - ⚙️ Μέσο Κόστος Παραγωγής ανά Μονάδα σε Οχτάωρο και Υπερωρίες (υπό υλοποίηση)
+        """)
+
+    with tab2:
+        st.markdown("""
+        - 📈 Ανάλυση του Νεκρού Σημείου με Σενάρια Τιμής, Κόστους & Πάγιων Επενδύσεων (υπό υλοποίηση)
+        - 🔄 Αλληλεπίδραση Υποκατάστατων και Συμπληρωματικών Προϊόντων (υπό υλοποίηση)
+        """)
+
+    with tab3:
+        st.markdown("""
+        - 💰 Υπολογισμός Αξίας Πελάτη (Customer Lifetime Value)
+        - 🏦 Απόφαση Χρηματοδότησης: Δάνειο ή Leasing; (υπό υλοποίηση)
+        - 💼 Χρηματοοικονομική Αξιολόγηση Νέων Επενδύσεων (υπό υλοποίηση)
+        """)
+
 def show_break_even():
     st.title("📊 Υπολογιστής Νεκρού Σημείου (Break-Even)")
-    price_per_unit = st.number_input("Τιμή πώλησης ανά μονάδα (€)", value=100.0, min_value=0.0)
-    variable_cost = st.number_input("Μεταβλητό κόστος ανά μονάδα (€)", value=75.0, min_value=0.0)
-    fixed_costs = st.number_input("Σταθερά κόστη (€)", value=25000.0, min_value=0.0)
+    price_per_unit = st.number_input("Τιμή πώλησης ανά μονάδα (€)", value=1000.0, min_value=0.0)
+    variable_cost = st.number_input("Μεταβλητό κόστος ανά μονάδα (€)", value=720.0, min_value=0.0)
+    fixed_costs = st.number_input("Σταθερά κόστη (€)", value=261000.0, min_value=0.0)
 
     break_even_units, break_even_revenue = calculate_break_even(price_per_unit, variable_cost, fixed_costs)
     if break_even_units is None:
@@ -99,12 +119,10 @@ def show_clv():
     st.title("📈 Αξία Πελάτη (Customer Lifetime Value)")
 
     params = {
-        "Χρόνος παραμονής πελάτη (έτη)": 3.0,
-        "Αγορές ανά περίοδο": 5.0,
-        "Τιμή πώλησης (€)": 5000.0,
-        "Κόστος ανά μονάδα (€)": 3000.0,
-        "Ετήσιο κόστος marketing (€)": 2000.0,
-        "Προεξοφλητικό επιτόκιο (%)": 7.0,
+        "Μέση τιμή ανά παραγγελία (€)": 500.0,
+        "Αριθμός παραγγελιών ανά χρόνο": 3.0,
+        "Ποσοστό κέρδους επί πωλήσεων (%)": 40.0,
+        "Ποσοστό έκπτωσης (discount rate) (%)": 12.0,
     }
 
     st.markdown("**Ρύθμισε τις παραμέτρους:**")
@@ -112,15 +130,13 @@ def show_clv():
         params[key] = st.number_input(key, value=float(params[key]), min_value=0.0)
 
     clv = calculate_clv(
-        remaining_years=params["Χρόνος παραμονής πελάτη (έτη)"],
-        purchases_per_period=params["Αγορές ανά περίοδο"],
-        price_per_unit=params["Τιμή πώλησης (€)"],
-        unit_cost=params["Κόστος ανά μονάδα (€)"],
-        marketing_cost=params["Ετήσιο κόστος marketing (€)"],
-        discount_rate=params["Προεξοφλητικό επιτόκιο (%)"] / 100
+        avg_order_value=params["Μέση τιμή ανά παραγγελία (€)"],
+        orders_per_year=params["Αριθμός παραγγελιών ανά χρόνο"],
+        profit_margin=params["Ποσοστό κέρδους επί πωλήσεων (%)"] / 100,
+        discount_rate=params["Ποσοστό έκπτωσης (discount rate) (%)"] / 100
     )
 
-    st.success(f"💰 Εκτιμώμενη Καθαρή Αξία Πελάτη: **{clv:,.2f} €**")
+    st.success(f"💰 Αξία Πελάτη (CLV): **{clv:,.2f} €**")
 
     plot_clv_tornado(clv, params)
 
