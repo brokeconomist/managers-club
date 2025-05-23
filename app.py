@@ -124,13 +124,56 @@ def show_clv():
 
     plot_clv_tornado(clv, params)
 
+def show_clv_multi():
+    st.title("📂 CLV για Πολλούς Πελάτες")
+
+    uploaded_file = st.file_uploader("📤 Μεταφόρτωση αρχείου CSV με δεδομένα πελατών", type=["csv"])
+
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file)
+        st.dataframe(df)
+
+        # Βεβαιωθείτε ότι οι απαιτούμενες στήλες υπάρχουν
+        required_columns = [
+            "Χρόνος παραμονής (έτη)", "Αγορές/έτος", "Τιμή (€)", "Κόστος (€)", "Marketing (€)", "Προεξοφλητικό (%)"
+        ]
+        if not all(col in df.columns for col in required_columns):
+            st.error("Το αρχείο πρέπει να περιέχει τις εξής στήλες: " + ", ".join(required_columns))
+            return
+
+        df["CLV"] = df.apply(lambda row: calculate_clv(
+            remaining_years=row["Χρόνος παραμονής (έτη)"],
+            purchases_per_period=row["Αγορές/έτος"],
+            price_per_unit=row["Τιμή (€)"],
+            unit_cost=row["Κόστος (€)"],
+            marketing_cost=row["Marketing (€)"],
+            discount_rate=row["Προεξοφλητικό (%)"] / 100
+        ), axis=1)
+
+        st.success("✅ Υπολογίστηκε το CLV για όλους τους πελάτες.")
+        st.dataframe(df)
+
+        avg_params = df[required_columns].mean()
+        avg_clv = df["CLV"].mean()
+
+        st.markdown("### 📊 Μέση Ανάλυση Ευαισθησίας")
+        plot_clv_tornado(avg_clv, {
+            "Χρόνος παραμονής πελάτη (έτη)": avg_params["Χρόνος παραμονής (έτη)"],
+            "Αγορές ανά περίοδο": avg_params["Αγορές/έτος"],
+            "Τιμή πώλησης (€)": avg_params["Τιμή (€)"],
+            "Κόστος ανά μονάδα (€)": avg_params["Κόστος (€)"],
+            "Ετήσιο κόστος marketing (€)": avg_params["Marketing (€)"],
+            "Προεξοφλητικό επιτόκιο (%)": avg_params["Προεξοφλητικό (%)"]
+        })
+
 ### MAIN ###
 
 def main():
     page = st.sidebar.selectbox("Μετάβαση σε:", [
         "🏠 Αρχική",
         "📊 Break-Even",
-        "📈 Αξία Πελάτη"
+        "📈 Αξία Πελάτη",
+        "📂 CLV για Πολλούς Πελάτες"
     ])
 
     if page == "🏠 Αρχική":
@@ -139,6 +182,8 @@ def main():
         show_break_even()
     elif page == "📈 Αξία Πελάτη":
         show_clv()
+    elif page == "📂 CLV για Πολλούς Πελάτες":
+        show_clv_multi()
 
 if __name__ == "__main__":
     main()
