@@ -15,9 +15,10 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
 
-def calculate_clv(avg_order_value, orders_per_year, profit_margin, discount_rate):
-    clv = (avg_order_value * orders_per_year * profit_margin) / (1 + discount_rate)
-    return clv
+def calculate_clv_custom(retention_years, orders_per_period, price, cost, marketing, discount):
+    total_cash_flow = (orders_per_period * (price - cost)) - marketing
+    present_value = total_cash_flow / ((1 + discount) ** retention_years)
+    return total_cash_flow, present_value
 
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
@@ -33,32 +34,6 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.set_ylabel("€")
     ax.set_title("Break-Even Analysis")
     ax.legend()
-    st.pyplot(fig)
-
-def plot_clv_tornado(clv, params_dict):
-    labels = list(params_dict.keys())
-    values = []
-    base = clv
-    for key, val in params_dict.items():
-        delta = 0.1 * val if val != 0 else 1
-        new_params = params_dict.copy()
-        new_params[key] = val + delta
-        new_clv = calculate_clv(
-            avg_order_value=new_params["Μέση τιμή ανά παραγγελία (€)"],
-            orders_per_year=new_params["Αριθμός παραγγελιών ανά χρόνο"],
-            profit_margin=new_params["Ποσοστό κέρδους επί πωλήσεων (%)"]/100,
-            discount_rate=new_params["Ποσοστό έκπτωσης (discount rate) (%)"]/100
-        )
-        values.append(new_clv - base)
-
-    y_pos = np.arange(len(labels))
-    fig, ax = plt.subplots()
-    ax.barh(y_pos, values, align='center')
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels(labels)
-    ax.invert_yaxis()
-    ax.set_xlabel("Επίδραση στην Αξία Πελάτη (€)")
-    ax.set_title("Ανάλυση Ευαισθησίας - Tornado Chart")
     st.pyplot(fig)
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
@@ -118,27 +93,21 @@ def show_break_even():
 def show_clv():
     st.title("📈 Αξία Πελάτη (Customer Lifetime Value)")
 
-    params = {
-        "Μέση τιμή ανά παραγγελία (€)": 500.0,
-        "Αριθμός παραγγελιών ανά χρόνο": 3.0,
-        "Ποσοστό κέρδους επί πωλήσεων (%)": 40.0,
-        "Ποσοστό έκπτωσης (discount rate) (%)": 12.0,
-    }
+    st.markdown("""
+    Εισήγαγε τις παραμέτρους για τον υπολογισμό της εκτιμώμενης συνολικής και καθαρής αξίας των μελλοντικών εισπράξεων από τον πελάτη:
+    """)
 
-    st.markdown("**Ρύθμισε τις παραμέτρους:**")
-    for key in params:
-        params[key] = st.number_input(key, value=float(params[key]), min_value=0.0)
+    retention_years = st.number_input("📅 Εκτιμώμενος Χρόνος που ο Πελάτης Παραμένει (σε έτη)", value=5.0, min_value=0.0)
+    orders_per_period = st.number_input("🛒 Εκτιμώμενη Πρόβλεψη Αγορών ανά Περίοδο", value=10.0, min_value=0.0)
+    price = st.number_input("💶 Τιμή Πώλησης για τον Πελάτη (€)", value=100.0, min_value=0.0)
+    cost = st.number_input("⚙️ Κόστος ανά Μονάδα (€)", value=60.0, min_value=0.0)
+    marketing = st.number_input("📢 Ετήσιες Δαπάνες Μάρκετινγκ ειδικά για τον Πελάτη (€)", value=100.0, min_value=0.0)
+    discount = st.number_input("📉 Προεξοφλητικό Επιτόκιο (%)", value=10.0, min_value=0.0) / 100
 
-    clv = calculate_clv(
-        avg_order_value=params["Μέση τιμή ανά παραγγελία (€)"],
-        orders_per_year=params["Αριθμός παραγγελιών ανά χρόνο"],
-        profit_margin=params["Ποσοστό κέρδους επί πωλήσεων (%)"] / 100,
-        discount_rate=params["Ποσοστό έκπτωσης (discount rate) (%)"] / 100
-    )
+    total_cf, present_val = calculate_clv_custom(retention_years, orders_per_period, price, cost, marketing, discount)
 
-    st.success(f"💰 Αξία Πελάτη (CLV): **{clv:,.2f} €**")
-
-    plot_clv_tornado(clv, params)
+    st.success(f"📦 Εκτιμώμενη Συνολική Αξία Μελλοντικών Εισπράξεων: **{total_cf:,.2f} €**")
+    st.success(f"💰 Εκτιμώμενη Καθαρή Παρούσα Αξία Εισπράξεων: **{present_val:,.2f} €**")
 
 ### MAIN ###
 
@@ -157,4 +126,3 @@ def main():
         show_clv()
 
 if __name__ == "__main__":
-    main()
