@@ -162,11 +162,11 @@ def show_clv():
     st.markdown("**Συμπλήρωσε τις παρακάτω παραμέτρους για να υπολογίσεις την CLV:**")
 
     years_retained = st.number_input("📆 Εκτιμώμενος Χρόνος Που Ο Πελάτης Παραμένει (σε έτη)", min_value=0.0, value=3.0)
-    purchases_per_period = st.number_input("🛒 Εκτιμώμενη Πρόβλεψη Αγορών Ανά Περίοδο", min_value=0.0, value=5.0)
-    price_per_unit = st.number_input("💶 Τιμή Πώλησης για τον Πελάτη (€)", min_value=0.0, value=100.0)
-    cost_per_unit = st.number_input("🧾 Κόστος Ανά Μονάδα (€)", min_value=0.0, value=60.0)
-    marketing_cost = st.number_input("📣 Ετήσιες Δαπάνες Μάρκετινγκ (€)", min_value=0.0, value=50.0)
-    discount_rate_percent = st.number_input("🏦 Προεξοφλητικό Επιτόκιο (%)", min_value=0.0, value=10.0)
+    purchases_per_period = st.number_input("🛒 Εκτιμώμενη Πρόβλεψη Αγορών Ανά Περίοδο", min_value=0.0, value=15.0)
+    price_per_unit = st.number_input("💶 Τιμή Πώλησης για τον Πελάτη (€)", min_value=0.0, value=500.0)
+    cost_per_unit = st.number_input("🧾 Κόστος Ανά Μονάδα (€)", min_value=0.0, value=360.0)
+    marketing_cost = st.number_input("📣 Ετήσιες Δαπάνες Μάρκετινγκ (€)", min_value=0.0, value=500.0)
+    discount_rate_percent = st.number_input("🏦 Προεξοφλητικό Επιτόκιο (%)", min_value=0.0, value=5.0)
 
     discount_rate = discount_rate_percent / 100.0
 
