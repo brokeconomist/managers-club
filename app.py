@@ -15,10 +15,18 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
 
-def calculate_clv_custom(retention_years, orders_per_period, price, cost, marketing, discount):
-    total_cash_flow = (orders_per_period * (price - cost)) - marketing
-    present_value = total_cash_flow / ((1 + discount) ** retention_years)
-    return total_cash_flow, present_value
+ddef calculate_custom_clv(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    annual_marketing_cost,
+    discount_rate
+):
+    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
+    net_cash_flow = gross_profit - annual_marketing_cost
+    clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
+    return clv
 
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
@@ -93,21 +101,27 @@ def show_break_even():
 def show_clv():
     st.title("📈 Αξία Πελάτη (Customer Lifetime Value)")
 
-    st.markdown("""
-    Εισήγαγε τις παραμέτρους για τον υπολογισμό της εκτιμώμενης συνολικής και καθαρής αξίας των μελλοντικών εισπράξεων από τον πελάτη:
-    """)
+    st.markdown("**Συμπλήρωσε τις παρακάτω παραμέτρους για να υπολογίσεις την CLV:**")
 
-    retention_years = st.number_input("📅 Εκτιμώμενος Χρόνος που ο Πελάτης Παραμένει (σε έτη)", value=5.0, min_value=0.0)
-    orders_per_period = st.number_input("🛒 Εκτιμώμενη Πρόβλεψη Αγορών ανά Περίοδο", value=10.0, min_value=0.0)
-    price = st.number_input("💶 Τιμή Πώλησης για τον Πελάτη (€)", value=100.0, min_value=0.0)
-    cost = st.number_input("⚙️ Κόστος ανά Μονάδα (€)", value=60.0, min_value=0.0)
-    marketing = st.number_input("📢 Ετήσιες Δαπάνες Μάρκετινγκ ειδικά για τον Πελάτη (€)", value=100.0, min_value=0.0)
-    discount = st.number_input("📉 Προεξοφλητικό Επιτόκιο (%)", value=10.0, min_value=0.0) / 100
+    years_retained = st.number_input("📆 Εκτιμώμενος Χρόνος Που Ο Πελάτης Παραμένει (σε έτη)", min_value=0.0, value=3.0)
+    purchases_per_period = st.number_input("🛒 Εκτιμώμενη Πρόβλεψη Αγορών Ανά Περίοδο", min_value=0.0, value=5.0)
+    price_per_unit = st.number_input("💶 Τιμή Πώλησης για τον Πελάτη (€)", min_value=0.0, value=100.0)
+    cost_per_unit = st.number_input("🧾 Κόστος Ανά Μονάδα (€)", min_value=0.0, value=60.0)
+    marketing_cost = st.number_input("📣 Ετήσιες Δαπάνες Μάρκετινγκ (€)", min_value=0.0, value=50.0)
+    discount_rate_percent = st.number_input("🏦 Προεξοφλητικό Επιτόκιο (%)", min_value=0.0, value=10.0)
 
-    total_cf, present_val = calculate_clv_custom(retention_years, orders_per_period, price, cost, marketing, discount)
+    discount_rate = discount_rate_percent / 100.0
 
-    st.success(f"📦 Εκτιμώμενη Συνολική Αξία Μελλοντικών Εισπράξεων: **{total_cf:,.2f} €**")
-    st.success(f"💰 Εκτιμώμενη Καθαρή Παρούσα Αξία Εισπράξεων: **{present_val:,.2f} €**")
+    clv = calculate_custom_clv(
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        marketing_cost,
+        discount_rate
+    )
+
+    st.success(f"💰 Εκτιμώμενη Καθαρή Αξία Πελάτη (CLV): **{clv:,.2f} €**")
 
 ### MAIN ###
 
