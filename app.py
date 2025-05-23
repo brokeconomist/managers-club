@@ -15,7 +15,7 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
 
-ddef calculate_custom_clv(
+def calculate_custom_clv(
     years_retained,
     purchases_per_period,
     price_per_unit,
