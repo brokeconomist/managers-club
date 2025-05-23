@@ -15,14 +15,11 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
 
-def calculate_clv_custom(periods_customer_remains, purchases_per_period, price_per_unit,
-                         cost_per_unit, annual_marketing_costs, discount_rate):
-    gross_value = purchases_per_period * (price_per_unit - cost_per_unit)
-    total_value = gross_value * periods_customer_remains - annual_marketing_costs
-    net_clv = total_value / (1 + discount_rate) ** periods_customer_remains
-    return net_clv, total_value
+def calculate_clv(avg_order_value, orders_per_year, profit_margin, discount_rate):
+    clv = (avg_order_value * orders_per_year * profit_margin) / (1 + discount_rate)
+    return clv
 
-### ΓΡΑΦΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
+### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
 def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
     units = list(range(0, int(break_even_units * 2) + 1))
@@ -38,122 +35,126 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
-def plot_clv_tornado_aggregate(data, base_params):
-    param_names = list(base_params.keys())
-    effects = []
+def plot_clv_tornado(clv, params_dict):
+    labels = list(params_dict.keys())
+    values = []
+    base = clv
+    for key, val in params_dict.items():
+        delta = 0.1 * val if val != 0 else 1
+        new_params = params_dict.copy()
+        new_params[key] = val + delta
+        new_clv = calculate_clv(
+            avg_order_value=new_params["Μέση τιμή ανά παραγγελία (€)"],
+            orders_per_year=new_params["Αριθμός παραγγελιών ανά χρόνο"],
+            profit_margin=new_params["Ποσοστό κέρδους επί πωλήσεων (%)"]/100,
+            discount_rate=new_params["Ποσοστό έκπτωσης (discount rate) (%)"]/100
+        )
+        values.append(new_clv - base)
 
-    for param in param_names:
-        deltas = []
-
-        for change in [-0.1, 0.1]:
-            temp_params = base_params.copy()
-            temp_params[param] *= (1 + change)
-            temp_data = data.copy()
-
-            for col in temp_params:
-                if col in temp_data.columns:
-                    temp_data[col] = temp_params[col]
-
-            temp_data["CLV"] = temp_data.apply(lambda row: calculate_clv_custom(
-                row["Χρόνος Πιστότητας"],
-                row["Αγορές ανά Περίοδο"],
-                row["Τιμή Πώλησης"],
-                row["Κόστος ανά Μονάδα"],
-                row["Μάρκετινγκ"],
-                row["Προεξόφληση"]
-            )[0], axis=1)
-
-            avg_clv = temp_data["CLV"].mean()
-            deltas.append(avg_clv)
-
-        effects.append(max(deltas) - min(deltas))
-
-    y_pos = np.arange(len(param_names))
+    y_pos = np.arange(len(labels))
     fig, ax = plt.subplots()
-    ax.barh(y_pos, effects, align='center')
+    ax.barh(y_pos, values, align='center')
     ax.set_yticks(y_pos)
-    ax.set_yticklabels(param_names)
+    ax.set_yticklabels(labels)
     ax.invert_yaxis()
-    ax.set_xlabel("Επίδραση στον Μέσο CLV (€)")
-    ax.set_title("Ανάλυση Ευαισθησίας - Tornado Chart (Συνολικά)")
+    ax.set_xlabel("Επίδραση στην Αξία Πελάτη (€)")
+    ax.set_title("Ανάλυση Ευαισθησίας - Tornado Chart")
     st.pyplot(fig)
 
-### UI ΕΝΟΤΗΤΕΣ ###
+### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def show_home():
     st.title("📊 Managers’ Club")
-    st.markdown("### 💼 Ο οικονομικός βοηθός κάθε μικρομεσαίας επιχείρησης")
-    st.markdown("Το **Managers’ Club** είναι μια online εφαρμογή που σε βοηθά να παίρνεις οικονομικές αποφάσεις χωρίς πολύπλοκα οικονομικά.")
+    st.markdown("""
+    ### 💼 Ο οικονομικός βοηθός κάθε μικρομεσαίας επιχείρησης
+
+    **Καλώς ήρθες!**
+
+    Το **Managers’ Club** είναι μια online εφαρμογή που σε βοηθά να παίρνεις οικονομικές αποφάσεις χωρίς πολύπλοκα οικονομικά.
+
+    > 🧮 Εδώ, τα οικονομικά είναι στα χέρια σου. Απλά, καθαρά, χρήσιμα.
+    """)
+
+    tab1, tab2, tab3 = st.tabs(["📊 Οικονομικά Εργαλεία", "📈 Σενάρια & Στρατηγικές", "💼 Πελάτες & Χρηματοδότηση"])
+
+    with tab1:
+        st.markdown("""
+        - 📊 Υπολογισμός Νεκρού Σημείου (Break-Even)
+        - 📦 Διαχείριση Αποθεμάτων (υπό υλοποίηση)
+        - 📥 Διαχείριση Εισπρακτέων Λογαριασμών (υπό υλοποίηση)
+        - 📤 Διαχείριση Πληρωτέων Λογαριασμών (υπό υλοποίηση)
+        - ⚙️ Μέσο Κόστος Παραγωγής ανά Μονάδα σε Οχτάωρο και Υπερωρίες (υπό υλοποίηση)
+        """)
+
+    with tab2:
+        st.markdown("""
+        - 📈 Ανάλυση του Νεκρού Σημείου με Σενάρια Τιμής, Κόστους & Πάγιων Επενδύσεων (υπό υλοποίηση)
+        - 🔄 Αλληλεπίδραση Υποκατάστατων και Συμπληρωματικών Προϊόντων (υπό υλοποίηση)
+        """)
+
+    with tab3:
+        st.markdown("""
+        - 💰 Υπολογισμός Αξίας Πελάτη (Customer Lifetime Value)
+        - 🏦 Απόφαση Χρηματοδότησης: Δάνειο ή Leasing; (υπό υλοποίηση)
+        - 💼 Χρηματοοικονομική Αξιολόγηση Νέων Επενδύσεων (υπό υλοποίηση)
+        """)
 
 def show_break_even():
     st.title("📊 Υπολογιστής Νεκρού Σημείου (Break-Even)")
-    price = st.number_input("Τιμή Πώλησης (€)", value=1000.0, min_value=0.0)
-    variable = st.number_input("Μεταβλητό Κόστος (€)", value=720.0, min_value=0.0)
-    fixed = st.number_input("Σταθερά Κόστη (€)", value=261000.0, min_value=0.0)
-    units, revenue = calculate_break_even(price, variable, fixed)
-    if units is None:
-        st.warning("Η τιμή πώλησης πρέπει να είναι μεγαλύτερη από το κόστος.")
+    price_per_unit = st.number_input("Τιμή πώλησης ανά μονάδα (€)", value=1000.0, min_value=0.0)
+    variable_cost = st.number_input("Μεταβλητό κόστος ανά μονάδα (€)", value=720.0, min_value=0.0)
+    fixed_costs = st.number_input("Σταθερά κόστη (€)", value=261000.0, min_value=0.0)
+
+    break_even_units, break_even_revenue = calculate_break_even(price_per_unit, variable_cost, fixed_costs)
+    if break_even_units is None:
+        st.warning("Η τιμή πώλησης πρέπει να είναι μεγαλύτερη από το μεταβλητό κόστος.")
         return
-    st.success(f"🔹 Νεκρό Σημείο: **{units:.2f} μονάδες**, **{revenue:,.2f} €**")
-    plot_break_even(price, variable, fixed, units)
 
-def show_clv_single():
-    st.title("📈 Αξία Πελάτη (CLV - Μοναδικός Πελάτης)")
-    periods = st.number_input("Χρόνος Πιστότητας (έτη)", value=3.0)
-    purchases = st.number_input("Αγορές ανά Περίοδο", value=3.0)
-    price = st.number_input("Τιμή Πώλησης (€)", value=500.0)
-    cost = st.number_input("Κόστος ανά Μονάδα (€)", value=300.0)
-    marketing = st.number_input("Μάρκετινγκ (€ ανά έτος)", value=100.0)
-    discount = st.number_input("Προεξόφληση (%)", value=10.0) / 100
+    st.success(f"🔹 Νεκρό Σημείο σε Μονάδες: **{break_even_units:.2f}**")
+    st.success(f"🔹 Νεκρό Σημείο σε Πωλήσεις (€): **{break_even_revenue:,.2f}**")
 
-    net_clv, gross = calculate_clv_custom(periods, purchases, price, cost, marketing, discount)
-    st.success(f"💰 Καθαρή Αξία Πελάτη: **{net_clv:,.2f} €**")
-    st.caption(f"Μικτή Αξία Προ Φόρων: {gross:,.2f} €")
+    plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units)
 
-def show_clv_multiple():
-    st.title("📊 CLV για Πολλούς Πελάτες")
-    uploaded = st.file_uploader("🔽 Ανέβασε CSV με δεδομένα πελατών", type="csv")
-    if uploaded is not None:
-        df = pd.read_csv(uploaded)
-        required_cols = ["Χρόνος Πιστότητας", "Αγορές ανά Περίοδο", "Τιμή Πώλησης",
-                         "Κόστος ανά Μονάδα", "Μάρκετινγκ", "Προεξόφληση"]
-        if not all(col in df.columns for col in required_cols):
-            st.error(f"Το αρχείο πρέπει να περιέχει τις στήλες: {', '.join(required_cols)}")
-            return
+def show_clv():
+    st.title("📈 Αξία Πελάτη (Customer Lifetime Value)")
 
-        df["CLV"], df["Ακαθάριστη Αξία"] = zip(*df.apply(lambda row: calculate_clv_custom(
-            row["Χρόνος Πιστότητας"],
-            row["Αγορές ανά Περίοδο"],
-            row["Τιμή Πώλησης"],
-            row["Κόστος ανά Μονάδα"],
-            row["Μάρκετινγκ"],
-            row["Προεξόφληση"]
-        ), axis=1))
+    params = {
+        "Μέση τιμή ανά παραγγελία (€)": 500.0,
+        "Αριθμός παραγγελιών ανά χρόνο": 3.0,
+        "Ποσοστό κέρδους επί πωλήσεων (%)": 40.0,
+        "Ποσοστό έκπτωσης (discount rate) (%)": 12.0,
+    }
 
-        st.dataframe(df.style.format({"CLV": "{:,.2f}", "Ακαθάριστη Αξία": "{:,.2f}"}))
-        st.success(f"📈 Μέση Καθαρή Αξία Πελάτη: **{df['CLV'].mean():,.2f} €**")
+    st.markdown("**Ρύθμισε τις παραμέτρους:**")
+    for key in params:
+        params[key] = st.number_input(key, value=float(params[key]), min_value=0.0)
 
-        base_params = {col: df[col].mean() for col in required_cols}
-        plot_clv_tornado_aggregate(df, base_params)
+    clv = calculate_clv(
+        avg_order_value=params["Μέση τιμή ανά παραγγελία (€)"],
+        orders_per_year=params["Αριθμός παραγγελιών ανά χρόνο"],
+        profit_margin=params["Ποσοστό κέρδους επί πωλήσεων (%)"] / 100,
+        discount_rate=params["Ποσοστό έκπτωσης (discount rate) (%)"] / 100
+    )
+
+    st.success(f"💰 Αξία Πελάτη (CLV): **{clv:,.2f} €**")
+
+    plot_clv_tornado(clv, params)
 
 ### MAIN ###
 
 def main():
-    tab = st.sidebar.radio("Μετάβαση σε:", [
+    page = st.sidebar.selectbox("Μετάβαση σε:", [
         "🏠 Αρχική",
         "📊 Break-Even",
-        "📈 CLV Μοναδικού Πελάτη",
-        "📊 CLV Πολλών Πελατών"
+        "📈 Αξία Πελάτη"
     ])
 
-    if tab == "🏠 Αρχική":
+    if page == "🏠 Αρχική":
         show_home()
-    elif tab == "📊 Break-Even":
+    elif page == "📊 Break-Even":
         show_break_even()
-    elif tab == "📈 CLV Μοναδικού Πελάτη":
-        show_clv_single()
-    elif tab == "📊 CLV Πολλών Πελατών":
-        show_clv_multiple()
+    elif page == "📈 Αξία Πελάτη":
+        show_clv()
 
 if __name__ == "__main__":
     main()
