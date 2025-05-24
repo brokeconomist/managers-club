@@ -89,14 +89,20 @@ def calculate_break_even_shift(
     units_sold
 ):
     denominator = new_price - new_unit_cost
-    if denominator == 0:
-        return None  # αποφυγή διαίρεσης με το μηδέν
+    if denominator == 0 or units_sold == 0:
+        return None, None  # αποφυγή διαίρεσης με το μηδέν
 
+    # Ποσοστιαία μεταβολή νεκρού σημείου
     margin_effect = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator
     investment_effect = investment_cost / (denominator * units_sold)
-    break_even_change = margin_effect + investment_effect
-    return break_even_change * 100  # Ποσοστιαία μεταβολή
+    break_even_change_percent = (margin_effect + investment_effect) * 100
 
+    # Μεταβολή νεκρού σημείου σε μονάδες
+    margin_units_effect = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / (denominator * units_sold)
+    investment_units_effect = investment_cost / denominator
+    break_even_change_units = margin_units_effect + investment_units_effect
+
+    return break_even_change_percent, break_even_change_units
 
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
