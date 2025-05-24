@@ -82,27 +82,28 @@ def plot_clv_tornado_chart(
     ax.set_title("Tornado Chart Ευαισθησίας CLV")
     st.pyplot(fig)
 
-def calculate_break_even_shift(
-    old_price, new_price,
-    old_unit_cost, new_unit_cost,
-    investment_cost,
-    units_sold
-):
-    denominator = new_price - new_unit_cost
-    if denominator == 0 or units_sold == 0:
-        return None, None  # Αποφυγή διαίρεσης με το μηδέν
+def show_investment_impact():
+    st.title("📉 Μεταβολή Νεκρού Σημείου λόγω Νέας Επένδυσης")
 
-    # Ποσοστιαία μεταβολή νεκρού σημείου (%)
-    margin_effect = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator
-    investment_effect = investment_cost / (denominator * units_sold)
-    break_even_change_percent = (margin_effect + investment_effect) * 100
+    old_price = st.number_input("Παλαιά Τιμή Πώλησης (€)", value=10.0)
+    new_price = st.number_input("Νέα Τιμή Πώλησης (€)", value=9.5)
+    old_unit_cost = st.number_input("Παλαιό Κόστος ανά Μονάδα (€)", value=5.3)
+    new_unit_cost = st.number_input("Νέο Κόστος ανά Μονάδα (€)", value=5.1)
+    investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=800.0)
+    units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=4000.0, min_value=10.0)
 
-    # Μεταβολή νεκρού σημείου σε μονάδες
-    margin_units_effect = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator / units_sold
-    investment_units_effect = investment_cost / denominator
-    break_even_change_units = margin_units_effect + investment_units_effect
+    change_percent, change_units = calculate_break_even_shift(
+        old_price, new_price,
+        old_unit_cost, new_unit_cost,
+        investment_cost, units_sold
+    )
 
-    return break_even_change_percent, break_even_change_units
+    if change_percent is None or change_units is None:
+        st.warning("Δεν ήταν δυνατός ο υπολογισμός λόγω μηδενικού παρονομαστή ή πωλήσεων.")
+        return
+
+    st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{change_percent:.2f}%**")
+    st.success(f"🔁 Μεταβολή στο Νεκρό Σημείο σε Μονάδες: **{change_units:.2f}**")
 
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
