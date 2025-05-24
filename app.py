@@ -165,7 +165,7 @@ def show_investment_impact():
     old_unit_cost = st.number_input("Παλαιό Κόστος ανά Μονάδα (€)", value=5.3)
     new_unit_cost = st.number_input("Νέο Κόστος ανά Μονάδα (€)", value=5.1)
     investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=800.0)
-    units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=1000.0, min_value=4000.0)
+    units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=4000.0, min_value=10.0)
 
     change_percent = calculate_break_even_shift(
         old_price, new_price,
