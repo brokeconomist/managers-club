@@ -66,6 +66,29 @@ def calculate_custom_clv(
     clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
     return clv
 
+def calculate_max_watermelon_loss(
+    old_price,
+    price_increase_pct,
+    unit_cost,
+    melon_profit,
+    grape_profit,
+    fig_profit,
+    percent_melon,
+    percent_grape,
+    percent_fig
+):
+    new_price = old_price * (1 + price_increase_pct)
+    old_profit = old_price - unit_cost
+    replacement_profit = (percent_melon * melon_profit + percent_grape * grape_profit + percent_fig * fig_profit)
+
+    numerator = -price_increase_pct
+    denominator = ((old_profit - replacement_profit) / new_price) + price_increase_pct
+
+    if denominator == 0:
+        return None
+
+    return numerator / denominator * 100
+    
 def plot_clv_tornado_chart(
     years_retained,
     purchases_per_period,
@@ -133,6 +156,41 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.set_title("Break-Even Analysis")
     ax.legend()
     st.pyplot(fig)
+
+### ΝΕΟ MODULE: Εκτίμηση Μείωσης Καρπουζιού ###
+
+def show_max_watermelon_loss():
+    st.header("📉 Εκτίμηση Μέγιστης Μείωσης Πωλήσεων Καρπουζιού Χωρίς Απώλεια Κερδοφορίας")
+
+    old_price = 1.50
+    unit_cost = 1.20
+    price_increase_pct = 0.05
+
+    melon_profit = 0.20
+    grape_profit = 0.20
+    fig_profit = 0.05
+
+    percent_melon = 0.40
+    percent_grape = 0.20
+    percent_fig = 0.05
+
+    max_loss_pct = calculate_max_watermelon_loss(
+        old_price,
+        price_increase_pct,
+        unit_cost,
+        melon_profit,
+        grape_profit,
+        fig_profit,
+        percent_melon,
+        percent_grape,
+        percent_fig
+    )
+
+    if max_loss_pct is not None:
+        st.success(f"Μέγιστη αποδεκτή μείωση πωλήσεων καρπουζιού: {format_number_gr(max_loss_pct)}%")
+    else:
+        st.error("Σφάλμα υπολογισμού. Ελέγξτε τα δεδομένα εισόδου.")
+
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
