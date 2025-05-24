@@ -15,6 +15,29 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
 
+def calculate_break_even_shift(
+    old_price, new_price,
+    old_unit_cost, new_unit_cost,
+    investment_cost, units_sold
+):
+    # Υπολογισμός νέων και παλαιών σταθερών κόστους προσθέτοντας την επένδυση
+    old_contribution_margin = old_price - old_unit_cost
+    new_contribution_margin = new_price - new_unit_cost
+
+    if old_contribution_margin <= 0 or new_contribution_margin <= 0 or units_sold == 0:
+        return None, None  # Αδύνατος υπολογισμός
+
+    old_fixed_costs = investment_cost  # Υποθέτουμε η επένδυση αυξάνει τα σταθερά κόστη
+    old_break_even_units = old_fixed_costs / old_contribution_margin
+    new_fixed_costs = old_fixed_costs + investment_cost  # Εδώ αν θέλεις μπορείς να το αλλάξεις
+    new_break_even_units = (old_fixed_costs + investment_cost) / new_contribution_margin
+
+    # Υπολογισμός μεταβολών
+    change_units = new_break_even_units - old_break_even_units
+    change_percent = (change_units / old_break_even_units) * 100 if old_break_even_units != 0 else None
+
+    return change_percent, change_units
+
 def calculate_custom_clv(
     years_retained,
     purchases_per_period,
@@ -81,33 +104,6 @@ def plot_clv_tornado_chart(
     ax.set_xlabel("Μεταβολή στην CLV (€)")
     ax.set_title("Tornado Chart Ευαισθησίας CLV")
     st.pyplot(fig)
-
-def show_investment_impact():
-    st.title("📉 Μεταβολή Νεκρού Σημείου λόγω Νέας Επένδυσης")
-
-    old_price = st.number_input("Παλαιά Τιμή Πώλησης (€)", value=10.0)
-    new_price = st.number_input("Νέα Τιμή Πώλησης (€)", value=9.5)
-    old_unit_cost = st.number_input("Παλαιό Κόστος ανά Μονάδα (€)", value=5.3)
-    new_unit_cost = st.number_input("Νέο Κόστος ανά Μονάδα (€)", value=5.1)
-    investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=800.0)
-    units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=4000.0, min_value=10.0)
-
-    result = calculate_break_even_shift(
-        old_price, new_price,
-        old_unit_cost, new_unit_cost,
-        investment_cost, units_sold
-    )
-
-    if result == (None, None):
-        st.warning("Δεν ήταν δυνατός ο υπολογισμός λόγω μηδενικού παρονομαστή ή πωλήσεων.")
-        return
-
-    change_percent, change_units = result
-
-    st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{change_percent:.2f}%**")
-    st.success(f"🔁 Μεταβολή στο Νεκρό Σημείο σε Μονάδες: **{change_units:.2f}**")
-
-### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
 def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
     units = list(range(0, int(break_even_units * 2) + 1))
@@ -180,17 +176,17 @@ def show_investment_impact():
     investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=800.0)
     units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=4000.0, min_value=10.0)
 
-    break_even_change_percent, break_even_change_units = calculate_break_even_shift(
+    change_percent, change_units = calculate_break_even_shift(
         old_price, new_price,
         old_unit_cost, new_unit_cost,
         investment_cost, units_sold
     )
-    if break_even_change_percent is None:
+    if change_percent is None:
         st.warning("Μη έγκυρα δεδομένα για υπολογισμό (διαίρεση με μηδέν).")
         return
 
-    st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{break_even_change_percent:.2f}%**")
-    st.success(f"🔁 Μεταβολή στο Νεκρό Σημείο σε Μονάδες: **{break_even_change_units:.2f} μονάδες**")
+    st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{change_percent:.2f}%**")
+    st.success(f"🔁 Μεταβολή στο Νεκρό Σημείο σε Μονάδες: **{change_units:.2f} μονάδες**")
 
 ### ΚΥΡΙΩΣ ΡΟΗ ###
 
