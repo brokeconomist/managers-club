@@ -90,15 +90,15 @@ def calculate_break_even_shift(
 ):
     denominator = new_price - new_unit_cost
     if denominator == 0 or units_sold == 0:
-        return None, None  # αποφυγή διαίρεσης με το μηδέν
+        return None, None  # Αποφυγή διαίρεσης με το μηδέν
 
-    # Ποσοστιαία μεταβολή νεκρού σημείου
+    # Ποσοστιαία μεταβολή νεκρού σημείου (%)
     margin_effect = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator
     investment_effect = investment_cost / (denominator * units_sold)
     break_even_change_percent = (margin_effect + investment_effect) * 100
 
     # Μεταβολή νεκρού σημείου σε μονάδες
-    margin_units_effect = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / (denominator * units_sold)
+    margin_units_effect = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator / units_sold
     investment_units_effect = investment_cost / denominator
     break_even_change_units = margin_units_effect + investment_units_effect
 
@@ -177,12 +177,17 @@ def show_investment_impact():
     investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=800.0)
     units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=4000.0, min_value=10.0)
 
-    change_percent = calculate_break_even_shift(
+    break_even_change_percent, break_even_change_units = calculate_break_even_shift(
         old_price, new_price,
         old_unit_cost, new_unit_cost,
         investment_cost, units_sold
     )
-    st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{change_percent:.2f}%**")
+    if break_even_change_percent is None:
+        st.warning("Μη έγκυρα δεδομένα για υπολογισμό (διαίρεση με μηδέν).")
+        return
+
+    st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{break_even_change_percent:.2f}%**")
+    st.success(f"🔁 Μεταβολή στο Νεκρό Σημείο σε Μονάδες: **{break_even_change_units:.2f} μονάδες**")
 
 ### ΚΥΡΙΩΣ ΡΟΗ ###
 
