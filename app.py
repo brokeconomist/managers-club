@@ -134,6 +134,7 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
+
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def show_home():
