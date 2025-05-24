@@ -134,14 +134,13 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
-def calculate_max_product_A_sales_drop(old_price, price_increase_pct, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
-    new_price = old_price * (1 + price_increase_pct)
-    new_profit_A = new_price - (old_price - profit_A)
-    lost_profit = (percent_B * profit_B) + (percent_C * profit_C) + (percent_D * profit_D)
-
+def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
+    benefit_substitutes = (percent_B * profit_B + percent_C * profit_C + percent_D * profit_D)
+    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase
+    numerator = - price_increase
     try:
-        drop_pct = lost_profit / new_profit_A
-        return round(drop_pct * 100, 2)
+        max_sales_drop = numerator / denominator
+        return max_sales_drop
     except ZeroDivisionError:
         return None
 
