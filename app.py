@@ -160,12 +160,12 @@ def show_clv():
 def show_investment_impact():
     st.title("📉 Μεταβολή Νεκρού Σημείου λόγω Νέας Επένδυσης")
 
-    old_price = st.number_input("Παλαιά Τιμή Πώλησης (€)", value=100.0)
-    new_price = st.number_input("Νέα Τιμή Πώλησης (€)", value=95.0)
-    old_unit_cost = st.number_input("Παλαιό Κόστος ανά Μονάδα (€)", value=70.0)
-    new_unit_cost = st.number_input("Νέο Κόστος ανά Μονάδα (€)", value=60.0)
-    investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=10000.0)
-    units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=1000.0, min_value=1.0)
+    old_price = st.number_input("Παλαιά Τιμή Πώλησης (€)", value=10.0)
+    new_price = st.number_input("Νέα Τιμή Πώλησης (€)", value=9.5)
+    old_unit_cost = st.number_input("Παλαιό Κόστος ανά Μονάδα (€)", value=5.3)
+    new_unit_cost = st.number_input("Νέο Κόστος ανά Μονάδα (€)", value=5.1)
+    investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=800.0)
+    units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=1000.0, min_value=4000.0)
 
     change_percent = calculate_break_even_shift(
         old_price, new_price,
