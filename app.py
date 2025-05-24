@@ -366,7 +366,3 @@ elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
     show_clv_calculator()
 elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
-
-    show_clv_calculator()
-elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
-    show_price_increase_scenario()
