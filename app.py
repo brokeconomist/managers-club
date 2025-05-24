@@ -88,11 +88,15 @@ def calculate_break_even_shift(
     investment_cost,
     units_sold
 ):
-    # ΝΕΟΣ ΤΥΠΟΣ όπως ζητήθηκε
-    margin_change = (new_price - old_price) - (new_unit_cost - old_unit_cost)
-    extra_cost_ratio = investment_cost / ((new_price - new_unit_cost) * units_sold)
-    break_even_change = -margin_change + extra_cost_ratio
-    return break_even_change * 100  # Επιστρέφεται ως ποσοστό %
+    denominator = new_price - new_unit_cost
+    if denominator == 0:
+        return None  # αποφυγή διαίρεσης με το μηδέν
+
+    margin_effect = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator
+    investment_effect = investment_cost / (denominator * units_sold)
+    break_even_change = margin_effect + investment_effect
+    return break_even_change * 100  # Ποσοστιαία μεταβολή
+
 
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
