@@ -92,15 +92,17 @@ def show_investment_impact():
     investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=800.0)
     units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=4000.0, min_value=10.0)
 
-    change_percent, change_units = calculate_break_even_shift(
+    result = calculate_break_even_shift(
         old_price, new_price,
         old_unit_cost, new_unit_cost,
         investment_cost, units_sold
     )
 
-    if change_percent is None or change_units is None:
+    if result == (None, None):
         st.warning("Δεν ήταν δυνατός ο υπολογισμός λόγω μηδενικού παρονομαστή ή πωλήσεων.")
         return
+
+    change_percent, change_units = result
 
     st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{change_percent:.2f}%**")
     st.success(f"🔁 Μεταβολή στο Νεκρό Σημείο σε Μονάδες: **{change_units:.2f}**")
