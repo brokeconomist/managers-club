@@ -26,6 +26,8 @@ def format_number_gr(num, decimals=2):
 
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
 
+# (παραμένουν ίδιες, δεν τις αλλάζουμε)
+
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
         return None, None
@@ -41,12 +43,15 @@ def calculate_break_even_shift_v2(
 ):
     denominator = new_price - new_unit_cost
     if denominator == 0 or units_sold == 0:
-        return None, None
+        return None, None  # Αποφυγή διαίρεσης με 0
+
     percent_change = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator \
                      + (investment_cost / (denominator * units_sold))
+
     units_change = ( -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator * units_sold ) \
                    + (investment_cost / denominator)
-    return percent_change * 100, units_change
+
+    return percent_change * 100, units_change  # Ποσοστό %
 
 def calculate_custom_clv(
     years_retained,
@@ -129,16 +134,6 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
-def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
-    benefit_substitutes = (percent_B * profit_B + percent_C * profit_C + percent_D * profit_D)
-    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase
-    numerator = - price_increase
-    try:
-        max_sales_drop = numerator / denominator
-        return max_sales_drop
-    except ZeroDivisionError:
-        return None
-
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def show_home():
@@ -153,77 +148,130 @@ def show_home():
     > 🧮 Εδώ, τα οικονομικά είναι στα χέρια σου. Απλά, καθαρά, χρήσιμα.
     """)
 
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "📊 Οικονομικά Εργαλεία",
-        "📈 Σενάρια & Στρατηγικές",
-        "💼 Πελάτες & Χρηματοδότηση",
-        "📉 Αποδεκτή Μείωση Πωλήσεων"
-    ])
+    tab1, tab2, tab3 = st.tabs(["📊 Οικονομικά Εργαλεία", "📈 Σενάρια & Στρατηγικές", "💼 Πελάτες & Χρηματοδότηση"])
 
     with tab1:
-        show_break_even_calculator()
+        st.markdown("""
+        - 📊 Υπολογισμός Νεκρού Σημείου (Break-Even)
+        - 📦 Διαχείριση Αποθεμάτων (υπό υλοποίηση)
+        - 📥 Διαχείριση Εισπρακτέων Λογαριασμών (υπό υλοποίηση)
+        - 📤 Διαχείριση Πληρωτέων Λογαριασμών (υπό υλοποίηση)
+        - ⚙️ Μέσο Κόστος Παραγωγής ανά Μονάδα σε Οχτάωρο και Υπερωρίες (υπό υλοποίηση)
+        """)
 
     with tab2:
-        show_break_even_shift_calculator()
+        st.markdown("""
+        - 📈 Ανάλυση του Νεκρού Σημείου με Σενάρια Τιμής, Κόστους & Πάγιων
+        - 📉 Αξιολόγηση Επιπτώσεων Επένδυσης σε Νέες Υπηρεσίες ή Προϊόντα
+        """)
 
     with tab3:
-        show_clv_calculator()
+        st.markdown("""
+        - 💵 Ανάλυση Πελάτη & Διάρκειας Ζωής Πελάτη (CLV)
+        - 📅 Εκτίμηση Χρηματοδοτικών Αναγκών
+        """)
 
-    with tab4:
-        show_price_increase_scenario()
+### ΒΑΣΙΚΕΣ ΕΙΣΟΔΟΙ ΚΑΙ ΥΠΟΛΟΓΙΣΜΟΙ ###
 
 def show_break_even_calculator():
-    st.header("Υπολογιστής Νεκρού Σημείου (Break-Even)")
-    old_price = st.number_input("Τιμή Πώλησης ανά Μονάδα (€)", min_value=0.01, value=1.5, step=0.01)
-    variable_cost = st.number_input("Μεταβλητό Κόστος ανά Μονάδα (€)", min_value=0.0, value=0.7, step=0.01)
-    fixed_costs = st.number_input("Συνολικά Σταθερά Κόστη (€)", min_value=0.0, value=1000.0, step=1.0)
+    st.header("Υπολογιστής Νεκρού Σημείου (Break-Even Point)")
 
-    if st.button("Υπολόγισε Νεκρό Σημείο"):
-        units, revenue = calculate_break_even(old_price, variable_cost, fixed_costs)
-        if units is None:
-            st.error("Η τιμή πρέπει να είναι μεγαλύτερη από το μεταβλητό κόστος.")
-        else:
-            st.success(f"Νεκρό Σημείο: {units:.0f} μονάδες, ή έσοδα {revenue:.2f} €")
-            plot_break_even(old_price, variable_cost, fixed_costs, units)
+    # Είσοδοι ως ελληνικά μορφοποιημένα κείμενα
+    price_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="10,00")
+    variable_cost_input = st.text_input("Μεταβλητό Κόστος ανά Μονάδα (€):", value="6,00")
+    fixed_costs_input = st.text_input("Πάγια Έξοδα (€):", value="1000,00")
+
+    price = parse_gr_number(price_input)
+    variable_cost = parse_gr_number(variable_cost_input)
+    fixed_costs = parse_gr_number(fixed_costs_input)
+
+    if None in (price, variable_cost, fixed_costs):
+        st.warning("Παρακαλώ εισάγετε έγκυρους αριθμούς σε όλα τα πεδία.")
+        return
+
+    be_units, be_revenue = calculate_break_even(price, variable_cost, fixed_costs)
+
+    if be_units is None:
+        st.error("Η Τιμή Πώλησης πρέπει να είναι μεγαλύτερη από το Μεταβλητό Κόστος.")
+        return
+
+    st.success(f"Νεκρό Σημείο σε Μονάδες: {format_number_gr(be_units, 0)} μονάδες")
+    st.success(f"Νεκρό Σημείο σε Έσοδα: {format_number_gr(be_revenue)} €")
+
+    plot_break_even(price, variable_cost, fixed_costs, be_units)
 
 def show_break_even_shift_calculator():
-    st.header("Επίδραση Επένδυσης & Αλλαγής Τιμής στο Νεκρό Σημείο")
-    old_price = st.number_input("Παλαιά Τιμή Πώλησης (€)", min_value=0.01, value=1.50, step=0.01, key="old_price_shift")
-    new_price = st.number_input("Νέα Τιμή Πώλησης (€)", min_value=0.01, value=1.65, step=0.01, key="new_price_shift")
-    old_cost = st.number_input("Παλαιό Μεταβλητό Κόστος (€)", min_value=0.0, value=0.70, step=0.01, key="old_cost_shift")
-    new_cost = st.number_input("Νέο Μεταβλητό Κόστος (€)", min_value=0.0, value=0.75, step=0.01, key="new_cost_shift")
-    investment = st.number_input("Κόστος Επένδυσης (€)", min_value=0.0, value=1000.0, step=1.0, key="investment_shift")
-    units_sold = st.number_input("Μονάδες Πώλησης (προ επένδυσης)", min_value=1, value=1000, step=1, key="units_sold_shift")
+    st.header("Ανάλυση Αλλαγής στο Νεκρό Σημείο με Νέα Τιμή / Κόστος / Επένδυση")
 
-    if st.button("Υπολόγισε Μεταβολή Νεκρού Σημείου"):
-        pct_change, units_change = calculate_break_even_shift_v2(
-            old_price, new_price, old_cost, new_cost, investment, units_sold
-        )
-        if pct_change is None:
-            st.error("Μη έγκυρα δεδομένα για τον υπολογισμό.")
-        else:
-            st.success(f"Αλλαγή Νεκρού Σημείου: {pct_change:.2f} %")
-            st.info(f"Μεταβολή σε Μονάδες: {units_change:.0f} μονάδες")
+    old_price_input = st.text_input("Παλιότερη Τιμή Πώλησης (€):", value="10,00", key="old_price")
+    new_price_input = st.text_input("Νέα Τιμή Πώλησης (€):", value="11,00", key="new_price")
+    old_cost_input = st.text_input("Παλιό Κόστος Μονάδας (€):", value="6,00", key="old_cost")
+    new_cost_input = st.text_input("Νέο Κόστος Μονάδας (€):", value="6,50", key="new_cost")
+    investment_cost_input = st.text_input("Κόστος Επένδυσης (€):", value="2000,00", key="investment_cost")
+    units_sold_input = st.text_input("Πωλήσεις Μονάδων (τελευταία περίοδος):", value="500", key="units_sold")
+
+    old_price = parse_gr_number(old_price_input)
+    new_price = parse_gr_number(new_price_input)
+    old_cost = parse_gr_number(old_cost_input)
+    new_cost = parse_gr_number(new_cost_input)
+    investment_cost = parse_gr_number(investment_cost_input)
+    units_sold = parse_gr_number(units_sold_input)
+
+    if None in (old_price, new_price, old_cost, new_cost, investment_cost, units_sold):
+        st.warning("Παρακαλώ εισάγετε έγκυρους αριθμούς σε όλα τα πεδία.")
+        return
+
+    percent_change, units_change = calculate_break_even_shift_v2(
+        old_price, new_price, old_cost, new_cost, investment_cost, units_sold
+    )
+
+    if percent_change is None:
+        st.error("Υπολογισμός αδύνατος με τα δοσμένα στοιχεία (διαίρεση με μηδέν).")
+        return
+
+    st.success(f"Αλλαγή Νεκρού Σημείου (%): {percent_change:.2f} %")
+    st.success(f"Αλλαγή Νεκρού Σημείου (μονάδες): {format_number_gr(units_change, 0)} μονάδες")
 
 def show_clv_calculator():
-    st.header("Υπολογιστής Customer Lifetime Value (CLV)")
-    years_retained = st.number_input("Χρόνια Διατήρησης Πελάτη", min_value=1, max_value=50, value=5, step=1)
-    purchases_per_period = st.number_input("Αγορές ανά Έτος", min_value=1, value=12, step=1)
-    price_per_unit = st.number_input("Τιμή Πώλησης ανά Μονάδα (€)", min_value=0.01, value=50.0, step=0.01)
-    cost_per_unit = st.number_input("Κόστος ανά Μονάδα (€)", min_value=0.0, value=30.0, step=0.01)
-    annual_marketing_cost = st.number_input("Ετήσιο Κόστος Marketing (€)", min_value=0.0, value=100.0, step=1.0)
-    discount_rate = st.number_input("Ετήσιο Επιτόκιο Προεξόφλησης (π.χ. 0.05)", min_value=0.0, max_value=1.0, value=0.05, step=0.01)
+    st.header("Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value - CLV)")
 
-    if st.button("Υπολόγισε CLV"):
-        clv = calculate_custom_clv(
-            years_retained,
-            purchases_per_period,
-            price_per_unit,
-            cost_per_unit,
-            annual_marketing_cost,
-            discount_rate
-        )
-        st.success(f"Customer Lifetime Value (CLV): {clv:.2f} €")
+    years_retained_input = st.text_input("Χρόνια Διατήρησης Πελάτη:", value="5")
+    purchases_per_period_input = st.text_input("Αγορές ανά Περίοδο:", value="12")
+    price_per_unit_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="100,00")
+    cost_per_unit_input = st.text_input("Κόστος Μονάδας (€):", value="60,00")
+    annual_marketing_cost_input = st.text_input("Ετήσιο Κόστος Μάρκετινγκ (€):", value="50,00")
+    discount_rate_input = st.text_input("Ετήσιο Προεξοφλητικό Επιτόκιο (%):", value="10,00")
+
+    try:
+        years_retained = int(years_retained_input)
+    except:
+        st.warning("Εισάγετε έγκυρο ακέραιο αριθμό για τα χρόνια διατήρησης.")
+        return
+
+    purchases_per_period = parse_gr_number(purchases_per_period_input)
+    price_per_unit = parse_gr_number(price_per_unit_input)
+    cost_per_unit = parse_gr_number(cost_per_unit_input)
+    annual_marketing_cost = parse_gr_number(annual_marketing_cost_input)
+    discount_rate_pct = parse_gr_number(discount_rate_input)
+
+    if None in (purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate_pct):
+        st.warning("Παρακαλώ εισάγετε έγκυρους αριθμούς σε όλα τα πεδία.")
+        return
+
+    discount_rate = discount_rate_pct / 100
+
+    clv = calculate_custom_clv(
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        annual_marketing_cost,
+        discount_rate
+    )
+
+    st.success(f"Υπολογιζόμενη Αξία Πελάτη (CLV): {format_number_gr(clv)} €")
+
+    if st.checkbox("Εμφάνιση Tornado Chart Ανάλυσης Ευαισθησίας"):
         plot_clv_tornado_chart(
             years_retained,
             purchases_per_period,
@@ -233,38 +281,20 @@ def show_clv_calculator():
             discount_rate
         )
 
-def show_price_increase_scenario():
-    st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
+### MAIN MENU ###
 
-    with st.form("price_increase_form"):
-        col1, col2 = st.columns(2)
+menu = st.sidebar.selectbox("Επιλέξτε Εργαλείο:", [
+    "Αρχική Σελίδα",
+    "Υπολογιστής Νεκρού Σημείου",
+    "Ανάλυση Αλλαγής Νεκρού Σημείου",
+    "Υπολογιστής Αξίας Πελάτη (CLV)",
+])
 
-        with col1:
-            old_price = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
-            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=10.0, step=0.1)
-            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.5, step=0.01)
-
-        with col2:
-            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.4, step=0.01)
-            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.3, step=0.01)
-            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.2, step=0.01)
-
-        percent_B = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Β (%)", min_value=0.0, max_value=100.0, value=20.0, step=0.1)
-        percent_C = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Γ (%)", min_value=0.0, max_value=100.0, value=15.0, step=0.1)
-        percent_D = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Δ (%)", min_value=0.0, max_value=100.0, value=10.0, step=0.1)
-
-        submitted = st.form_submit_button("Υπολόγισε")
-
-    if submitted:
-        price_increase = price_increase_pct / 100
-        max_sales_drop = calculate_max_product_A_sales_drop(
-            old_price, price_increase, profit_A, profit_B, profit_C, profit_D, 
-            percent_B / 100, percent_C / 100, percent_D / 100
-        )
-        if max_sales_drop is None:
-            st.error("Αδύνατος ο υπολογισμός με τα δοθέντα στοιχεία.")
-        else:
-            st.success(f"Αποδεκτή Μείωση Πωλήσεων Προϊόντος Α: {max_sales_drop*100:.2f} %")
-
-if __name__ == "__main__":
+if menu == "Αρχική Σελίδα":
     show_home()
+elif menu == "Υπολογιστής Νεκρού Σημείου":
+    show_break_even_calculator()
+elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
+    show_break_even_shift_calculator()
+elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
+    show_clv_calculator()
