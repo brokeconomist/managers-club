@@ -38,6 +38,24 @@ def calculate_break_even_shift(
 
     return change_percent, change_units
 
+# Νέα συνάρτηση με τον ακριβή τύπο που ζήτησες
+def calculate_break_even_shift_v2(
+    old_price, new_price,
+    old_unit_cost, new_unit_cost,
+    investment_cost, units_sold
+):
+    denominator = new_price - new_unit_cost
+    if denominator == 0 or units_sold == 0:
+        return None, None  # Αποφυγή διαίρεσης με 0
+
+    percent_change = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator \
+                     + (investment_cost / (denominator * units_sold))
+
+    units_change = ( -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator * units_sold ) \
+                   + (investment_cost / denominator)
+
+    return percent_change * 100, units_change  # Ποσοστό %
+
 def calculate_custom_clv(
     years_retained,
     purchases_per_period,
@@ -149,21 +167,29 @@ def show_clv():
     st.title("📈 Αξία Πελάτη (Customer Lifetime Value)")
     years_retained = st.number_input("Χρόνια διατήρησης πελάτη", value=3.0)
     purchases_per_period = st.number_input("Αγορές ανά περίοδο", value=10.0)
-    price_per_unit = st.number_input("Τιμή πώλησης (€)", value=100.0)
+    price_per_unit = st.number_input("Τιμή ανά μονάδα (€)", value=100.0)
     cost_per_unit = st.number_input("Κόστος ανά μονάδα (€)", value=60.0)
-    marketing_cost = st.number_input("Ετήσιο κόστος marketing (€)", value=200.0)
-    discount_rate = st.number_input("Προεξοφλητικό επιτόκιο (%)", value=5.0) / 100
+    annual_marketing_cost = st.number_input("Ετήσιο κόστος μάρκετινγκ ανά πελάτη (€)", value=50.0)
+    discount_rate = st.number_input("Προεξοφλητικό επιτόκιο (%)", value=0.10)
 
     clv = calculate_custom_clv(
-        years_retained, purchases_per_period,
-        price_per_unit, cost_per_unit,
-        marketing_cost, discount_rate
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        annual_marketing_cost,
+        discount_rate
     )
-    st.success(f"Αξία Πελάτη (CLV): {clv:,.2f} €")
+    st.success(f"🧾 Αξία Πελάτη (CLV): **{clv:,.2f} €**")
+
+    st.subheader("Ανάλυση Ευαισθησίας CLV (Tornado Chart)")
     plot_clv_tornado_chart(
-        years_retained, purchases_per_period,
-        price_per_unit, cost_per_unit,
-        marketing_cost, discount_rate
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        annual_marketing_cost,
+        discount_rate
     )
 
 def show_investment_impact():
@@ -176,7 +202,7 @@ def show_investment_impact():
     investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=800.0)
     units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=4000.0, min_value=10.0)
 
-    change_percent, change_units = calculate_break_even_shift(
+    change_percent, change_units = calculate_break_even_shift_v2(
         old_price, new_price,
         old_unit_cost, new_unit_cost,
         investment_cost, units_sold
@@ -188,24 +214,18 @@ def show_investment_impact():
     st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{change_percent:.2f}%**")
     st.success(f"🔁 Μεταβολή στο Νεκρό Σημείο σε Μονάδες: **{change_units:.2f} μονάδες**")
 
-### ΚΥΡΙΩΣ ΡΟΗ ###
+### MAIN APP ###
 
 def main():
-    page = st.sidebar.selectbox("Μετάβαση σε:", [
-        "🏠 Αρχική",
-        "📊 Break-Even",
-        "📈 Αξία Πελάτη",
-        "📉 Μεταβολή Νεκρού Σημείου"
-    ])
+    menu = {
+        "Αρχική": show_home,
+        "Υπολογιστής Νεκρού Σημείου": show_break_even,
+        "Αξία Πελάτη (CLV)": show_clv,
+        "Επίδραση Επένδυσης στο Νεκρό Σημείο": show_investment_impact,
+    }
 
-    if page == "🏠 Αρχική":
-        show_home()
-    elif page == "📊 Break-Even":
-        show_break_even()
-    elif page == "📈 Αξία Πελάτη":
-        show_clv()
-    elif page == "📉 Μεταβολή Νεκρού Σημείου":
-        show_investment_impact()
+    choice = st.sidebar.selectbox("Μενού", list(menu.keys()))
+    menu[choice]()
 
 if __name__ == "__main__":
     main()
