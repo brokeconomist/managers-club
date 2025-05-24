@@ -86,6 +86,17 @@ def plot_clv_tornado_chart(
     ax.set_title("Tornado Chart Ευαισθησίας CLV")
     st.pyplot(fig)
 
+def calculate_break_even_shift(
+    old_price, new_price,
+    old_unit_cost, new_unit_cost,
+    investment_cost,
+    units_sold
+):
+    margin_change = (new_price - old_price) - (new_unit_cost - old_unit_cost)
+    extra_cost_ratio = investment_cost / ((new_price - new_unit_cost) * units_sold)
+    break_even_change = -margin_change + extra_cost_ratio
+    return break_even_change * 100  # Επιστρέφεται ως ποσοστό %
+
 ### ΣΥΝΑΡΤΗΣΕΙΣ ΓΙΑ ΑΠΕΙΚΟΝΙΣΗ ###
 
 def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
@@ -192,13 +203,37 @@ def show_clv():
         discount_rate
     )
 
+def show_investment_impact():
+    st.title("📈 Μεταβολή Νεκρού Σημείου Λόγω Επένδυσης")
+
+    st.markdown("**Συμπλήρωσε τα παρακάτω στοιχεία για να δεις πώς επηρεάζεται το νεκρό σημείο πωλήσεων από την επένδυση σε νέο εξοπλισμό.**")
+
+    old_price = st.number_input("Παλαιά Τιμή Πώλησης (€)", value=100.0, min_value=0.0)
+    new_price = st.number_input("Νέα Τιμή Πώλησης (€)", value=95.0, min_value=0.0)
+
+    old_unit_cost = st.number_input("Παλαιό Κόστος ανά Μονάδα (€)", value=70.0, min_value=0.0)
+    new_unit_cost = st.number_input("Νέο Κόστος ανά Μονάδα (€)", value=60.0, min_value=0.0)
+
+    investment_cost = st.number_input("Κόστος Νέας Επένδυσης (€)", value=10000.0, min_value=0.0)
+    units_sold = st.number_input("Εκτιμώμενες Πωλούμενες Μονάδες", value=1000.0, min_value=1.0)
+
+    change_percent = calculate_break_even_shift(
+        old_price, new_price,
+        old_unit_cost, new_unit_cost,
+        investment_cost,
+        units_sold
+    )
+
+    st.success(f"🔁 Ποσοστιαία Μεταβολή στο Νεκρό Σημείο: **{change_percent:.2f}%**")
+
 ### MAIN ###
 
 def main():
     page = st.sidebar.selectbox("Μετάβαση σε:", [
         "🏠 Αρχική",
         "📊 Break-Even",
-        "📈 Αξία Πελάτη"
+        "📈 Αξία Πελάτη",
+        "📈 Μεταβολή Νεκρού Σημείου"
     ])
 
     if page == "🏠 Αρχική":
@@ -207,6 +242,5 @@ def main():
         show_break_even()
     elif page == "📈 Αξία Πελάτη":
         show_clv()
-
-if __name__ == "__main__":
-    main()
+    elif page == "📈 Μεταβολή Νεκρού Σημείου":
+        show_investment_impact()
