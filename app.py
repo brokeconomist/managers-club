@@ -349,11 +349,11 @@ def show_price_increase_scenario():
 ### MAIN MENU ###
 
 menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
-    "Αρχική",
-    "Ανάλυση Νεκρού Σημείου",
-    "Ανάλυση Μεταβολής λόγω Τιμής/Επένδυσης",
-    "Ανάλυση CLV",
-    "Ανάλυση Υποκατάστασης Προϊόντων"  # ΝΕΟ
+    "Αρχική Σελίδα",
+    "Υπολογιστής Νεκρού Σημείου",
+    "Ανάλυση Αλλαγής Νεκρού Σημείου",
+    "Υπολογιστής Αξίας Πελάτη (CLV)",
+    "Ανάλυση Υποκατάστασης Προϊόντων"
 ))
 
 if menu == "Αρχική Σελίδα":
@@ -363,6 +363,10 @@ elif menu == "Υπολογιστής Νεκρού Σημείου":
 elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
     show_break_even_shift_calculator()
 elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
+    show_clv_calculator()
+elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
+    show_price_increase_scenario()
+
     show_clv_calculator()
 elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
