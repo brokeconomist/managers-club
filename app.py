@@ -45,83 +45,6 @@ def calculate_break_even_shift_v2(
     return percent_change * 100, units_change  # Ποσοστό %
 
 
-def calculate_total_clv_without_discount(years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost):
-    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
-    total_value = gross_profit * years_retained - annual_marketing_cost
-    return total_value
-
-def calculate_discounted_clv(years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate):
-    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
-    net_cash_flow = gross_profit - annual_marketing_cost
-    clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
-    return clv
-
-def calculate_custom_clv(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost,
-    discount_rate
-):
-    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
-    net_cash_flow = gross_profit - annual_marketing_cost
-    clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
-    return clv
-
-def plot_clv_tornado_chart(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost,
-    discount_rate
-):
-    base_clv = calculate_custom_clv(
-        years_retained,
-        purchases_per_period,
-        price_per_unit,
-        cost_per_unit,
-        annual_marketing_cost,
-        discount_rate
-    )
-
-    variations = {
-        "Χρόνια Πελάτη +10%": (years_retained * 1.1, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Χρόνια Πελάτη -10%": (years_retained * 0.9, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Αγορές/Περίοδο +10%": (years_retained, purchases_per_period * 1.1, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Αγορές/Περίοδο -10%": (years_retained, purchases_per_period * 0.9, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Τιμή Πώλησης +10%": (years_retained, purchases_per_period, price_per_unit * 1.1, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Τιμή Πώλησης -10%": (years_retained, purchases_per_period, price_per_unit * 0.9, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Κόστος Μονάδας +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 1.1, annual_marketing_cost, discount_rate),
-        "Κόστος Μονάδας -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 0.9, annual_marketing_cost, discount_rate),
-        "Κόστος Μάρκετινγκ +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost * 1.1, discount_rate),
-        "Κόστος Μάρκετινγκ -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost * 0.9, discount_rate),
-        "Επιτόκιο +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate * 1.1),
-        "Επιτόκιο -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate * 0.9),
-    }
-
-    impacts = []
-    labels = []
-
-    for label, args in variations.items():
-        new_clv = calculate_custom_clv(*args)
-        delta = new_clv - base_clv
-        impacts.append(delta)
-        labels.append(label)
-
-    colors = ['green' if x > 0 else 'red' for x in impacts]
-    sorted_indices = np.argsort(np.abs(impacts))[::-1]
-    sorted_impacts = np.array(impacts)[sorted_indices]
-    sorted_labels = np.array(labels)[sorted_indices]
-    sorted_colors = np.array(colors)[sorted_indices]
-
-    fig, ax = plt.subplots()
-    ax.barh(sorted_labels, sorted_impacts, color=sorted_colors)
-    ax.axvline(0, color='black', linewidth=0.8)
-    ax.set_xlabel("Μεταβολή στην CLV (€)")
-    ax.set_title("Tornado Chart Ευαισθησίας CLV")
-    st.pyplot(fig)
 
 def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
     units = list(range(0, int(break_even_units * 2) + 1))
@@ -257,66 +180,6 @@ def parse_gr_number(s):
     except:
         return None
 
-
-def show_clv_calculator():
-    st.header("Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value - CLV)")
-
-    years_retained_input = st.text_input("Χρόνια Διατήρησης Πελάτη:", value="5")
-    purchases_per_period_input = st.text_input("Αγορές ανά Περίοδο:", value="12")
-    price_per_unit_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="100,00")
-    cost_per_unit_input = st.text_input("Κόστος Μονάδας (€):", value="60,00")
-    annual_marketing_cost_input = st.text_input("Ετήσιο Κόστος Μάρκετινγκ (€):", value="50,00")
-    discount_rate_input = st.text_input("Ετήσιο Προεξοφλητικό Επιτόκιο (%):", value="10,00")
-
-    try:
-        years_retained = int(years_retained_input)
-    except:
-        st.warning("Εισάγετε έγκυρο ακέραιο αριθμό για τα χρόνια διατήρησης.")
-        return
-
-    purchases_per_period = parse_gr_number(purchases_per_period_input)
-    price_per_unit = parse_gr_number(price_per_unit_input)
-    cost_per_unit = parse_gr_number(cost_per_unit_input)
-    annual_marketing_cost = parse_gr_number(annual_marketing_cost_input)
-    discount_rate_pct = parse_gr_number(discount_rate_input)
-
-    if None in (purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate_pct):
-        st.warning("Παρακαλώ εισάγετε έγκυρους αριθμούς σε όλα τα πεδία.")
-        return
-
-    discount_rate = discount_rate_pct / 100
-
-    total_value = calculate_total_clv_without_discount(
-        years_retained,
-        purchases_per_period,
-        price_per_unit,
-        cost_per_unit,
-        annual_marketing_cost
-    )
-
-    discounted_clv = calculate_discounted_clv(
-        years_retained,
-        purchases_per_period,
-        price_per_unit,
-        cost_per_unit,
-        annual_marketing_cost,
-        discount_rate
-    )
-
-    st.success(f"Εκτιμώμενη Συνολική Αξία Πελάτη (χωρίς προεξόφληση): {format_number_gr(total_value)} €")
-    st.success(f"Εκτιμώμενη Καθαρή Αξία Πελάτη (CLV με προεξόφληση): {format_number_gr(discounted_clv)} €")
-
-    if st.checkbox("Εμφάνιση Tornado Chart Ανάλυσης Ευαισθησίας"):
-        plot_clv_tornado_chart(
-            years_retained,
-            purchases_per_period,
-            price_per_unit,
-            cost_per_unit,
-            annual_marketing_cost,
-            discount_rate
-        )
-
-
 def show_price_increase_scenario():
     st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
 
@@ -371,7 +234,6 @@ menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
     "Αρχική Σελίδα",
     "Υπολογιστής Νεκρού Σημείου",
     "Ανάλυση Αλλαγής Νεκρού Σημείου",
-    "Υπολογιστής Αξίας Πελάτη (CLV)",
     "Ανάλυση Υποκατάστασης Προϊόντων"
 ))
 
@@ -381,7 +243,5 @@ elif menu == "Υπολογιστής Νεκρού Σημείου":
     show_break_even_calculator()
 elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
     show_break_even_shift_calculator()
-elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
-    show_clv_calculator()
 elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
