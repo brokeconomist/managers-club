@@ -3,10 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def format_number_gr(number, decimals=2):
-    """Μορφοποιεί αριθμό σε ελληνικό format π.χ. '1.234,56'"""
-    if number is None:
-        return ""
-    return f"{number:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    """
+    Μορφοποιεί έναν αριθμό στο ελληνικό format (π.χ. 1.234,56).
+    """
+    try:
+        formatted = f"{number:,.{decimals}f}"
+        return formatted.replace(",", "X").replace(".", ",").replace("X", ".")
+    except:
+        return str(number)
 
 def format_percentage_gr(number):
     """Μορφοποιεί ποσοστά με ένα δεκαδικό και ελληνικό κόμμα"""
