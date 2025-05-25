@@ -338,3 +338,24 @@ def show_price_increase_impact():
         st.success(f"Μέγιστη αποδεκτή μείωση πωλήσεων του Προϊόντος Α: {format_number_gr(max_drop * 100, 1)}%")
     else:
         st.error("Δεν μπορεί να υπολογιστεί με τα δεδομένα που δώσατε.")
+
+### MAIN MENU ###
+
+menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
+    "Αρχική Σελίδα",
+    "Υπολογιστής Νεκρού Σημείου",
+    "Ανάλυση Αλλαγής Νεκρού Σημείου",
+    "Υπολογιστής Αξίας Πελάτη (CLV)",
+    "Ανάλυση Υποκατάστασης Προϊόντων"
+))
+
+if menu == "Αρχική Σελίδα":
+    show_home()
+elif menu == "Υπολογιστής Νεκρού Σημείου":
+    show_break_even_calculator()
+elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
+    show_break_even_shift_calculator()
+elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
+    show_clv_calculator()
+elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
+    show_price_increase_scenario()
