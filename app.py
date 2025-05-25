@@ -14,6 +14,20 @@ def format_percentage_gr(number):
         return ""
     return f"{number:,.1f}%".replace(".", ",")
 
+def parse_gr_number(s):
+    """
+    Μετατρέπει αριθμό σε ελληνικό format (π.χ. '1.234,56') σε float.
+    """
+    if isinstance(s, (int, float)):
+        return float(s)
+    if s is None or s == "":
+        return 0.0
+    try:
+        s = s.replace(".", "").replace(",", ".")
+        return float(s)
+    except ValueError:
+        return 0.0
+
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
