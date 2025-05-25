@@ -44,6 +44,31 @@ def calculate_break_even_shift_v2(
 
     return percent_change * 100, units_change  # Ποσοστό %
 
+
+def calculate_total_clv_without_discount(years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost):
+    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
+    total_value = gross_profit * years_retained - annual_marketing_cost
+    return total_value
+
+def calculate_discounted_clv(years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate):
+    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
+    net_cash_flow = gross_profit - annual_marketing_cost
+    clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
+    return clv
+
+def calculate_custom_clv(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    annual_marketing_cost,
+    discount_rate
+):
+    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
+    net_cash_flow = gross_profit - annual_marketing_cost
+    clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
+    return clv
+
 def plot_clv_tornado_chart(
     years_retained,
     purchases_per_period,
@@ -223,6 +248,66 @@ def show_break_even_shift_calculator():
     st.success(f"Αλλαγή Νεκρού Σημείου (%): {percent_change:.2f} %")
     st.success(f"Αλλαγή Νεκρού Σημείου (μονάδες): {format_number_gr(units_change, 0)} μονάδες")
 
+
+def show_clv_calculator():
+    st.header("Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value - CLV)")
+
+    years_retained_input = st.text_input("Χρόνια Διατήρησης Πελάτη:", value="5")
+    purchases_per_period_input = st.text_input("Αγορές ανά Περίοδο:", value="12")
+    price_per_unit_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="100,00")
+    cost_per_unit_input = st.text_input("Κόστος Μονάδας (€):", value="60,00")
+    annual_marketing_cost_input = st.text_input("Ετήσιο Κόστος Μάρκετινγκ (€):", value="50,00")
+    discount_rate_input = st.text_input("Ετήσιο Προεξοφλητικό Επιτόκιο (%):", value="10,00")
+
+    try:
+        years_retained = int(years_retained_input)
+    except:
+        st.warning("Εισάγετε έγκυρο ακέραιο αριθμό για τα χρόνια διατήρησης.")
+        return
+
+    purchases_per_period = parse_gr_number(purchases_per_period_input)
+    price_per_unit = parse_gr_number(price_per_unit_input)
+    cost_per_unit = parse_gr_number(cost_per_unit_input)
+    annual_marketing_cost = parse_gr_number(annual_marketing_cost_input)
+    discount_rate_pct = parse_gr_number(discount_rate_input)
+
+    if None in (purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate_pct):
+        st.warning("Παρακαλώ εισάγετε έγκυρους αριθμούς σε όλα τα πεδία.")
+        return
+
+    discount_rate = discount_rate_pct / 100
+
+    total_value = calculate_total_clv_without_discount(
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        annual_marketing_cost
+    )
+
+    discounted_clv = calculate_discounted_clv(
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        annual_marketing_cost,
+        discount_rate
+    )
+
+    st.success(f"Εκτιμώμενη Συνολική Αξία Πελάτη (χωρίς προεξόφληση): {format_number_gr(total_value)} €")
+    st.success(f"Εκτιμώμενη Καθαρή Αξία Πελάτη (CLV με προεξόφληση): {format_number_gr(discounted_clv)} €")
+
+    if st.checkbox("Εμφάνιση Tornado Chart Ανάλυσης Ευαισθησίας"):
+        plot_clv_tornado_chart(
+            years_retained,
+            purchases_per_period,
+            price_per_unit,
+            cost_per_unit,
+            annual_marketing_cost,
+            discount_rate
+        )
+
+
 def show_price_increase_scenario():
     st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
 
@@ -291,88 +376,3 @@ elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
     show_clv_calculator()
 elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
-
-def calculate_total_customer_value(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost
-):
-    gross_margin = purchases_per_period * (price_per_unit - cost_per_unit)
-    total_value = gross_margin - annual_marketing_cost
-    return total_value
-
-def calculate_discounted_customer_value(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost,
-    discount_rate
-):
-    gross_margin = purchases_per_period * (price_per_unit - cost_per_unit)
-    net_cash_flow = gross_margin - annual_marketing_cost
-    discounted_value = net_cash_flow / ((1 + discount_rate) ** years_retained)
-    return discounted_value
-
-def show_clv_calculator():
-    st.header("🧮 Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value - CLV)")
-
-    years_retained_input = st.text_input("Χρόνια Διατήρησης Πελάτη:", value="5")
-    purchases_per_period_input = st.text_input("Αγορές ανά Περίοδο:", value="12")
-    price_per_unit_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="100,00")
-    cost_per_unit_input = st.text_input("Κόστος Μονάδας (€):", value="60,00")
-    annual_marketing_cost_input = st.text_input("Ετήσιο Κόστος Μάρκετινγκ (€):", value="50,00")
-    discount_rate_input = st.text_input("Ετήσιο Προεξοφλητικό Επιτόκιο (%):", value="10,00")
-
-    try:
-        years_retained = int(years_retained_input)
-    except:
-        st.warning("Εισάγετε έγκυρο ακέραιο αριθμό για τα Χρόνια Διατήρησης.")
-        return
-
-    purchases_per_period = parse_gr_number(purchases_per_period_input)
-    price_per_unit = parse_gr_number(price_per_unit_input)
-    cost_per_unit = parse_gr_number(cost_per_unit_input)
-    annual_marketing_cost = parse_gr_number(annual_marketing_cost_input)
-    discount_rate_pct = parse_gr_number(discount_rate_input)
-
-    if None in (purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate_pct):
-        st.warning("Παρακαλώ συμπλήρωσε έγκυρα όλα τα αριθμητικά πεδία.")
-        return
-
-    discount_rate = discount_rate_pct / 100
-
-    # --- Υπολογισμός ---
-    total_value = calculate_total_customer_value(
-        years_retained,
-        purchases_per_period,
-        price_per_unit,
-        cost_per_unit,
-        annual_marketing_cost
-    )
-
-    clv = calculate_discounted_customer_value(
-        years_retained,
-        purchases_per_period,
-        price_per_unit,
-        cost_per_unit,
-        annual_marketing_cost,
-        discount_rate
-    )
-
-    # --- Αποτελέσματα ---
-    st.success(f"📌 Εκτιμώμενη Συνολική Αξία Πελάτη (χωρίς προεξόφληση): {format_number_gr(total_value)} €")
-    st.success(f"📌 Εκτιμώμενη Καθαρή Αξία Πελάτη (CLV): {format_number_gr(clv)} €")
-
-    # Επιλογή για εμφάνιση Tornado Chart
-    if st.checkbox("📊 Εμφάνιση Tornado Chart Ευαισθησίας CLV"):
-        plot_clv_tornado_chart(
-            years_retained,
-            purchases_per_period,
-            price_per_unit,
-            cost_per_unit,
-            annual_marketing_cost,
-            discount_rate
-        )
