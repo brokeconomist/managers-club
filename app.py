@@ -133,13 +133,39 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
-def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
-    benefit_substitutes = (percent_B * profit_B + percent_C * profit_C + percent_D * profit_D)
-    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase
-    numerator = - price_increase
+def calculate_max_product_A_sales_drop(
+    price_A_old,
+    price_A_increase,
+    profit_per_unit_A,
+    profit_per_unit_B,
+    profit_per_unit_C,
+    profit_per_unit_D,
+    percent_B,
+    percent_C,
+    percent_D
+):
+    """
+    Υπολογίζει το μέγιστο ποσοστό μείωσης πωλήσεων του Προϊόντος Α 
+    ώστε το συνολικό κέρδος να παραμείνει σταθερό, με βάση την αύξηση τιμής και τα υποκατάστατα προϊόντα.
+    """
+
+    # Κέρδος από υποκατάστατα (βάσει ποσοστών και κέρδους ανά μονάδα)
+    substitute_profit = (
+        percent_B * profit_per_unit_B +
+        percent_C * profit_per_unit_C +
+        percent_D * profit_per_unit_D
+    )
+
+    # Ο παρονομαστής της εξίσωσης
+    denominator = ((profit_per_unit_A - substitute_profit) / price_A_old) + price_A_increase
+
+    # Ο αριθμητής της εξίσωσης
+    numerator = -price_A_increase
+
+    # Αποφυγή διαίρεσης με το μηδέν
     try:
         max_sales_drop = numerator / denominator
-        return max_sales_drop
+        return max_sales_drop  # Ποσοστό σε δεκαδική μορφή (π.χ. 0.32 για 32%)
     except ZeroDivisionError:
         return None
 
