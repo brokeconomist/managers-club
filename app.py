@@ -5,25 +5,6 @@ import numpy as np
 
 st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 
-menu = st.sidebar.radio("🔧 Επιλογή Εργαλείου", [
-    "Αρχική", 
-    "Νεκρό Σημείο", 
-    "Ανάλυση Σενάριου Νεκρού Σημείου", 
-    "CLV", 
-    "Εκτίμηση Μείωσης Πωλήσεων Προϊόντος Α"
-])
-
-if menu == "Αρχική":
-    show_home()
-elif menu == "Νεκρό Σημείο":
-    show_break_even_calculator()
-elif menu == "Ανάλυση Σενάριου Νεκρού Σημείου":
-    show_break_even_shift_calculator()
-elif menu == "CLV":
-    show_clv_calculator()  # Αν έχεις τέτοια συνάρτηση
-elif menu == "Εκτίμηση Μείωσης Πωλήσεων Προϊόντος Α":
-    show_price_increase_impact()
-
 ### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
 
 def parse_gr_number(s):
@@ -152,17 +133,6 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.set_title("Break-Even Analysis")
     ax.legend()
     st.pyplot(fig)
-
-def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
-    benefit_substitutes = (percent_B * profit_B + percent_C * profit_C + percent_D * profit_D)
-    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase
-    numerator = - price_increase
-    try:
-        max_sales_drop = numerator / denominator
-        return max_sales_drop
-    except ZeroDivisionError:
-        return None
-
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
@@ -311,52 +281,20 @@ def show_clv_calculator():
             discount_rate
         )
 
-def show_price_increase_impact():
-    st.header("📉 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
-
-    old_price = parse_gr_number(st.text_input("Τιμή Πώλησης Προϊόντος Α (€):", "10,00"))
-    price_increase = parse_gr_number(st.text_input("Αύξηση Τιμής (€):", "1,00"))
-
-    profit_A = parse_gr_number(st.text_input("Κέρδος ανά Μονάδα του Προϊόντος Α (€):", "4,00"))
-    profit_B = parse_gr_number(st.text_input("Κέρδος ανά Μονάδα Προϊόντος Β (€):", "3,00"))
-    profit_C = parse_gr_number(st.text_input("Κέρδος ανά Μονάδα Προϊόντος Γ (€):", "2,50"))
-    profit_D = parse_gr_number(st.text_input("Κέρδος ανά Μονάδα Προϊόντος Δ (€):", "2,00"))
-
-    percent_B = parse_gr_number(st.text_input("Ποσοστό υποκατάστασης από Προϊόν Β (%):", "30")) / 100
-    percent_C = parse_gr_number(st.text_input("Ποσοστό υποκατάστασης από Προϊόν Γ (%):", "20")) / 100
-    percent_D = parse_gr_number(st.text_input("Ποσοστό υποκατάστασης από Προϊόν Δ (%):", "10")) / 100
-
-    if None in (old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
-        st.warning("Συμπλήρωσε όλα τα πεδία σωστά.")
-        return
-
-    max_drop = calculate_max_product_A_sales_drop(
-        old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D
-    )
-
-    if max_drop is not None:
-        st.success(f"Μέγιστη αποδεκτή μείωση πωλήσεων του Προϊόντος Α: {format_number_gr(max_drop * 100, 1)}%")
-    else:
-        st.error("Δεν μπορεί να υπολογιστεί με τα δεδομένα που δώσατε.")
-
 ### MAIN MENU ###
 
-menu = st.sidebar.radio("🔧 Επιλογή Εργαλείου", [
-    "Αρχική", 
-    "Νεκρό Σημείο", 
-    "Ανάλυση Σενάριου Νεκρού Σημείου", 
-    "CLV", 
-    "Εκτίμηση Μείωσης Πωλήσεων Προϊόντος Α"
+menu = st.sidebar.selectbox("Επιλέξτε Εργαλείο:", [
+    "Αρχική Σελίδα",
+    "Υπολογιστής Νεκρού Σημείου",
+    "Ανάλυση Αλλαγής Νεκρού Σημείου",
+    "Υπολογιστής Αξίας Πελάτη (CLV)",
 ])
 
-if menu == "Αρχική":
+if menu == "Αρχική Σελίδα":
     show_home()
-elif menu == "Νεκρό Σημείο":
+elif menu == "Υπολογιστής Νεκρού Σημείου":
     show_break_even_calculator()
-elif menu == "Ανάλυση Σενάριου Νεκρού Σημείου":
+elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
     show_break_even_shift_calculator()
-elif menu == "CLV":
+elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
     show_clv_calculator()
-elif menu == "Εκτίμηση Μείωσης Πωλήσεων Προϊόντος Α":
-    show_price_increase_impact()  # ✅ Τώρα καλείται σωστά
-
