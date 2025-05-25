@@ -7,15 +7,6 @@ st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="center
 
 ### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
 
-def parse_gr_number(s):
-    """Μετατρέπει αριθμό μορφής '1.234,56' σε float 1234.56"""
-    if s is None or s.strip() == "":
-        return None
-    try:
-        return float(s.replace('.', '').replace(',', '.'))
-    except:
-        return None
-
 def format_number_gr(num, decimals=2):
     """Μορφοποιεί αριθμό σε ελληνικό format '1.234,56'"""
     if num is None:
@@ -24,8 +15,9 @@ def format_number_gr(num, decimals=2):
     s = s.replace(",", "X").replace(".", ",").replace("X", ".")
     return s
 
-
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
+
+# (παραμένουν ίδιες, δεν τις αλλάζουμε)
 
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
@@ -51,32 +43,6 @@ def calculate_break_even_shift_v2(
                    + (investment_cost / denominator)
 
     return percent_change * 100, units_change  # Ποσοστό %
-
-def calculate_total_customer_value(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost
-):
-    gross_margin = purchases_per_period * (price_per_unit - cost_per_unit)
-    total_value = gross_margin - annual_marketing_cost
-    return total_value
-
-def calculate_discounted_customer_value(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost,
-    discount_rate
-):
-    gross_margin = purchases_per_period * (price_per_unit - cost_per_unit)
-    net_cash_flow = gross_margin - annual_marketing_cost
-    discounted_value = net_cash_flow / ((1 + discount_rate) ** years_retained)
-    return discounted_value
-
-    return clv
 
 def plot_clv_tornado_chart(
     years_retained,
@@ -146,70 +112,18 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
-def calculate_total_customer_value(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost
-):
-    """
-    Επιστρέφει τη μη προεξοφλημένη εκτιμώμενη συνολική αξία των μελλοντικών εισπράξεων από τον πελάτη.
-    """
-    gross_margin = purchases_per_period * (price_per_unit - cost_per_unit)
-    total_value = gross_margin - annual_marketing_cost
-    return total_value
-def calculate_discounted_customer_value(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost,
-    discount_rate
-):
-    """
-    Επιστρέφει την προεξοφλημένη καθαρή αξία (CLV) των μελλοντικών εισπράξεων από τον πελάτη.
-    """
-    gross_margin = purchases_per_period * (price_per_unit - cost_per_unit)
-    net_cash_flow = gross_margin - annual_marketing_cost
-    discounted_value = net_cash_flow / ((1 + discount_rate) ** years_retained)
-    return discounted_value
-
-def calculate_max_product_A_sales_drop(
-    old_price,
-    price_increase_absolute,  # σε ευρώ (π.χ. 0.10)
-    profit_A,
-    profit_B,
-    profit_C,
-    profit_D,
-    percent_B,  # π.χ. 0.40 για 40%
-    percent_C,
-    percent_D
-):
-    """
-    Επιστρέφει το εκτιμώμενο μέγιστο % μείωσης των πωλήσεων του Προϊόντος Α
-    ώστε το συνολικό κέρδος να μην μειωθεί, με ακρίβεια ποσοστού (π.χ. -31.00).
-    """
-    # Κέρδος από υποκατάστατα
-    benefit_substitutes = (
-        percent_B * profit_B +
-        percent_C * profit_C +
-        percent_D * profit_D
-    )
-
-    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase_absolute
-    numerator = -price_increase_absolute
-
+def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
+    benefit_substitutes = (percent_B * profit_B + percent_C * profit_C + percent_D * profit_D)
+    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase
+    numerator = - price_increase
     try:
-        max_sales_drop_decimal = numerator / denominator
-        max_sales_drop_percent = max_sales_drop_decimal * 100  # Μετατροπή σε ποσοστό
-        return max_sales_drop_percent  # π.χ. -31.00
+        max_sales_drop = numerator / denominator
+        return max_sales_drop
     except ZeroDivisionError:
         return None
 
 def format_percentage_gr(number):
-    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
-    return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"{number:,.1f}%".replace(".", ",")
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
@@ -309,6 +223,99 @@ def show_break_even_shift_calculator():
     st.success(f"Αλλαγή Νεκρού Σημείου (%): {percent_change:.2f} %")
     st.success(f"Αλλαγή Νεκρού Σημείου (μονάδες): {format_number_gr(units_change, 0)} μονάδες")
 
+def show_price_increase_scenario():
+    st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
+
+    with st.form("price_increase_form"):
+        col1, col2 = st.columns(2)
+
+        with col1:
+            old_price = st.number_input("Τιμή ανά κιλό Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
+            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
+            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.30, step=0.01)
+
+        with col2:
+            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.20, step=0.01)
+            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.20, step=0.01)
+            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.05, step=0.01)
+
+        percent_B = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Β (%)", 0.0, 100.0, 45.0) / 100
+        percent_C = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Γ (%)", 0.0, 100.0, 20.0) / 100
+        percent_D = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Δ (%)", 0.0, 100.0, 5.0) / 100
+
+        submitted = st.form_submit_button("Υπολογισμός")
+
+    if submitted:
+        total_substitute = percent_B + percent_C + percent_D
+        if total_substitute > 1:
+            st.error("❌ Το συνολικό ποσοστό πελατών που επιλέγουν άλλα προϊόντα δεν μπορεί να ξεπερνά το 100%.")
+            return
+
+        no_purchase = 1 - total_substitute
+
+        result = calculate_max_product_A_sales_drop(
+            old_price,
+            price_increase_pct,
+            profit_A,
+            profit_B,
+            profit_C,
+            profit_D,
+            percent_B,
+            percent_C,
+            percent_D
+        )
+
+        if result is None:
+            st.error("❌ Αδυναμία υπολογισμού. Δοκίμασε άλλες τιμές.")
+        else:
+            st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_number_gr(result)}%")
+            st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
+
+### MAIN MENU ###
+
+menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
+    "Αρχική Σελίδα",
+    "Υπολογιστής Νεκρού Σημείου",
+    "Ανάλυση Αλλαγής Νεκρού Σημείου",
+    "Υπολογιστής Αξίας Πελάτη (CLV)",
+    "Ανάλυση Υποκατάστασης Προϊόντων"
+))
+
+if menu == "Αρχική Σελίδα":
+    show_home()
+elif menu == "Υπολογιστής Νεκρού Σημείου":
+    show_break_even_calculator()
+elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
+    show_break_even_shift_calculator()
+elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
+    show_clv_calculator()
+elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
+    show_price_increase_scenario()
+
+def calculate_total_customer_value(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    annual_marketing_cost
+):
+    gross_margin = purchases_per_period * (price_per_unit - cost_per_unit)
+    total_value = gross_margin - annual_marketing_cost
+    return total_value
+
+def calculate_discounted_customer_value(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    annual_marketing_cost,
+    discount_rate
+):
+    gross_margin = purchases_per_period * (price_per_unit - cost_per_unit)
+    net_cash_flow = gross_margin - annual_marketing_cost
+    discounted_value = net_cash_flow / ((1 + discount_rate) ** years_retained)
+    return discounted_value
+
 def show_clv_calculator():
     st.header("🧮 Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value - CLV)")
 
@@ -369,74 +376,3 @@ def show_clv_calculator():
             annual_marketing_cost,
             discount_rate
         )
-
-
-def show_price_increase_scenario():
-    st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
-
-    with st.form("price_increase_form"):
-        col1, col2 = st.columns(2)
-
-        with col1:
-            old_price = st.number_input("Τιμή ανά κιλό Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
-            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
-            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.30, step=0.01)
-
-        with col2:
-            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.20, step=0.01)
-            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.20, step=0.01)
-            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.05, step=0.01)
-
-        percent_B = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Β", 0.0, 100.0, 45.0) / 100
-        percent_C = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Γ", 0.0, 100.0, 20.0) / 100
-        percent_D = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Δ", 0.0, 100.0, 5.0) / 100
-
-        submitted = st.form_submit_button("Υπολογισμός")
-
-    if submitted:
-        total_substitute = percent_B + percent_C + percent_D
-        if total_substitute > 1:
-            st.error("❌ Το συνολικό ποσοστό πελατών που επιλέγουν άλλα προϊόντα δεν μπορεί να ξεπερνά το 100%.")
-            return
-
-        no_purchase = 1 - total_substitute
-
-        result = calculate_max_product_A_sales_drop(
-            old_price,
-            price_increase_pct,
-            profit_A,
-            profit_B,
-            profit_C,
-            profit_D,
-            percent_B,
-            percent_C,
-            percent_D
-        )
-
-        if result is None:
-            st.error("❌ Αδυναμία υπολογισμού. Δοκίμασε άλλες τιμές.")
-        else:
-            st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_number_gr(result)}%")
-            st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
-
-### MAIN MENU ###
-
-menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
-    "Αρχική Σελίδα",
-    "Υπολογιστής Νεκρού Σημείου",
-    "Ανάλυση Αλλαγής Νεκρού Σημείου",
-    "Υπολογιστής Αξίας Πελάτη (CLV)",
-    "Ανάλυση Υποκατάστασης Προϊόντων"
-))
-
-if menu == "Αρχική Σελίδα":
-    show_home()
-elif menu == "Υπολογιστής Νεκρού Σημείου":
-    show_break_even_calculator()
-elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
-    show_break_even_shift_calculator()
-elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
-    show_clv_calculator()
-elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
-    show_price_increase_scenario()
-
