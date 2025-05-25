@@ -170,7 +170,8 @@ def calculate_max_product_A_sales_drop(
         return None
 
 def format_percentage_gr(number):
-    return f"{number:,.1f}%".replace(".", ",")
+    """Μορφοποιεί ποσοστό σε ελληνική μορφή με δύο δεκαδικά, π.χ. -31,00%"""
+    return f"{number * 100:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
