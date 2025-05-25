@@ -248,6 +248,15 @@ def show_break_even_shift_calculator():
     st.success(f"Αλλαγή Νεκρού Σημείου (%): {percent_change:.2f} %")
     st.success(f"Αλλαγή Νεκρού Σημείου (μονάδες): {format_number_gr(units_change, 0)} μονάδες")
 
+def parse_gr_number(s):
+    """Μετατρέπει αριθμό μορφής '1.234,56' σε float 1234.56"""
+    if s is None or s.strip() == "":
+        return None
+    try:
+        return float(s.replace('.', '').replace(',', '.'))
+    except:
+        return None
+
 
 def show_clv_calculator():
     st.header("Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value - CLV)")
