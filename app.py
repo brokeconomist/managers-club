@@ -134,44 +134,40 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     st.pyplot(fig)
 
 def calculate_max_product_A_sales_drop(
-    price_A_old,
-    price_A_increase,
-    profit_per_unit_A,
-    profit_per_unit_B,
-    profit_per_unit_C,
-    profit_per_unit_D,
-    percent_B,
+    old_price,
+    price_increase_absolute,  # σε ευρώ (π.χ. 0.10)
+    profit_A,
+    profit_B,
+    profit_C,
+    profit_D,
+    percent_B,  # π.χ. 0.40 για 40%
     percent_C,
     percent_D
 ):
     """
-    Υπολογίζει το μέγιστο ποσοστό μείωσης πωλήσεων του Προϊόντος Α 
-    ώστε το συνολικό κέρδος να παραμείνει σταθερό, με βάση την αύξηση τιμής και τα υποκατάστατα προϊόντα.
+    Επιστρέφει το εκτιμώμενο μέγιστο % μείωσης των πωλήσεων του Προϊόντος Α
+    ώστε το συνολικό κέρδος να μην μειωθεί, με ακρίβεια ποσοστού (π.χ. -31.00).
     """
-
-    # Κέρδος από υποκατάστατα (βάσει ποσοστών και κέρδους ανά μονάδα)
-    substitute_profit = (
-        percent_B * profit_per_unit_B +
-        percent_C * profit_per_unit_C +
-        percent_D * profit_per_unit_D
+    # Κέρδος από υποκατάστατα
+    benefit_substitutes = (
+        percent_B * profit_B +
+        percent_C * profit_C +
+        percent_D * profit_D
     )
 
-    # Ο παρονομαστής της εξίσωσης
-    denominator = ((profit_per_unit_A - substitute_profit) / price_A_old) + price_A_increase
+    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase_absolute
+    numerator = -price_increase_absolute
 
-    # Ο αριθμητής της εξίσωσης
-    numerator = -price_A_increase
-
-    # Αποφυγή διαίρεσης με το μηδέν
     try:
-        max_sales_drop = numerator / denominator
-        return max_sales_drop  # Ποσοστό σε δεκαδική μορφή (π.χ. 0.32 για 32%)
+        max_sales_drop_decimal = numerator / denominator
+        max_sales_drop_percent = max_sales_drop_decimal * 100  # Μετατροπή σε ποσοστό
+        return max_sales_drop_percent  # π.χ. -31.00
     except ZeroDivisionError:
         return None
 
 def format_percentage_gr(number):
-    """Μορφοποιεί ποσοστό σε ελληνική μορφή με δύο δεκαδικά, π.χ. -31,00%"""
-    return f"{number * 100:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
+    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
+    return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
