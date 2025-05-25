@@ -341,21 +341,22 @@ def show_price_increase_impact():
 
 ### MAIN MENU ###
 
-menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
-    "Αρχική Σελίδα",
-    "Υπολογιστής Νεκρού Σημείου",
-    "Ανάλυση Αλλαγής Νεκρού Σημείου",
-    "Υπολογιστής Αξίας Πελάτη (CLV)",
-    "Ανάλυση Υποκατάστασης Προϊόντων"
-))
+menu = st.sidebar.radio("🔧 Επιλογή Εργαλείου", [
+    "Αρχική", 
+    "Νεκρό Σημείο", 
+    "Ανάλυση Σενάριου Νεκρού Σημείου", 
+    "CLV", 
+    "Εκτίμηση Μείωσης Πωλήσεων Προϊόντος Α"
+])
 
-if menu == "Αρχική Σελίδα":
+if menu == "Αρχική":
     show_home()
-elif menu == "Υπολογιστής Νεκρού Σημείου":
+elif menu == "Νεκρό Σημείο":
     show_break_even_calculator()
-elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
+elif menu == "Ανάλυση Σενάριου Νεκρού Σημείου":
     show_break_even_shift_calculator()
-elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
+elif menu == "CLV":
     show_clv_calculator()
-elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
-    show_price_increase_scenario()
+elif menu == "Εκτίμηση Μείωσης Πωλήσεων Προϊόντος Α":
+    show_price_increase_impact()  # ✅ Τώρα καλείται σωστά
+
