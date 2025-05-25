@@ -7,15 +7,6 @@ st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="center
 
 ### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
 
-def parse_gr_number(s):
-    """Μετατρέπει αριθμό μορφής '1.234,56' σε float 1234.56"""
-    if s is None or s.strip() == "":
-        return None
-    try:
-        return float(s.replace('.', '').replace(',', '.'))
-    except:
-        return None
-
 def format_number_gr(num, decimals=2):
     """Μορφοποιεί αριθμό σε ελληνικό format '1.234,56'"""
     if num is None:
