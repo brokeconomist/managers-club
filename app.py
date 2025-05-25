@@ -5,9 +5,10 @@ import numpy as np
 
 st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 
-### Βοηθητικές συναρτήσεις ###
+### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
 
 def parse_gr_number(s):
+    """Μετατρέπει αριθμό μορφής '1.234,56' σε float 1234.56"""
     if s is None or s.strip() == "":
         return None
     try:
@@ -16,13 +17,17 @@ def parse_gr_number(s):
         return None
 
 def format_number_gr(num, decimals=2):
+    """Μορφοποιεί αριθμό σε ελληνικό format '1.234,56'"""
     if num is None:
         return ""
     s = f"{num:,.{decimals}f}"
     s = s.replace(",", "X").replace(".", ",").replace("X", ".")
     return s
 
-### Υπολογιστικές συναρτήσεις ###
+### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
+
+# (παραμένουν ίδιες, δεν τις αλλάζουμε)
+
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
         return None, None
@@ -31,23 +36,36 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
 
-def calculate_break_even_shift_v2(old_price, new_price, old_unit_cost, new_unit_cost, investment_cost, units_sold):
+def calculate_break_even_shift_v2(
+    old_price, new_price,
+    old_unit_cost, new_unit_cost,
+    investment_cost, units_sold
+):
     denominator = new_price - new_unit_cost
     if denominator == 0 or units_sold == 0:
-        return None, None
+        return None, None  # Αποφυγή διαίρεσης με 0
+
     percent_change = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator \
                      + (investment_cost / (denominator * units_sold))
-    units_change = (-((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator * units_sold) \
-                   + (investment_cost / denominator)
-    return percent_change * 100, units_change
 
-def calculate_custom_clv(years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate):
+    units_change = ( -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator * units_sold ) \
+                   + (investment_cost / denominator)
+
+    return percent_change * 100, units_change  # Ποσοστό %
+
+def calculate_custom_clv(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    annual_marketing_cost,
+    discount_rate
+):
     gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
     net_cash_flow = gross_profit - annual_marketing_cost
     clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
     return clv
 
-# ... συμπλήρωσε και τις υπόλοιπες συναρτήσεις plot κλπ όπως τις έχεις...
 def plot_clv_tornado_chart(
     years_retained,
     purchases_per_period,
@@ -126,7 +144,14 @@ def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, prof
     except ZeroDivisionError:
         return None
 
-### UI συναρτήσεις ###
+def format_number_gr(number):
+    return f"{number:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def format_percentage_gr(number):
+    return f"{number:,.1f}%".replace(".", ",")
+
+### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
+
 def show_home():
     st.title("📊 Managers’ Club")
     st.markdown("""
@@ -279,43 +304,56 @@ def show_price_increase_scenario():
         col1, col2 = st.columns(2)
 
         with col1:
-            old_price = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
-            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=10.0, step=0.1)
-            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.5, step=0.01)
+            old_price = st.number_input("Τιμή ανά κιλό Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
+            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
+            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.30, step=0.01)
 
         with col2:
-            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.4, step=0.01)
-            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.3, step=0.01)
-            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.2, step=0.01)
+            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.20, step=0.01)
+            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.20, step=0.01)
+            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.05, step=0.01)
 
-        percent_B = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Β (%)", min_value=0.0, max_value=100.0, value=20.0, step=0.1)
-        percent_C = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Γ (%)", min_value=0.0, max_value=100.0, value=15.0, step=0.1)
-        percent_D = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Δ (%)", min_value=0.0, max_value=100.0, value=10.0, step=0.1)
+        percent_B = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Β (%)", 0.0, 100.0, 45.0) / 100
+        percent_C = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Γ (%)", 0.0, 100.0, 20.0) / 100
+        percent_D = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Δ (%)", 0.0, 100.0, 5.0) / 100
 
-        submitted = st.form_submit_button("Υπολόγισε")
+        submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
-        price_increase = price_increase_pct / 100
-        max_sales_drop = calculate_max_product_A_sales_drop(
-            old_price, price_increase, profit_A, profit_B, profit_C, profit_D, 
-            percent_B / 100, percent_C / 100, percent_D / 100
+        total_substitute = percent_B + percent_C + percent_D
+        if total_substitute > 1:
+            st.error("❌ Το συνολικό ποσοστό πελατών που επιλέγουν άλλα προϊόντα δεν μπορεί να ξεπερνά το 100%.")
+            return
+
+        no_purchase = 1 - total_substitute
+
+        result = calculate_max_product_A_sales_drop(
+            old_price,
+            price_increase_pct,
+            profit_A,
+            profit_B,
+            profit_C,
+            profit_D,
+            percent_B,
+            percent_C,
+            percent_D
         )
-        if max_sales_drop is None:
-            st.error("Αδύνατος ο υπολογισμός με τα δοθέντα στοιχεία.")
+
+        if result is None:
+            st.error("❌ Αδυναμία υπολογισμού. Δοκίμασε άλλες τιμές.")
         else:
-            st.success(f"Αποδεκτή Μείωση Πωλήσεων Προϊόντος Α: {max_sales_drop*100:.2f} %")
+            st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_number_gr(result)}%")
+            st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
 
-if __name__ == "__main__":
-    show_home()
+### MAIN MENU ###
 
-### Κεντρική λογική (ΜΕΤΑ ΤΟΝ ΟΡΙΣΜΟ ΟΛΩΝ ΤΩΝ ΣΥΝΑΡΤΗΣΕΩΝ) ###
-menu = st.sidebar.selectbox("Επιλέξτε Εργαλείο:", [
+menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
     "Αρχική Σελίδα",
     "Υπολογιστής Νεκρού Σημείου",
     "Ανάλυση Αλλαγής Νεκρού Σημείου",
-    "Υπολογισμός Αξίας Διάρκειας Ζωής Πελάτη (CLV)",
-    "Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής",
-])
+    "Υπολογιστής Αξίας Πελάτη (CLV)",
+    "Ανάλυση Υποκατάστασης Προϊόντων"
+))
 
 if menu == "Αρχική Σελίδα":
     show_home()
@@ -323,7 +361,7 @@ elif menu == "Υπολογιστής Νεκρού Σημείου":
     show_break_even_calculator()
 elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
     show_break_even_shift_calculator()
-elif menu == "Υπολογισμός Αξίας Διάρκειας Ζωής Πελάτη (CLV)":
+elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
     show_clv_calculator()
-elif menu == "Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής":
+elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
