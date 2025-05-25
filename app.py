@@ -292,59 +292,68 @@ def show_clv_calculator():
             discount_rate
         )
 
-def show_price_increase_scenario():
-    st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
+def show_product_A_sales_drop_estimator():
+    st.header("📉 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
 
-    with st.form("price_increase_form"):
-        col1, col2 = st.columns(2)
+    old_price_input = st.text_input("Τρέχουσα Τιμή Προϊόντος Α (€):", value="10,00", key="prodA_price")
+    price_increase_input = st.text_input("Ποσό Αύξησης Τιμής (€):", value="1,00", key="prodA_increase")
 
-        with col1:
-            old_price = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
-            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=10.0, step=0.1)
-            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.5, step=0.01)
+    profit_A_input = st.text_input("Κέρδος ανά Μονάδα Προϊόντος Α (€):", value="4,00", key="profitA")
+    profit_B_input = st.text_input("Κέρδος ανά Μονάδα Προϊόντος Β (€):", value="3,00", key="profitB")
+    profit_C_input = st.text_input("Κέρδος ανά Μονάδα Προϊόντος Γ (€):", value="2,50", key="profitC")
+    profit_D_input = st.text_input("Κέρδος ανά Μονάδα Προϊόντος Δ (€):", value="2,00", key="profitD")
 
-        with col2:
-            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.4, step=0.01)
-            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.3, step=0.01)
-            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.2, step=0.01)
+    percent_B_input = st.text_input("Ποσοστό Υποκατάστασης με Προϊόν Β (%):", value="30", key="percentB")
+    percent_C_input = st.text_input("Ποσοστό Υποκατάστασης με Προϊόν Γ (%):", value="20", key="percentC")
+    percent_D_input = st.text_input("Ποσοστό Υποκατάστασης με Προϊόν Δ (%):", value="10", key="percentD")
 
-        percent_B = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Β (%)", min_value=0.0, max_value=100.0, value=20.0, step=0.1)
-        percent_C = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Γ (%)", min_value=0.0, max_value=100.0, value=15.0, step=0.1)
-        percent_D = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Δ (%)", min_value=0.0, max_value=100.0, value=10.0, step=0.1)
+    try:
+        old_price = parse_gr_number(old_price_input)
+        price_increase = parse_gr_number(price_increase_input)
+        profit_A = parse_gr_number(profit_A_input)
+        profit_B = parse_gr_number(profit_B_input)
+        profit_C = parse_gr_number(profit_C_input)
+        profit_D = parse_gr_number(profit_D_input)
+        percent_B = parse_gr_number(percent_B_input) / 100
+        percent_C = parse_gr_number(percent_C_input) / 100
+        percent_D = parse_gr_number(percent_D_input) / 100
+    except:
+        st.warning("Παρακαλώ εισάγετε έγκυρες αριθμητικές τιμές.")
+        return
 
-        submitted = st.form_submit_button("Υπολόγισε")
+    if None in (old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
+        st.warning("Υπάρχει κάποιο πεδίο χωρίς τιμή ή με λανθασμένη μορφή.")
+        return
 
-    if submitted:
-        price_increase = price_increase_pct / 100
-        max_sales_drop = calculate_max_product_A_sales_drop(
-            old_price, price_increase, profit_A, profit_B, profit_C, profit_D, 
-            percent_B / 100, percent_C / 100, percent_D / 100
-        )
-        if max_sales_drop is None:
-            st.error("Αδύνατος ο υπολογισμός με τα δοθέντα στοιχεία.")
-        else:
-            st.success(f"Αποδεκτή Μείωση Πωλήσεων Προϊόντος Α: {max_sales_drop*100:.2f} %")
+    max_drop = calculate_max_product_A_sales_drop(
+        old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D
+    )
+
+    if max_drop is None or max_drop < 0:
+        st.error("Δεν μπορεί να υπολογιστεί με τα συγκεκριμένα στοιχεία. Ελέγξτε τις τιμές σας.")
+    else:
+        st.success(f"Μέγιστη Αποδεκτή Μείωση Πωλήσεων Προϊόντος Α: {format_number_gr(max_drop * 100)}%")
 
 if __name__ == "__main__":
     show_home()
 
 ### MAIN MENU ###
 
-menu = st.sidebar.selectbox("Επιλέξτε Εργαλείο:", [
-    "Αρχική Σελίδα",
-    "Υπολογιστής Νεκρού Σημείου",
-    "Ανάλυση Αλλαγής Νεκρού Σημείου",
-    "Υπολογισμός Αξίας Διάρκειας Ζωής Πελάτη (CLV)",
-    "Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής",
+page = st.sidebar.radio("Επιλέξτε εργαλείο:", [
+    "🏠 Αρχική",
+    "📊 Break-Even",
+    "📈 Break-Even Shift",
+    "💵 CLV",
+    "📉 Εκτίμηση Μείωσης Πωλήσεων Προϊόντος Α"
 ])
 
-if menu == "Αρχική Σελίδα":
+if page == "🏠 Αρχική":
     show_home()
-elif menu == "Υπολογιστής Νεκρού Σημείου":
+elif page == "📊 Break-Even":
     show_break_even_calculator()
-elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
+elif page == "📈 Break-Even Shift":
     show_break_even_shift_calculator()
-elif menu == "Υπολογισμός Αξίας Διάρκειας Ζωής Πελάτη (CLV)":
+elif page == "💵 CLV":
     show_clv_calculator()
-elif menu == "Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής":
-    show_price_increase_scenario()
+elif page == "📉 Εκτίμηση Μείωσης Πωλήσεων Προϊόντος Α":
+    show_product_A_sales_drop_estimator()
