@@ -1,38 +1,32 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
-def format_number_gr(number, decimals=2):
-    """
-    Μορφοποιεί έναν αριθμό στο ελληνικό format (π.χ. 1.234,56).
-    """
-    try:
-        formatted = f"{number:,.{decimals}f}"
-        return formatted.replace(",", "X").replace(".", ",").replace("X", ".")
-    except:
-        return str(number)
+st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 
-def format_percentage_gr(number):
-    """Μορφοποιεί ποσοστά με ένα δεκαδικό και ελληνικό κόμμα"""
-    if number is None:
-        return ""
-    return f"{number:,.1f}%".replace(".", ",")
+### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
 
 def parse_gr_number(s):
-    """
-    Μετατρέπει αριθμό σε ελληνικό format (π.χ. '1.234,56') σε float.
-    """
-    if isinstance(s, (int, float)):
-        return float(s)
-    if s is None or s == "":
-        return 0.0
+    """Μετατρέπει αριθμό μορφής '1.234,56' σε float 1234.56"""
+    if s is None or s.strip() == "":
+        return None
     try:
-        s = s.replace(".", "").replace(",", ".")
-        return float(s)
-    except ValueError:
-        return 0.0
+        return float(s.replace('.', '').replace(',', '.'))
+    except:
+        return None
+
+def format_number_gr(num, decimals=2):
+    """Μορφοποιεί αριθμό σε ελληνικό format '1.234,56'"""
+    if num is None:
+        return ""
+    s = f"{num:,.{decimals}f}"
+    s = s.replace(",", "X").replace(".", ",").replace("X", ".")
+    return s
 
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
+
+# (παραμένουν ίδιες, δεν τις αλλάζουμε)
 
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
@@ -59,61 +53,72 @@ def calculate_break_even_shift_v2(
 
     return percent_change * 100, units_change  # Ποσοστό %
 
-def calculate_clv(price, purchases_per_period, retention_rate, margin, discount_rate):
-    """Υπολογίζει το Customer Lifetime Value (CLV)"""
-    return (price * purchases_per_period * retention_rate * margin) / (1 + discount_rate - retention_rate)
+def calculate_custom_clv(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    annual_marketing_cost,
+    discount_rate
+):
+    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
+    net_cash_flow = gross_profit - annual_marketing_cost
+    clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
+    return clv
 
-def clv_analysis():
-    st.title("Ανάλυση Αξίας Πελάτη (CLV)")
-    st.write("Υπολογισμός και ανάλυση ευαισθησίας της αξίας πελάτη εφ’ όρου ζωής.")
+def plot_clv_tornado_chart(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    annual_marketing_cost,
+    discount_rate
+):
+    base_clv = calculate_custom_clv(
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        annual_marketing_cost,
+        discount_rate
+    )
 
-    with st.form("clv_form"):
-        price = st.number_input("Μέση τιμή αγοράς (€):", min_value=0.01, value=100.0, step=1.0)
-        purchases_per_period = st.number_input("Αγορές ανά περίοδο:", min_value=0.1, value=2.0, step=0.1)
-        retention_rate = st.slider("Ποσοστό διατήρησης πελατών (%):", min_value=0.0, max_value=100.0, value=60.0) / 100
-        margin = st.slider("Περιθώριο κέρδους (%):", min_value=0.0, max_value=100.0, value=30.0) / 100
-        discount_rate = st.slider("Προεξοφλητικό επιτόκιο (%):", min_value=0.0, max_value=100.0, value=10.0) / 100
+    variations = {
+        "Χρόνια Πελάτη +10%": (years_retained * 1.1, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
+        "Χρόνια Πελάτη -10%": (years_retained * 0.9, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
+        "Αγορές/Περίοδο +10%": (years_retained, purchases_per_period * 1.1, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
+        "Αγορές/Περίοδο -10%": (years_retained, purchases_per_period * 0.9, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
+        "Τιμή Πώλησης +10%": (years_retained, purchases_per_period, price_per_unit * 1.1, cost_per_unit, annual_marketing_cost, discount_rate),
+        "Τιμή Πώλησης -10%": (years_retained, purchases_per_period, price_per_unit * 0.9, cost_per_unit, annual_marketing_cost, discount_rate),
+        "Κόστος Μονάδας +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 1.1, annual_marketing_cost, discount_rate),
+        "Κόστος Μονάδας -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 0.9, annual_marketing_cost, discount_rate),
+        "Κόστος Μάρκετινγκ +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost * 1.1, discount_rate),
+        "Κόστος Μάρκετινγκ -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost * 0.9, discount_rate),
+        "Επιτόκιο +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate * 1.1),
+        "Επιτόκιο -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate * 0.9),
+    }
 
-        submitted = st.form_submit_button("Υπολογισμός CLV")
+    impacts = []
+    labels = []
 
-    if submitted:
-        clv = calculate_clv(price, purchases_per_period, retention_rate, margin, discount_rate)
-        st.subheader("Αποτελέσματα")
-        st.success(f"Η εκτιμώμενη αξία πελάτη είναι **{format_number_gr(clv)} €**.")
+    for label, args in variations.items():
+        new_clv = calculate_custom_clv(*args)
+        delta = new_clv - base_clv
+        impacts.append(delta)
+        labels.append(label)
 
-        # Tornado Chart Analysis
-        st.subheader("Ανάλυση ευαισθησίας (Tornado Chart)")
-        base = clv
-        scenarios = {
-            "Τιμή +10%": calculate_clv(price * 1.1, purchases_per_period, retention_rate, margin, discount_rate),
-            "Τιμή -10%": calculate_clv(price * 0.9, purchases_per_period, retention_rate, margin, discount_rate),
-            "Αγορές +10%": calculate_clv(price, purchases_per_period * 1.1, retention_rate, margin, discount_rate),
-            "Αγορές -10%": calculate_clv(price, purchases_per_period * 0.9, retention_rate, margin, discount_rate),
-            "Retention +10%": calculate_clv(price, purchases_per_period, min(retention_rate * 1.1, 0.99), margin, discount_rate),
-            "Retention -10%": calculate_clv(price, purchases_per_period, retention_rate * 0.9, margin, discount_rate),
-            "Margin +10%": calculate_clv(price, purchases_per_period, retention_rate, min(margin * 1.1, 1), discount_rate),
-            "Margin -10%": calculate_clv(price, purchases_per_period, retention_rate, margin * 0.9, discount_rate),
-            "Discount Rate +10%": calculate_clv(price, purchases_per_period, retention_rate, margin, min(discount_rate * 1.1, 1)),
-            "Discount Rate -10%": calculate_clv(price, purchases_per_period, retention_rate, margin, discount_rate * 0.9)
-        }
+    colors = ['green' if x > 0 else 'red' for x in impacts]
+    sorted_indices = np.argsort(np.abs(impacts))[::-1]
+    sorted_impacts = np.array(impacts)[sorted_indices]
+    sorted_labels = np.array(labels)[sorted_indices]
+    sorted_colors = np.array(colors)[sorted_indices]
 
-        df = pd.DataFrame({
-            "Scenario": list(scenarios.keys()),
-            "CLV": list(scenarios.values())
-        })
-        df["Διαφορά από βασική τιμή"] = df["CLV"] - base
-        df = df.sort_values("Διαφορά από βασική τιμή", key=abs, ascending=True)
-
-        fig, ax = plt.subplots(figsize=(8, 6))
-        bars = ax.barh(df["Scenario"], df["Διαφορά από βασική τιμή"], color="skyblue")
-        ax.axvline(0, color="gray", linewidth=0.8)
-        ax.set_xlabel("Μεταβολή CLV (€)")
-        ax.set_title("Tornado Chart Ευαισθησίας CLV")
-        for bar in bars:
-            width = bar.get_width()
-            ax.text(bar.get_x() + width + (20 if width > 0 else -50), bar.get_y() + bar.get_height()/2,
-                    format_number_gr(width, 0) + " €", va='center')
-        st.pyplot(fig)
+    fig, ax = plt.subplots()
+    ax.barh(sorted_labels, sorted_impacts, color=sorted_colors)
+    ax.axvline(0, color='black', linewidth=0.8)
+    ax.set_xlabel("Μεταβολή στην CLV (€)")
+    ax.set_title("Tornado Chart Ευαισθησίας CLV")
+    st.pyplot(fig)
 
 def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
     units = list(range(0, int(break_even_units * 2) + 1))
@@ -128,22 +133,6 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.set_title("Break-Even Analysis")
     ax.legend()
     st.pyplot(fig)
-
-def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
-    benefit_substitutes = (percent_B * profit_B + percent_C * profit_C + percent_D * profit_D)
-    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase
-    numerator = - price_increase
-    try:
-        max_sales_drop = numerator / denominator
-        return max_sales_drop
-    except ZeroDivisionError:
-        return None
-
-def format_number_gr(number):
-    return f"{number:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-
-def format_percentage_gr(number):
-    return f"{number:,.1f}%".replace(".", ",")
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
@@ -292,63 +281,14 @@ def show_clv_calculator():
             discount_rate
         )
 
-def show_price_increase_scenario():
-    st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
-
-    with st.form("price_increase_form"):
-        col1, col2 = st.columns(2)
-
-        with col1:
-            old_price = st.number_input("Τιμή ανά κιλό Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
-            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
-            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.30, step=0.01)
-
-        with col2:
-            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.20, step=0.01)
-            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.20, step=0.01)
-            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.05, step=0.01)
-
-        percent_B = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Β (%)", 0.0, 100.0, 45.0) / 100
-        percent_C = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Γ (%)", 0.0, 100.0, 20.0) / 100
-        percent_D = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Δ (%)", 0.0, 100.0, 5.0) / 100
-
-        submitted = st.form_submit_button("Υπολογισμός")
-
-    if submitted:
-        total_substitute = percent_B + percent_C + percent_D
-        if total_substitute > 1:
-            st.error("❌ Το συνολικό ποσοστό πελατών που επιλέγουν άλλα προϊόντα δεν μπορεί να ξεπερνά το 100%.")
-            return
-
-        no_purchase = 1 - total_substitute
-
-        result = calculate_max_product_A_sales_drop(
-            old_price,
-            price_increase_pct,
-            profit_A,
-            profit_B,
-            profit_C,
-            profit_D,
-            percent_B,
-            percent_C,
-            percent_D
-        )
-
-        if result is None:
-            st.error("❌ Αδυναμία υπολογισμού. Δοκίμασε άλλες τιμές.")
-        else:
-            st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_number_gr(result)}%")
-            st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
-
 ### MAIN MENU ###
 
-menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
+menu = st.sidebar.selectbox("Επιλέξτε Εργαλείο:", [
     "Αρχική Σελίδα",
     "Υπολογιστής Νεκρού Σημείου",
     "Ανάλυση Αλλαγής Νεκρού Σημείου",
     "Υπολογιστής Αξίας Πελάτη (CLV)",
-    "Ανάλυση Υποκατάστασης Προϊόντων"
-))
+])
 
 if menu == "Αρχική Σελίδα":
     show_home()
@@ -358,5 +298,3 @@ elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
     show_break_even_shift_calculator()
 elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
     show_clv_calculator()
-elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
-    show_price_increase_scenario()
