@@ -60,6 +60,28 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
+def calculate_clv_detailed(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    marketing_cost_per_year,
+    discount_rate
+):
+    gross_profit_per_period = purchases_per_period * (price_per_unit - cost_per_unit)
+
+    # 1. Εκτιμώμενη συνολική αξία εισπράξεων
+    total_value = (gross_profit_per_period * years_retained) - (marketing_cost_per_year * years_retained)
+
+    # 2. Εκτιμώμενη καθαρή παρούσα αξία (NPV τύπου προσόδου)
+    if discount_rate == 0:
+        discounted_value = total_value  # Χωρίς προεξόφληση
+    else:
+        annuity_factor = (1 - (1 + discount_rate) ** (-years_retained)) / discount_rate
+        discounted_value = (gross_profit_per_period - marketing_cost_per_year) * annuity_factor
+
+    return total_value, discounted_value
+
 def calculate_max_product_A_sales_drop(
     old_price,
     price_increase_absolute,  # σε ευρώ (π.χ. 0.10)
@@ -204,6 +226,56 @@ def parse_gr_number(s):
     except:
         return None
 
+def show_clv_calculator():
+    st.header("Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value - CLV)")
+
+    years_retained_input = st.text_input("Χρόνια Διατήρησης Πελάτη:", value="5")
+    purchases_per_period_input = st.text_input("Αγορές ανά Περίοδο:", value="12")
+    price_per_unit_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="100,00")
+    cost_per_unit_input = st.text_input("Κόστος Μονάδας (€):", value="60,00")
+    marketing_cost_input = st.text_input("Ετήσιο Κόστος Μάρκετινγκ (€):", value="50,00")
+    discount_rate_input = st.text_input("Ετήσιο Προεξοφλητικό Επιτόκιο (%):", value="10,00")
+
+    try:
+        years_retained = int(years_retained_input)
+    except:
+        st.warning("Εισάγετε έγκυρο ακέραιο αριθμό για τα χρόνια διατήρησης.")
+        return
+
+    purchases_per_period = parse_gr_number(purchases_per_period_input)
+    price_per_unit = parse_gr_number(price_per_unit_input)
+    cost_per_unit = parse_gr_number(cost_per_unit_input)
+    marketing_cost = parse_gr_number(marketing_cost_input)
+    discount_rate_pct = parse_gr_number(discount_rate_input)
+
+    if None in (purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate_pct):
+        st.warning("Παρακαλώ εισάγετε έγκυρους αριθμούς σε όλα τα πεδία.")
+        return
+
+    discount_rate = discount_rate_pct / 100
+
+    total_value, discounted_value = calculate_clv_detailed(
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        marketing_cost,
+        discount_rate
+    )
+
+    st.success(f"Εκτιμώμενη Συνολική Αξία Εισπράξεων: {format_number_gr(total_value)} €")
+    st.success(f"Εκτιμώμενη Καθαρή Παρούσα Αξία Εισπράξεων (CLV): {format_number_gr(discounted_value)} €")
+
+    if st.checkbox("Εμφάνιση Tornado Chart Ανάλυσης Ευαισθησίας"):
+        plot_clv_tornado_chart(
+            years_retained,
+            purchases_per_period,
+            price_per_unit,
+            cost_per_unit,
+            marketing_cost,
+            discount_rate
+        )
+
 def show_price_increase_scenario():
     st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
 
@@ -259,6 +331,7 @@ menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
     "Υπολογιστής Νεκρού Σημείου",
     "Ανάλυση Αλλαγής Νεκρού Σημείου",
     "Ανάλυση Υποκατάστασης Προϊόντων"
+    "Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value)"
 ))
 
 if menu == "Αρχική Σελίδα":
@@ -269,3 +342,6 @@ elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
     show_break_even_shift_calculator()
 elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
+
+elif menu == "Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value)":
+   show_clv_calculator()
