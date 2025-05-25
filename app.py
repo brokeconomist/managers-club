@@ -60,18 +60,42 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
-def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
-    benefit_substitutes = (percent_B * profit_B + percent_C * profit_C + percent_D * profit_D)
-    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase
-    numerator = - price_increase
+def calculate_max_product_A_sales_drop(
+    old_price,
+    price_increase_absolute,  # σε ευρώ (π.χ. 0.10)
+    profit_A,
+    profit_B,
+    profit_C,
+    profit_D,
+    percent_B,  # π.χ. 0.40 για 40%
+    percent_C,
+    percent_D
+):
+    """
+    Επιστρέφει το εκτιμώμενο μέγιστο % μείωσης των πωλήσεων του Προϊόντος Α
+    ώστε το συνολικό κέρδος να μην μειωθεί, με ακρίβεια ποσοστού (π.χ. -31.00).
+    """
+    # Κέρδος από υποκατάστατα
+    benefit_substitutes = (
+        percent_B * profit_B +
+        percent_C * profit_C +
+        percent_D * profit_D
+    )
+
+    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase_absolute
+    numerator = -price_increase_absolute
+
     try:
-        max_sales_drop = numerator / denominator
-        return max_sales_drop
+        max_sales_drop_decimal = numerator / denominator
+        max_sales_drop_percent = max_sales_drop_decimal * 100  # Μετατροπή σε ποσοστό
+        return max_sales_drop_percent  # π.χ. -31.00
     except ZeroDivisionError:
         return None
 
 def format_percentage_gr(number):
-    return f"{number:,.1f}%".replace(".", ",")
+    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
+    return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
+
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
