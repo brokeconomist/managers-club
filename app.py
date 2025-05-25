@@ -17,8 +17,6 @@ def format_number_gr(num, decimals=2):
 
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
 
-# (παραμένουν ίδιες, δεν τις αλλάζουμε)
-
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
         return None, None
