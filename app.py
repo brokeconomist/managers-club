@@ -386,7 +386,7 @@ menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
     "Υπολογιστής Νεκρού Σημείου",
     "Ανάλυση Αλλαγής Νεκρού Σημείου",
     "Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value)",
-    "Ανάλυση Υποκατάστασης Προϊόντων"
+    "Ανάλυση Υποκατάστατων Προϊόντων"
 ))
 
 if menu == "Αρχική Σελίδα":
@@ -397,5 +397,5 @@ elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
     show_break_even_shift_calculator()
 elif menu == "Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value)":
    show_clv_calculator()
-elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
+elif menu == "Ανάλυση Υποκατάστατων Προϊόντων":
     show_price_increase_scenario()
