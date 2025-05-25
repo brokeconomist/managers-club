@@ -41,72 +41,61 @@ def calculate_break_even_shift_v2(
 
     return percent_change * 100, units_change  # Ποσοστό %
 
-def calculate_custom_clv(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost,
-    discount_rate
-):
-    gross_profit = purchases_per_period * (price_per_unit - cost_per_unit)
-    net_cash_flow = gross_profit - annual_marketing_cost
-    clv = net_cash_flow / ((1 + discount_rate) ** years_retained)
-    return clv
+def calculate_clv(price, purchases_per_period, retention_rate, margin, discount_rate):
+    """Υπολογίζει το Customer Lifetime Value (CLV)"""
+    return (price * purchases_per_period * retention_rate * margin) / (1 + discount_rate - retention_rate)
 
-def plot_clv_tornado_chart(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    annual_marketing_cost,
-    discount_rate
-):
-    base_clv = calculate_custom_clv(
-        years_retained,
-        purchases_per_period,
-        price_per_unit,
-        cost_per_unit,
-        annual_marketing_cost,
-        discount_rate
-    )
+def clv_analysis():
+    st.title("Ανάλυση Αξίας Πελάτη (CLV)")
+    st.write("Υπολογισμός και ανάλυση ευαισθησίας της αξίας πελάτη εφ’ όρου ζωής.")
 
-    variations = {
-        "Χρόνια Πελάτη +10%": (years_retained * 1.1, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Χρόνια Πελάτη -10%": (years_retained * 0.9, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Αγορές/Περίοδο +10%": (years_retained, purchases_per_period * 1.1, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Αγορές/Περίοδο -10%": (years_retained, purchases_per_period * 0.9, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Τιμή Πώλησης +10%": (years_retained, purchases_per_period, price_per_unit * 1.1, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Τιμή Πώλησης -10%": (years_retained, purchases_per_period, price_per_unit * 0.9, cost_per_unit, annual_marketing_cost, discount_rate),
-        "Κόστος Μονάδας +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 1.1, annual_marketing_cost, discount_rate),
-        "Κόστος Μονάδας -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 0.9, annual_marketing_cost, discount_rate),
-        "Κόστος Μάρκετινγκ +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost * 1.1, discount_rate),
-        "Κόστος Μάρκετινγκ -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost * 0.9, discount_rate),
-        "Επιτόκιο +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate * 1.1),
-        "Επιτόκιο -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, annual_marketing_cost, discount_rate * 0.9),
-    }
+    with st.form("clv_form"):
+        price = st.number_input("Μέση τιμή αγοράς (€):", min_value=0.01, value=100.0, step=1.0)
+        purchases_per_period = st.number_input("Αγορές ανά περίοδο:", min_value=0.1, value=2.0, step=0.1)
+        retention_rate = st.slider("Ποσοστό διατήρησης πελατών (%):", min_value=0.0, max_value=100.0, value=60.0) / 100
+        margin = st.slider("Περιθώριο κέρδους (%):", min_value=0.0, max_value=100.0, value=30.0) / 100
+        discount_rate = st.slider("Προεξοφλητικό επιτόκιο (%):", min_value=0.0, max_value=100.0, value=10.0) / 100
 
-    impacts = []
-    labels = []
+        submitted = st.form_submit_button("Υπολογισμός CLV")
 
-    for label, args in variations.items():
-        new_clv = calculate_custom_clv(*args)
-        delta = new_clv - base_clv
-        impacts.append(delta)
-        labels.append(label)
+    if submitted:
+        clv = calculate_clv(price, purchases_per_period, retention_rate, margin, discount_rate)
+        st.subheader("Αποτελέσματα")
+        st.success(f"Η εκτιμώμενη αξία πελάτη είναι **{format_number_gr(clv)} €**.")
 
-    colors = ['green' if x > 0 else 'red' for x in impacts]
-    sorted_indices = np.argsort(np.abs(impacts))[::-1]
-    sorted_impacts = np.array(impacts)[sorted_indices]
-    sorted_labels = np.array(labels)[sorted_indices]
-    sorted_colors = np.array(colors)[sorted_indices]
+        # Tornado Chart Analysis
+        st.subheader("Ανάλυση ευαισθησίας (Tornado Chart)")
+        base = clv
+        scenarios = {
+            "Τιμή +10%": calculate_clv(price * 1.1, purchases_per_period, retention_rate, margin, discount_rate),
+            "Τιμή -10%": calculate_clv(price * 0.9, purchases_per_period, retention_rate, margin, discount_rate),
+            "Αγορές +10%": calculate_clv(price, purchases_per_period * 1.1, retention_rate, margin, discount_rate),
+            "Αγορές -10%": calculate_clv(price, purchases_per_period * 0.9, retention_rate, margin, discount_rate),
+            "Retention +10%": calculate_clv(price, purchases_per_period, min(retention_rate * 1.1, 0.99), margin, discount_rate),
+            "Retention -10%": calculate_clv(price, purchases_per_period, retention_rate * 0.9, margin, discount_rate),
+            "Margin +10%": calculate_clv(price, purchases_per_period, retention_rate, min(margin * 1.1, 1), discount_rate),
+            "Margin -10%": calculate_clv(price, purchases_per_period, retention_rate, margin * 0.9, discount_rate),
+            "Discount Rate +10%": calculate_clv(price, purchases_per_period, retention_rate, margin, min(discount_rate * 1.1, 1)),
+            "Discount Rate -10%": calculate_clv(price, purchases_per_period, retention_rate, margin, discount_rate * 0.9)
+        }
 
-    fig, ax = plt.subplots()
-    ax.barh(sorted_labels, sorted_impacts, color=sorted_colors)
-    ax.axvline(0, color='black', linewidth=0.8)
-    ax.set_xlabel("Μεταβολή στην CLV (€)")
-    ax.set_title("Tornado Chart Ευαισθησίας CLV")
-    st.pyplot(fig)
+        df = pd.DataFrame({
+            "Scenario": list(scenarios.keys()),
+            "CLV": list(scenarios.values())
+        })
+        df["Διαφορά από βασική τιμή"] = df["CLV"] - base
+        df = df.sort_values("Διαφορά από βασική τιμή", key=abs, ascending=True)
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        bars = ax.barh(df["Scenario"], df["Διαφορά από βασική τιμή"], color="skyblue")
+        ax.axvline(0, color="gray", linewidth=0.8)
+        ax.set_xlabel("Μεταβολή CLV (€)")
+        ax.set_title("Tornado Chart Ευαισθησίας CLV")
+        for bar in bars:
+            width = bar.get_width()
+            ax.text(bar.get_x() + width + (20 if width > 0 else -50), bar.get_y() + bar.get_height()/2,
+                    format_number_gr(width, 0) + " €", va='center')
+        st.pyplot(fig)
 
 def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
     units = list(range(0, int(break_even_units * 2) + 1))
