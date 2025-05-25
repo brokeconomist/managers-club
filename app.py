@@ -1,19 +1,18 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 
-st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
-
-### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
-
-def format_number_gr(num, decimals=2):
-    """Μορφοποιεί αριθμό σε ελληνικό format '1.234,56'"""
-    if num is None:
+def format_number_gr(number, decimals=2):
+    """Μορφοποιεί αριθμό σε ελληνικό format π.χ. '1.234,56'"""
+    if number is None:
         return ""
-    s = f"{num:,.{decimals}f}"
-    s = s.replace(",", "X").replace(".", ",").replace("X", ".")
-    return s
+    return f"{number:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def format_percentage_gr(number):
+    """Μορφοποιεί ποσοστά με ένα δεκαδικό και ελληνικό κόμμα"""
+    if number is None:
+        return ""
+    return f"{number:,.1f}%".replace(".", ",")
 
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
 
