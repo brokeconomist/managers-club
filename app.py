@@ -82,6 +82,63 @@ def calculate_clv_detailed(
 
     return total_value, discounted_value
 
+def plot_clv_tornado_chart(
+    years_retained,
+    purchases_per_period,
+    price_per_unit,
+    cost_per_unit,
+    marketing_cost,
+    discount_rate
+):
+    _, base_clv = calculate_clv_detailed(
+        years_retained,
+        purchases_per_period,
+        price_per_unit,
+        cost_per_unit,
+        marketing_cost,
+        discount_rate
+    )
+
+    variations = {
+        "Χρόνια Πελάτη +10%": (years_retained * 1.1, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate),
+        "Χρόνια Πελάτη -10%": (years_retained * 0.9, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate),
+        "Αγορές/Περίοδο +10%": (years_retained, purchases_per_period * 1.1, price_per_unit, cost_per_unit, marketing_cost, discount_rate),
+        "Αγορές/Περίοδο -10%": (years_retained, purchases_per_period * 0.9, price_per_unit, cost_per_unit, marketing_cost, discount_rate),
+        "Τιμή Πώλησης +10%": (years_retained, purchases_per_period, price_per_unit * 1.1, cost_per_unit, marketing_cost, discount_rate),
+        "Τιμή Πώλησης -10%": (years_retained, purchases_per_period, price_per_unit * 0.9, cost_per_unit, marketing_cost, discount_rate),
+        "Κόστος Μονάδας +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 1.1, marketing_cost, discount_rate),
+        "Κόστος Μονάδας -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 0.9, marketing_cost, discount_rate),
+        "Κόστος Μάρκετινγκ +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost * 1.1, discount_rate),
+        "Κόστος Μάρκετινγκ -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost * 0.9, discount_rate),
+        "Επιτόκιο +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate * 1.1),
+        "Επιτόκιο -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate * 0.9),
+    }
+
+    impacts = []
+    labels = []
+
+    for label, args in variations.items():
+        try:
+            _, new_clv = calculate_clv_detailed(*args)
+            delta = new_clv - base_clv
+            impacts.append(delta)
+            labels.append(label)
+        except:
+            continue
+
+    colors = ['green' if x > 0 else 'red' for x in impacts]
+    sorted_indices = np.argsort(np.abs(impacts))[::-1]
+    sorted_impacts = np.array(impacts)[sorted_indices]
+    sorted_labels = np.array(labels)[sorted_indices]
+    sorted_colors = np.array(colors)[sorted_indices]
+
+    fig, ax = plt.subplots()
+    ax.barh(sorted_labels, sorted_impacts, color=sorted_colors)
+    ax.axvline(0, color='black', linewidth=0.8)
+    ax.set_xlabel("Μεταβολή στην CLV (€)")
+    ax.set_title("Tornado Chart Ευαισθησίας CLV")
+    st.pyplot(fig)
+
 def calculate_max_product_A_sales_drop(
     old_price,
     price_increase_absolute,  # σε ευρώ (π.χ. 0.10)
