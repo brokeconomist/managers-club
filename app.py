@@ -134,6 +134,17 @@ def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units
     ax.legend()
     st.pyplot(fig)
 
+def calculate_max_product_A_sales_drop(old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
+    benefit_substitutes = (percent_B * profit_B + percent_C * profit_C + percent_D * profit_D)
+    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase
+    numerator = - price_increase
+    try:
+        max_sales_drop = numerator / denominator
+        return max_sales_drop
+    except ZeroDivisionError:
+        return None
+
+
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def show_home():
@@ -280,6 +291,42 @@ def show_clv_calculator():
             annual_marketing_cost,
             discount_rate
         )
+
+def show_price_increase_scenario():
+    st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
+
+    with st.form("price_increase_form"):
+        col1, col2 = st.columns(2)
+
+        with col1:
+            old_price = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
+            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=10.0, step=0.1)
+            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.5, step=0.01)
+
+        with col2:
+            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.4, step=0.01)
+            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.3, step=0.01)
+            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.2, step=0.01)
+
+        percent_B = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Β (%)", min_value=0.0, max_value=100.0, value=20.0, step=0.1)
+        percent_C = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Γ (%)", min_value=0.0, max_value=100.0, value=15.0, step=0.1)
+        percent_D = st.number_input("Ποσοστό Υποκατάστατων Προϊόντος Δ (%)", min_value=0.0, max_value=100.0, value=10.0, step=0.1)
+
+        submitted = st.form_submit_button("Υπολόγισε")
+
+    if submitted:
+        price_increase = price_increase_pct / 100
+        max_sales_drop = calculate_max_product_A_sales_drop(
+            old_price, price_increase, profit_A, profit_B, profit_C, profit_D, 
+            percent_B / 100, percent_C / 100, percent_D / 100
+        )
+        if max_sales_drop is None:
+            st.error("Αδύνατος ο υπολογισμός με τα δοθέντα στοιχεία.")
+        else:
+            st.success(f"Αποδεκτή Μείωση Πωλήσεων Προϊόντος Α: {max_sales_drop*100:.2f} %")
+
+if __name__ == "__main__":
+    show_home()
 
 ### MAIN MENU ###
 
