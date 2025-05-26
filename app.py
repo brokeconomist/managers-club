@@ -333,7 +333,7 @@ def parse_gr_number(s):
         return None
 
 def show_clv_calculator():
-    st.header("Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value - CLV)")
+    st.header("Υπολογιστής Αξίας Πελάτη (CLV)") 
 
     years_retained_input = st.text_input("Χρόνια Διατήρησης Πελάτη:", value="5")
     purchases_per_period_input = st.text_input("Αγορές ανά Περίοδο:", value="12")
@@ -433,20 +433,23 @@ def show_price_increase_scenario():
 def show_required_sales_increase_calculator():
     st.header("📈 Ανάλυση Συμπληρωματικών Προϊόντων")
 
-    col1, col2 = st.columns(2)
+    with st.form("complementary_analysis_form"):
+        col1, col2 = st.columns(2)
 
-    with col1:
-        price_A = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", min_value=0.01, value=200.00)
-        profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=100.00)
-        profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=40.00)
-        profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=15.00)
+        with col1:
+            price_A = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", min_value=0.01, value=200.00)
+            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=100.00)
+            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=40.00)
+            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=15.00)
 
-    with col2:
-        price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", value=-10.00)
-        percent_B = st.number_input("% Πελατών που αγοράζουν και Προϊόν Β", min_value=0.0, max_value=100.0, value=50.0)
-        percent_C = st.number_input("% Πελατών που αγοράζουν και Προϊόν Γ", min_value=0.0, max_value=100.0, value=30.0)
+        with col2:
+            price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", value=-10.00)
+            percent_B = st.number_input("% Πελατών που αγοράζουν και Προϊόν Β", min_value=0.0, max_value=100.0, value=50.0)
+            percent_C = st.number_input("% Πελατών που αγοράζουν και Προϊόν Γ", min_value=0.0, max_value=100.0, value=30.0)
 
-    if st.button("Υπολογισμός"):
+        submitted = st.form_submit_button("Υπολογισμός")
+
+    if submitted:
         result = calculate_required_sales_increase(
             price_A,
             profit_A,
@@ -461,6 +464,7 @@ def show_required_sales_increase_calculator():
             st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
         else:
             st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
+
 ### MAIN MENU ###
 
 menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
