@@ -14,7 +14,7 @@ def format_number_gr(num, decimals=2):
     s = f"{num:,.{decimals}f}"
     s = s.replace(",", "X").replace(".", ",").replace("X", ".")
     return s
-
+    
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
