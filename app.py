@@ -519,16 +519,25 @@ def show_loss_threshold_before_price_cut():
         col1, col2 = st.columns(2)
 
         with col1:
-            competitor_old_price = st.number_input("Αρχική τιμή ανταγωνιστή πριν την μείωση (€)", min_value=0.01, value=8.0)
-            our_price = st.number_input("Τιμή πώλησης προϊόντος (€)", min_value=0.01, value=8.0)
+            competitor_old_price_input = st.text_input("Αρχική τιμή ανταγωνιστή πριν την μείωση (€)", value=format_number_gr(8.0))
+            our_price_input = st.text_input("Τιμή πώλησης προϊόντος (€)", value=format_number_gr(8.0))
 
         with col2:
-            competitor_new_price = st.number_input("Νέα τιμή ανταγωνιστή μετά την μείωση (€)", min_value=0.01, value=7.2)
-            unit_cost = st.number_input("Κόστος ανά μονάδα προϊόντος (€)", min_value=0.01, value=4.5)
+            competitor_new_price_input = st.text_input("Νέα τιμή ανταγωνιστή μετά την μείωση (€)", value=format_number_gr(7.2))
+            unit_cost_input = st.text_input("Κόστος ανά μονάδα προϊόντος (€)", value=format_number_gr(4.5))
 
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
+        competitor_old_price = parse_gr_number(competitor_old_price_input)
+        competitor_new_price = parse_gr_number(competitor_new_price_input)
+        our_price = parse_gr_number(our_price_input)
+        unit_cost = parse_gr_number(unit_cost_input)
+
+        if None in (competitor_old_price, competitor_new_price, our_price, unit_cost):
+            st.error("⚠️ Έλεγξε ότι όλα τα αριθμητικά πεδία είναι σωστά συμπληρωμένα.")
+            return
+
         result = calculate_sales_loss_threshold(
             competitor_old_price,
             competitor_new_price,
@@ -540,6 +549,10 @@ def show_loss_threshold_before_price_cut():
             st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
         else:
             st.success(f"✅ Μέγιστο % Πωλήσεων που μπορεί να χαθεί πριν μειωθεί η τιμή: {format_percentage_gr(result)}")
+
+    # Οπτική συνέπεια
+    st.markdown("---")
+    st.markdown(" ")
 
 ### MAIN MENU ###
 
