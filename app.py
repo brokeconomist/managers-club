@@ -173,6 +173,32 @@ def format_percentage_gr(number):
     """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
     return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
 
+def calculate_min_required_sales_increase(
+    price_A,
+    profit_A,
+    profit_B,
+    profit_C,
+    price_change_pct,
+    percent_B,
+    percent_C
+):
+    percent_B = percent_B / 100
+    percent_C = percent_C / 100
+    price_change = price_A * price_change_pct / 100  # π.χ. -10% => -20€
+
+    added_profit = profit_B * percent_B + profit_C * percent_C
+    numerator = -price_change
+    denominator = ((profit_A + added_profit) / price_A) + price_change_pct / 100
+
+    try:
+        result_pct = numerator / denominator * 100
+        return result_pct
+    except ZeroDivisionError:
+        return None
+        
+def format_percentage_gr(number):
+    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
+    return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
@@ -378,6 +404,37 @@ def show_price_increase_scenario():
         else:
             st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_number_gr(result)}%")
             st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
+
+def show_required_sales_increase_calculator():
+    st.header("📈 Υπολογισμός Ελάχιστης % Αύξησης Πωλήσεων Προϊόντος Α μετά από Μείωση Τιμής")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        price_A = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", value=200.0, step=1.0)
+        profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", value=100.0, step=1.0)
+        price_change_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", value=-10.0, step=0.1)
+
+    with col2:
+        profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", value=40.0, step=1.0)
+        profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", value=15.0, step=1.0)
+        percent_B = st.number_input("% Πελατών που αγοράζουν Προϊόν Β", value=50.0, step=1.0)
+        percent_C = st.number_input("% Πελατών που αγοράζουν Προϊόν Γ", value=30.0, step=1.0)
+
+    if st.button("Υπολογισμός"):
+        result = calculate_min_required_sales_increase(
+            price_A,
+            profit_A,
+            profit_B,
+            profit_C,
+            price_change_pct,
+            percent_B,
+            percent_C
+        )
+
+        if result is None:
+            st.error("❌ Δεν μπορεί να γίνει υπολογισμός. Έλεγξε τα δεδομένα.")
+        else:
+            st.success(f"✅ Ελάχιστη απαιτούμενη αύξηση πωλήσεων: {format_percentage_gr(result)}")
 
 ### MAIN MENU ###
 
