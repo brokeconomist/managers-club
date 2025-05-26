@@ -200,6 +200,31 @@ def format_percentage_gr(number):
     """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
     return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
 
+def calculate_required_sales_increase(
+    price_per_unit_A,
+    profit_per_unit_A,
+    profit_per_unit_B,
+    profit_per_unit_C,
+    percent_B,
+    percent_C,
+    price_reduction_pct  # σε μορφή ποσοστού π.χ. -10 για -10%
+):
+    """
+    Υπολογίζει την ελάχιστη αύξηση πωλήσεων που απαιτείται μετά από μείωση τιμής
+    ώστε να διατηρηθεί το ίδιο συνολικό κέρδος, λαμβάνοντας υπόψη τα συμπληρωματικά προϊόντα.
+    """
+    price_reduction = price_reduction_pct / 100  # μετατροπή σε δεκαδικό
+
+    total_supplement_profit = (profit_per_unit_B * percent_B / 100) + (profit_per_unit_C * percent_C / 100)
+    denominator = ((profit_per_unit_A + total_supplement_profit) / price_per_unit_A) + price_reduction
+
+    if denominator == 0:
+        return None
+
+    required_sales_increase = -price_reduction / denominator
+    return required_sales_increase * 100  # Επιστρέφεται ως ποσοστό
+
+
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def show_home():
@@ -406,35 +431,36 @@ def show_price_increase_scenario():
             st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
 
 def show_required_sales_increase_calculator():
-    st.header("📈 Υπολογισμός Ελάχιστης % Αύξησης Πωλήσεων Προϊόντος Α μετά από Μείωση Τιμής")
+    st.header("📈 Ανάλυση Συμπληρωματικών Προϊόντων")
 
     col1, col2 = st.columns(2)
+
     with col1:
-        price_A = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", value=200.0, step=1.0)
-        profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", value=100.0, step=1.0)
-        price_change_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", value=-10.0, step=0.1)
+        price_A = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", min_value=0.01, value=200.00)
+        profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=100.00)
+        profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=40.00)
+        profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=15.00)
 
     with col2:
-        profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", value=40.0, step=1.0)
-        profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", value=15.0, step=1.0)
-        percent_B = st.number_input("% Πελατών που αγοράζουν Προϊόν Β", value=50.0, step=1.0)
-        percent_C = st.number_input("% Πελατών που αγοράζουν Προϊόν Γ", value=30.0, step=1.0)
+        price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", value=-10.00)
+        percent_B = st.number_input("% Πελατών που αγοράζουν και Προϊόν Β", min_value=0.0, max_value=100.0, value=50.0)
+        percent_C = st.number_input("% Πελατών που αγοράζουν και Προϊόν Γ", min_value=0.0, max_value=100.0, value=30.0)
 
     if st.button("Υπολογισμός"):
-        result = calculate_min_required_sales_increase(
+        result = calculate_required_sales_increase(
             price_A,
             profit_A,
             profit_B,
             profit_C,
-            price_change_pct,
             percent_B,
-            percent_C
+            percent_C,
+            price_reduction_pct
         )
 
         if result is None:
-            st.error("❌ Δεν μπορεί να γίνει υπολογισμός. Έλεγξε τα δεδομένα.")
+            st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
         else:
-            st.success(f"✅ Ελάχιστη απαιτούμενη αύξηση πωλήσεων: {format_percentage_gr(result)}")
+            st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
 
 ### MAIN MENU ###
 
@@ -442,8 +468,8 @@ menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
     "Αρχική Σελίδα",
     "Υπολογιστής Νεκρού Σημείου",
     "Ανάλυση Αλλαγής Νεκρού Σημείου",
-    "Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value)",
-    "Ανάλυση Υποκατάστατων Προϊόντων"
+    "Υπολογιστής Αξίας Πελάτη (CLV)",
+    "Ανάλυση Υποκατάστασης Προϊόντων",
     "Ανάλυση Συμπληρωματικών Προϊόντων"
 ))
 
