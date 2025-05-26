@@ -319,7 +319,7 @@ def show_break_even_shift_calculator():
         st.error("Υπολογισμός αδύνατος με τα δοσμένα στοιχεία (διαίρεση με μηδέν).")
         return
 
-    st.success(f"Αλλαγή Νεκρού Σημείου (%): {percent_change:.2f} %")
+    st.success(f"Αλλαγή Νεκρού Σημείου (%): {format_percentage_gr(percent_change)}")
     st.success(f"Αλλαγή Νεκρού Σημείου (μονάδες): {format_number_gr(units_change, 0)} μονάδες")
 
 def parse_gr_number(s):
