@@ -224,6 +224,21 @@ def calculate_required_sales_increase(
     required_sales_increase = -price_reduction / denominator
     return required_sales_increase * 100  # Επιστρέφεται ως ποσοστό
 
+def calculate_sales_loss_threshold(
+    competitor_old_price,
+    competitor_new_price,
+    our_price,
+    unit_cost
+):
+    try:
+        top = (competitor_new_price - competitor_old_price) / competitor_old_price
+        bottom = (unit_cost - our_price) / our_price
+        if bottom == 0:
+            return None
+        result = top / bottom
+        return result * 100  # Ποσοστό
+    except ZeroDivisionError:
+        return None
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
@@ -474,6 +489,35 @@ def show_required_sales_increase_calculator():
     st.markdown(" ")
     st.markdown(" ")
 
+def show_loss_threshold_before_price_cut():
+    st.header("📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών")
+
+    with st.form("loss_threshold_form"):
+        col1, col2 = st.columns(2)
+
+        with col1:
+            competitor_old_price = st.number_input("Αρχική τιμή ανταγωνιστή πριν την μείωση (€)", min_value=0.01, value=8.0)
+            our_price = st.number_input("Τιμή πώλησης προϊόντος (€)", min_value=0.01, value=8.0)
+
+        with col2:
+            competitor_new_price = st.number_input("Νέα τιμή ανταγωνιστή μετά την μείωση (€)", min_value=0.01, value=7.2)
+            unit_cost = st.number_input("Κόστος ανά μονάδα προϊόντος (€)", min_value=0.01, value=4.5)
+
+        submitted = st.form_submit_button("Υπολογισμός")
+
+    if submitted:
+        result = calculate_sales_loss_threshold(
+            competitor_old_price,
+            competitor_new_price,
+            our_price,
+            unit_cost
+        )
+
+        if result is None:
+            st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
+        else:
+            st.success(f"✅ Μέγιστο % Πωλήσεων που μπορεί να χαθεί πριν μειωθεί η τιμή: {format_percentage_gr(result)}")
+
 ### MAIN MENU ###
 
 menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
@@ -482,7 +526,8 @@ menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
     "Ανάλυση Αλλαγής Νεκρού Σημείου",
     "Υπολογιστής Αξίας Πελάτη (CLV)",
     "Ανάλυση Υποκατάστασης Προϊόντων",
-    "Ανάλυση Συμπληρωματικών Προϊόντων"
+    "Ανάλυση Συμπληρωματικών Προϊόντων",
+    "Όριο Απώλειας Πωλήσεων πριν Μείωση Τιμής"
 ))
 
 if menu == "Αρχική Σελίδα":
@@ -497,3 +542,5 @@ elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
 elif menu == "Ανάλυση Συμπληρωματικών Προϊόντων":
     show_required_sales_increase_calculator()
+elif menu == "Όριο Απώλειας Πωλήσεων πριν Μείωση Τιμής":
+    show_loss_threshold_before_price_cut()
