@@ -273,7 +273,7 @@ def show_break_even_calculator():
     # Είσοδοι ως ελληνικά μορφοποιημένα κείμενα
     price_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="10,00")
     variable_cost_input = st.text_input("Μεταβλητό Κόστος ανά Μονάδα (€):", value="6,00")
-    fixed_costs_input = st.text_input("Πάγια Έξοδα (€):", value="1000,00")
+    fixed_costs_input = st.text_input("Πάγια Έξοδα (€):", value=format_number_gr(1000.00))
 
     price = parse_gr_number(price_input)
     variable_cost = parse_gr_number(variable_cost_input)
