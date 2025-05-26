@@ -478,9 +478,9 @@ elif menu == "Υπολογιστής Νεκρού Σημείου":
     show_break_even_calculator()
 elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
     show_break_even_shift_calculator()
-elif menu == "Υπολογιστής Αξίας Πελάτη (Customer Lifetime Value)":
-   show_clv_calculator()
-elif menu == "Ανάλυση Υποκατάστατων Προϊόντων":
+elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
+    show_clv_calculator()
+elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
 elif menu == "Ανάλυση Συμπληρωματικών Προϊόντων":
     show_required_sales_increase_calculator()
