@@ -302,7 +302,7 @@ def show_break_even_shift_calculator():
     old_cost_input = st.text_input("Παλιό Κόστος Μονάδας (€):", value="6,00", key="old_cost")
     new_cost_input = st.text_input("Νέο Κόστος Μονάδας (€):", value="6,50", key="new_cost")
     investment_cost_input = st.text_input("Κόστος Επένδυσης (€):", value=format_number_gr(2000.00), key="investment_cost")
-    units_sold_input = st.text_input("Πωλήσεις Μονάδων (τελευταία περίοδος):", value=format_number_gr(1.000, decimals=0), key="units_sold")
+    units_sold_input = st.text_input("Πωλήσεις Μονάδων (τελευταία περίοδος):", value=format_number_gr(500, decimals=0), key="units_sold")
 
     old_price = parse_gr_number(old_price_input)
     new_price = parse_gr_number(new_price_input)
