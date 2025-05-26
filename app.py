@@ -224,22 +224,6 @@ def calculate_required_sales_increase(
     required_sales_increase = -price_reduction / denominator
     return required_sales_increase * 100  # Επιστρέφεται ως ποσοστό
 
-def calculate_sales_loss_threshold(
-    competitor_old_price,
-    competitor_new_price,
-    our_price,
-    unit_cost
-):
-    try:
-        top = (competitor_new_price - competitor_old_price) / competitor_old_price
-        bottom = (unit_cost - our_price) / our_price
-        if bottom == 0:
-            return None
-        result = top / bottom
-        return result * 100  # Ποσοστό
-    except ZeroDivisionError:
-        return None
-
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def show_home():
@@ -488,6 +472,22 @@ def show_required_sales_increase_calculator():
     st.markdown("---")
     st.markdown(" ")
     st.markdown(" ")
+
+def calculate_sales_loss_threshold(
+    competitor_old_price,
+    competitor_new_price,
+    our_price,
+    unit_cost
+):
+    try:
+        top = (competitor_new_price - competitor_old_price) / competitor_old_price
+        bottom = (unit_cost - our_price) / our_price
+        if bottom == 0:
+            return None
+        result = top / bottom
+        return result * 100  # Ποσοστό
+    except ZeroDivisionError:
+        return None
 
 def show_loss_threshold_before_price_cut():
     st.header("📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών")
