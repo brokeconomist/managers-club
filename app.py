@@ -519,7 +519,7 @@ def show_loss_threshold_before_price_cut():
         col1, col2 = st.columns(2)
 
         with col1:
-            competitor_old_price_input = st.text_input("Αρχική τιμή ανταγωνιστή πριν την μείωση (€)", value=format_number_gr(8.0))
+            competitor_old_price_input = st.text_input("Αρχική τιμή ανταγωνιστή πριν την μείωση (€)", value=format_number_gr(8,0))
             our_price_input = st.text_input("Τιμή πώλησης προϊόντος (€)", value=format_number_gr(8.0))
 
         with col2:
