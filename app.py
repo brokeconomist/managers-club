@@ -391,14 +391,14 @@ def show_price_increase_scenario():
         col1, col2 = st.columns(2)
 
         with col1:
-            old_price = st.number_input("Τιμή ανά κιλό Προϊόντος Α (€)", min_value=0.01, value=1.50, step=0.01)
-            price_increase_pct = st.number_input("Αύξηση τιμής (%)", min_value=0.0, max_value=100.0, value=5.0, step=0.1) / 100
-            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=0.30, step=0.01)
+            old_price_input = st.text_input("Τιμή ανά κιλό Προϊόντος Α (€)", value=format_number_gr(1.50))
+            price_increase_input = st.text_input("Αύξηση τιμής (%)", value=format_number_gr(5.0))
+            profit_A_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(0.30))
 
         with col2:
-            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=0.20, step=0.01)
-            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=0.20, step=0.01)
-            profit_D = st.number_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", min_value=0.0, value=0.05, step=0.01)
+            profit_B_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", value=format_number_gr(0.20))
+            profit_C_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", value=format_number_gr(0.20))
+            profit_D_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", value=format_number_gr(0.05))
 
         percent_B = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Β (%)", 0.0, 100.0, 45.0) / 100
         percent_C = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Γ (%)", 0.0, 100.0, 20.0) / 100
@@ -407,6 +407,17 @@ def show_price_increase_scenario():
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
+        old_price = parse_gr_number(old_price_input)
+        price_increase_pct = parse_gr_number(price_increase_input) / 100
+        profit_A = parse_gr_number(profit_A_input)
+        profit_B = parse_gr_number(profit_B_input)
+        profit_C = parse_gr_number(profit_C_input)
+        profit_D = parse_gr_number(profit_D_input)
+
+        if None in (old_price, price_increase_pct, profit_A, profit_B, profit_C, profit_D):
+            st.error("❌ Έλεγξε ότι όλα τα αριθμητικά πεδία είναι σωστά συμπληρωμένα.")
+            return
+
         total_substitute = percent_B + percent_C + percent_D
         if total_substitute > 1:
             st.error("❌ Το συνολικό ποσοστό πελατών που επιλέγουν άλλα προϊόντα δεν μπορεί να ξεπερνά το 100%.")
@@ -436,17 +447,16 @@ def show_required_sales_increase_calculator():
     st.header("📈 Ανάλυση Συμπληρωματικών Προϊόντων")
 
     with st.form("complementary_products_form"):
-        # Διπλή στήλη για αριθμητικά πεδία
         col1, col2 = st.columns(2)
 
         with col1:
-            price_A = st.number_input("Τιμή ανά μονάδα Προϊόντος Α (€)", min_value=0.01, value=200.00)
-            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", min_value=0.0, value=100.00)
-            profit_B = st.number_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", min_value=0.0, value=40.00)
+            price_A_input = st.text_input("Τιμή ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(200.00))
+            profit_A_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(100.00))
+            profit_B_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", value=format_number_gr(40.00))
 
         with col2:
-            profit_C = st.number_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", min_value=0.0, value=15.00)
-            price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", value=-10.00)
+            profit_C_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", value=format_number_gr(15.00))
+            price_reduction_pct_input = st.text_input("Μείωση Τιμής Προϊόντος Α (%)", value=format_number_gr(-10.00))
 
         st.markdown("### 📊 Συμπεριφορές Πελατών σε Συμπληρωματικά Προϊόντα")
 
@@ -456,6 +466,16 @@ def show_required_sales_increase_calculator():
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
+        price_A = parse_gr_number(price_A_input)
+        profit_A = parse_gr_number(profit_A_input)
+        profit_B = parse_gr_number(profit_B_input)
+        profit_C = parse_gr_number(profit_C_input)
+        price_reduction_pct = parse_gr_number(price_reduction_pct_input)
+
+        if None in (price_A, profit_A, profit_B, profit_C, price_reduction_pct):
+            st.error("⚠️ Έλεγξε ότι όλα τα αριθμητικά πεδία είναι σωστά συμπληρωμένα.")
+            return
+
         result = calculate_required_sales_increase(
             price_A,
             profit_A,
@@ -471,7 +491,7 @@ def show_required_sales_increase_calculator():
         else:
             st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
 
-    # Κενός χώρος κάτω για οπτική συνέπεια
+    # Κενός χώρος για οπτική συνέπεια
     st.markdown("---")
     st.markdown(" ")
     st.markdown(" ")
