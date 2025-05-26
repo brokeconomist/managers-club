@@ -433,7 +433,7 @@ def show_price_increase_scenario():
 def show_required_sales_increase_calculator():
     st.header("📈 Ανάλυση Συμπληρωματικών Προϊόντων")
 
-    with st.form("complementary_analysis_form"):
+    with st.form("complementary_products_form"):
         col1, col2 = st.columns(2)
 
         with col1:
@@ -444,8 +444,8 @@ def show_required_sales_increase_calculator():
 
         with col2:
             price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", value=-10.00)
-            percent_B = st.number_input("% Πελατών που αγοράζουν και Προϊόν Β", min_value=0.0, max_value=100.0, value=50.0)
-            percent_C = st.number_input("% Πελατών που αγοράζουν και Προϊόν Γ", min_value=0.0, max_value=100.0, value=30.0)
+            percent_B = st.slider("% Πελατών που αγοράζουν και Προϊόν Β", 0.0, 100.0, 50.0)
+            percent_C = st.slider("% Πελατών που αγοράζουν και Προϊόν Γ", 0.0, 100.0, 30.0)
 
         submitted = st.form_submit_button("Υπολογισμός")
 
@@ -464,6 +464,12 @@ def show_required_sales_increase_calculator():
             st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
         else:
             st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
+
+    # Κενός χώρος κάτω όπως στην ανάλυση υποκατάστασης
+    st.markdown("---")
+    st.markdown(" ")
+    st.markdown(" ")
+
 
 ### MAIN MENU ###
 
