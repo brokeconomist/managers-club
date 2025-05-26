@@ -391,7 +391,7 @@ def show_price_increase_scenario():
         col1, col2 = st.columns(2)
 
         with col1:
-            old_price_input = st.text_input("Τιμή ανά κιλό Προϊόντος Α (€)", value=format_number_gr(1.50))
+            old_price_input = st.text_input("Τιμή ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(1.50))
             price_increase_input = st.text_input("Αύξηση τιμής (%)", value=format_number_gr(5.0))
             profit_A_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(0.30))
 
