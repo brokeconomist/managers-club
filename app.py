@@ -14,6 +14,10 @@ def format_number_gr(num, decimals=2):
     s = f"{num:,.{decimals}f}"
     s = s.replace(",", "X").replace(".", ",").replace("X", ".")
     return s
+
+def format_percentage_gr(number):
+    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
+    return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
     
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
 
@@ -426,7 +430,7 @@ def show_price_increase_scenario():
         if result is None:
             st.error("❌ Αδυναμία υπολογισμού. Δοκίμασε άλλες τιμές.")
         else:
-            st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_number_gr(result)}%")
+            st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_percentage_gr(result)}")
             st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
 
 def show_required_sales_increase_calculator():
