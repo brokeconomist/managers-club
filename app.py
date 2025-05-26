@@ -461,7 +461,6 @@ def show_required_sales_increase_calculator():
             st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
         else:
             st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
-
 ### MAIN MENU ###
 
 menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
