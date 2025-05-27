@@ -268,8 +268,14 @@ def show_home():
 ### ΒΑΣΙΚΕΣ ΕΙΣΟΔΟΙ ΚΑΙ ΥΠΟΛΟΓΙΣΜΟΙ ###
 
 def show_break_even_calculator():
-    st.header("Υπολογιστής Νεκρού Σημείου (Break-Even Point)")
+    st.title("Πόσο πρέπει να πουλήσω για να μη μπαίνω μέσα;")
+    st.markdown("""
+    Θέλετε να μάθετε **πόσα τεμάχια** ή **ποιο τζίρο** πρέπει να κάνετε για να καλύψετε τα έξοδά σας;
 
+    👉 Αυτό το εργαλείο σάς δείχνει το **νεκρό σημείο** – δηλαδή εκεί που δεν έχετε ούτε κέρδος ούτε ζημιά.
+
+    Ιδανικό για: νέες επιχειρήσεις, νέες τιμολογήσεις, ή όταν ζυγίζετε αν «σας βγαίνει» μια προσπάθεια.
+    """)
     # Είσοδοι ως ελληνικά μορφοποιημένα κείμενα
     price_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="10,00")
     variable_cost_input = st.text_input("Μεταβλητό Κόστος ανά Μονάδα (€):", value="6,00")
@@ -289,8 +295,9 @@ def show_break_even_calculator():
         st.error("Η Τιμή Πώλησης πρέπει να είναι μεγαλύτερη από το Μεταβλητό Κόστος.")
         return
 
-    st.success(f"Νεκρό Σημείο σε Μονάδες: {format_number_gr(be_units, 0)} μονάδες")
-    st.success(f"Νεκρό Σημείο σε Έσοδα: {format_number_gr(be_revenue)} €")
+    st.success("📊 Αποτελέσματα Νεκρού Σημείου")
+    st.metric("🔢 Τεμάχια για κάλυψη κόστους", format_number_gr(be_units, 2))
+    st.metric("💶 Τζίρος για κάλυψη κόστους", f"{format_number_gr(be_revenue)} €")
 
     plot_break_even(price, variable_cost, fixed_costs, be_units)
 
