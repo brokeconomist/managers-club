@@ -366,6 +366,7 @@ def show_clv_calculator():
     Και το εργαλείο θα σας δείξει:
     - Την **εκτιμώμενη συνολική αξία**
     - Την **καθαρή παρούσα αξία**
+    - Η μεταβολή ποιών στοιχείων **επηρεάζει** περισσότερο τα δύο παραπάνω (Tornado Chart)
     """)
     years_retained_input = st.text_input("Χρόνια Διατήρησης Πελάτη:", value="5")
     purchases_per_period_input = st.text_input("Αγορές ανά Περίοδο:", value="12")
