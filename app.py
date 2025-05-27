@@ -506,7 +506,7 @@ def show_required_sales_increase_calculator():
             profit_C_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", value=format_number_gr(15.00))
             price_reduction_pct_input = st.text_input("Μείωση Τιμής Προϊόντος Α (%)", value=format_number_gr(-10.00))
 
-        st.markdown("### 📊 Συμπεριφορές Πελατών σε Συμπληρωματικά Προϊόντα")
+        st.markdown("### 📊 Συμπεριφορές πελατών σε πυμπληρωματικά προϊόντα λόγω έκπτωσης στο βασικό προϊόν")
 
         percent_B = st.slider("% Πελατών που αγοράζουν και Προϊόν Β", 0.0, 100.0, 50.0)
         percent_C = st.slider("% Πελατών που αγοράζουν και Προϊόν Γ", 0.0, 100.0, 30.0)
