@@ -371,7 +371,7 @@ def show_clv_calculator():
     purchases_per_period_input = st.text_input("Αγορές ανά Περίοδο:", value="12")
     price_per_unit_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="100,00")
     cost_per_unit_input = st.text_input("Κόστος Μονάδας (€):", value="60,00")
-    marketing_cost_input = st.text_input("Ετήσιο Κόστος Μάρκετινγκ (€):", value="50,00")
+    marketing_cost_input = st.text_input("Ετήσιο Κόστος Μάρκετινγκ (€):", value="100,00")
     discount_rate_input = st.text_input("Ετήσιο Προεξοφλητικό Επιτόκιο (%):", value="10,00")
 
     try:
