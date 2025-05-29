@@ -1,9 +1,8 @@
 import streamlit as st
+st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-
-st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 
 ### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
 
