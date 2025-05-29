@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import home
 
 st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 
