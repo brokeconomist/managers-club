@@ -8,7 +8,6 @@ st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="center
 ### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
 
 def format_number_gr(num, decimals=2):
-    """Μορφοποιεί αριθμό σε ελληνικό format '1.234,56'"""
     if num is None:
         return ""
     s = f"{num:,.{decimals}f}"
@@ -16,15 +15,18 @@ def format_number_gr(num, decimals=2):
     return s
 
 def format_percentage_gr(number):
-    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
     return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
-    
+
+def parse_gr_number(s):
+    """Μετατρέπει αριθμό μορφής '1.234,56' σε float 1234.56"""
+    if s is None or s.strip() == "":
+        return None
+    try:
+        return float(s.replace('.', '').replace(',', '.'))
+    except:
+        return None
+
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
-
-# Retry timing without importing unused modules (like streamlit, numpy, matplotlib)
-# These are not needed for the actual function execution and caused import errors
-
-setup_code = """
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
         return None, None
@@ -32,7 +34,6 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_units = fixed_costs / contribution_margin
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
-
 def calculate_break_even_shift_v2(old_price, new_price, old_unit_cost, new_unit_cost, investment_cost, units_sold):
     denominator = new_price - new_unit_cost
     if denominator == 0 or units_sold == 0:
