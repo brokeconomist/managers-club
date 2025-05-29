@@ -366,22 +366,19 @@ def show_required_sales_increase_calculator():
 
     Τέλειο για upselling, bundles, ή έξυπνες προτάσεις πώλησης!
     """)
+
     with st.form("complementary_products_form"):
         col1, col2 = st.columns(2)
 
         with col1:
             price_A_input = st.text_input("Τιμή ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(200.00))
             profit_A_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(100.00))
-            profit_B_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", value=format_number_gr(40.00))
+            percent_customers_buying_B_input = st.text_input("Ποσοστό πελατών που αγοράζουν Προϊόν Β (%)", value="20,0")
 
         with col2:
-            profit_C_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", value=format_number_gr(15.00))
-            price_reduction_pct_input = st.text_input("Μείωση Τιμής Προϊόντος Α (%)", value=format_number_gr(-10.00))
-
-        st.markdown("### 📊 Συμπεριφορές πελατών σε συμπληρωματικά προϊόντα λόγω έκπτωσης στο βασικό προϊόν")
-
-        percent_B = st.slider("% Πελατών που αγοράζουν και Προϊόν Β", 0.0, 100.0, 50.0)
-        percent_C = st.slider("% Πελατών που αγοράζουν και Προϊόν Γ", 0.0, 100.0, 30.0)
+            profit_B_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", value=format_number_gr(80.00))
+            price_B_input = st.text_input("Τιμή Προϊόντος Β (€)", value=format_number_gr(150.00))
+            discount_B_input = st.text_input("Έκπτωση (%) στο Προϊόν Β", value="10,0")
 
         submitted = st.form_submit_button("Υπολογισμός")
 
@@ -389,32 +386,31 @@ def show_required_sales_increase_calculator():
         price_A = parse_gr_number(price_A_input)
         profit_A = parse_gr_number(profit_A_input)
         profit_B = parse_gr_number(profit_B_input)
-        profit_C = parse_gr_number(profit_C_input)
-        price_reduction_pct = parse_gr_number(price_reduction_pct_input)
+        price_B = parse_gr_number(price_B_input)
+        discount_B_pct = parse_gr_number(discount_B_input)
+        percent_customers_buying_B = parse_gr_number(percent_customers_buying_B_input)
 
-        if None in (price_A, profit_A, profit_B, profit_C, price_reduction_pct):
-            st.error("⚠️ Έλεγξε ότι όλα τα αριθμητικά πεδία είναι σωστά συμπληρωμένα.")
+        if None in (price_A, profit_A, profit_B, price_B, discount_B_pct, percent_customers_buying_B):
+            st.error("❌ Παρακαλώ συμπληρώστε όλα τα πεδία με σωστούς αριθμούς.")
             return
 
-        result = calculate_required_sales_increase(
-            price_A,
-            profit_A,
-            profit_B,
-            profit_C,
-            percent_B,
-            percent_C,
-            price_reduction_pct
-        )
+        discount_B = discount_B_pct / 100
+        percent_customers_buying_B = percent_customers_buying_B / 100
 
-        if result is None:
-            st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
+        # Υπολογισμός επιπλέον κέρδους από τους πελάτες που αγοράζουν το συμπληρωματικό προϊόν με την έκπτωση
+        additional_profit_B = percent_customers_buying_B * profit_B * (1 - discount_B)
+
+        # Συνολικό κέρδος ανά πελάτη αν πάρει το πακέτο (προϊόν Α + πιθανή αγορά προϊόντος Β)
+        total_profit_with_bundle = profit_A + additional_profit_B
+
+        # Εμφάνιση αποτελεσμάτων
+        st.success(f"💡 Εκτιμώμενο συνολικό κέρδος ανά πελάτη με το πακέτο: {format_number_gr(total_profit_with_bundle)} €")
+
+        # Συμβουλή αν αξίζει ή όχι να προτείνεις το δέσιμο
+        if total_profit_with_bundle > profit_A:
+            st.info("✅ Η προσφορά φαίνεται συμφέρουσα και αυξάνει το κέρδος ανά πελάτη!")
         else:
-            st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
-
-    # Κενός χώρος για οπτική συνέπεια
-    st.markdown("---")
-    st.markdown(" ")
-    st.markdown(" ")
+            st.warning("⚠️ Η προσφορά πιθανόν να μειώσει το κέρδος σας ανά πελάτη.")
 
 def calculate_sales_loss_threshold(
     competitor_old_price,
