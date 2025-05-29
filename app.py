@@ -24,7 +24,6 @@ def format_percentage_gr(number):
 # Retry timing without importing unused modules (like streamlit, numpy, matplotlib)
 # These are not needed for the actual function execution and caused import errors
 
-setup_code = """
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
         return None, None
