@@ -21,6 +21,10 @@ def format_percentage_gr(number):
     
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
 
+# Retry timing without importing unused modules (like streamlit, numpy, matplotlib)
+# These are not needed for the actual function execution and caused import errors
+
+setup_code = """
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
         return None, None
@@ -29,204 +33,73 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
 
-def calculate_break_even_shift_v2(
-    old_price, new_price,
-    old_unit_cost, new_unit_cost,
-    investment_cost, units_sold
-):
+def calculate_break_even_shift_v2(old_price, new_price, old_unit_cost, new_unit_cost, investment_cost, units_sold):
     denominator = new_price - new_unit_cost
     if denominator == 0 or units_sold == 0:
-        return None, None  # Αποφυγή διαίρεσης με 0
-
+        return None, None
     percent_change = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator \
                      + (investment_cost / (denominator * units_sold))
-
     units_change = ( -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator * units_sold ) \
                    + (investment_cost / denominator)
+    return percent_change * 100, units_change
 
-    return percent_change * 100, units_change  # Ποσοστό %
-
-
-
-def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
-    units = list(range(0, int(break_even_units * 2) + 1))
-    revenue = [price_per_unit * u for u in units]
-    total_cost = [fixed_costs + variable_cost * u for u in units]
-    fig, ax = plt.subplots()
-    ax.plot(units, revenue, label="Έσοδα")
-    ax.plot(units, total_cost, label="Συνολικό Κόστος")
-    ax.axvline(break_even_units, color="red", linestyle="--", label="Νεκρό Σημείο")
-    ax.set_xlabel("Μονάδες Πώλησης")
-    ax.set_ylabel("€")
-    ax.set_title("Break-Even Analysis")
-    ax.legend()
-    st.pyplot(fig)
-
-def calculate_clv_detailed(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    marketing_cost_per_year,
-    discount_rate
-):
+def calculate_clv_detailed(years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost_per_year, discount_rate):
     gross_profit_per_period = purchases_per_period * (price_per_unit - cost_per_unit)
-
-    # 1. Εκτιμώμενη συνολική αξία εισπράξεων
     total_value = (gross_profit_per_period * years_retained) - (marketing_cost_per_year * years_retained)
-
-    # 2. Εκτιμώμενη καθαρή παρούσα αξία (NPV τύπου προσόδου)
     if discount_rate == 0:
-        discounted_value = total_value  # Χωρίς προεξόφληση
+        discounted_value = total_value
     else:
         annuity_factor = (1 - (1 + discount_rate) ** (-years_retained)) / discount_rate
         discounted_value = (gross_profit_per_period - marketing_cost_per_year) * annuity_factor
-
     return total_value, discounted_value
 
-def plot_clv_tornado_chart(
-    years_retained,
-    purchases_per_period,
-    price_per_unit,
-    cost_per_unit,
-    marketing_cost,
-    discount_rate
-):
-    _, base_clv = calculate_clv_detailed(
-        years_retained,
-        purchases_per_period,
-        price_per_unit,
-        cost_per_unit,
-        marketing_cost,
-        discount_rate
-    )
-
-    variations = {
-        "Χρόνια Πελάτη +10%": (years_retained * 1.1, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate),
-        "Χρόνια Πελάτη -10%": (years_retained * 0.9, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate),
-        "Αγορές/Περίοδο +10%": (years_retained, purchases_per_period * 1.1, price_per_unit, cost_per_unit, marketing_cost, discount_rate),
-        "Αγορές/Περίοδο -10%": (years_retained, purchases_per_period * 0.9, price_per_unit, cost_per_unit, marketing_cost, discount_rate),
-        "Τιμή Πώλησης +10%": (years_retained, purchases_per_period, price_per_unit * 1.1, cost_per_unit, marketing_cost, discount_rate),
-        "Τιμή Πώλησης -10%": (years_retained, purchases_per_period, price_per_unit * 0.9, cost_per_unit, marketing_cost, discount_rate),
-        "Κόστος Μονάδας +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 1.1, marketing_cost, discount_rate),
-        "Κόστος Μονάδας -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit * 0.9, marketing_cost, discount_rate),
-        "Κόστος Μάρκετινγκ +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost * 1.1, discount_rate),
-        "Κόστος Μάρκετινγκ -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost * 0.9, discount_rate),
-        "Επιτόκιο +10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate * 1.1),
-        "Επιτόκιο -10%": (years_retained, purchases_per_period, price_per_unit, cost_per_unit, marketing_cost, discount_rate * 0.9),
-    }
-
-    impacts = []
-    labels = []
-
-    for label, args in variations.items():
-        try:
-            _, new_clv = calculate_clv_detailed(*args)
-            delta = new_clv - base_clv
-            impacts.append(delta)
-            labels.append(label)
-        except:
-            continue
-
-    colors = ['green' if x > 0 else 'red' for x in impacts]
-    sorted_indices = np.argsort(np.abs(impacts))[::-1]
-    sorted_impacts = np.array(impacts)[sorted_indices]
-    sorted_labels = np.array(labels)[sorted_indices]
-    sorted_colors = np.array(colors)[sorted_indices]
-
-    fig, ax = plt.subplots()
-    ax.barh(sorted_labels, sorted_impacts, color=sorted_colors)
-    ax.axvline(0, color='black', linewidth=0.8)
-    ax.set_xlabel("Μεταβολή στην CLV (€)")
-    ax.set_title("Tornado Chart Ευαισθησίας CLV")
-    st.pyplot(fig)
-
-def calculate_max_product_A_sales_drop(
-    old_price,
-    price_increase_absolute,  # σε ευρώ (π.χ. 0.10)
-    profit_A,
-    profit_B,
-    profit_C,
-    profit_D,
-    percent_B,  # π.χ. 0.40 για 40%
-    percent_C,
-    percent_D
-):
-    """
-    Επιστρέφει το εκτιμώμενο μέγιστο % μείωσης των πωλήσεων του Προϊόντος Α
-    ώστε το συνολικό κέρδος να μην μειωθεί, με ακρίβεια ποσοστού (π.χ. -31.00).
-    """
-    # Κέρδος από υποκατάστατα
-    benefit_substitutes = (
-        percent_B * profit_B +
-        percent_C * profit_C +
-        percent_D * profit_D
-    )
-
+def calculate_max_product_A_sales_drop(old_price, price_increase_absolute, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D):
+    benefit_substitutes = percent_B * profit_B + percent_C * profit_C + percent_D * profit_D
     denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase_absolute
     numerator = -price_increase_absolute
-
     try:
         max_sales_drop_decimal = numerator / denominator
-        max_sales_drop_percent = max_sales_drop_decimal * 100  # Μετατροπή σε ποσοστό
-        return max_sales_drop_percent  # π.χ. -31.00
+        max_sales_drop_percent = max_sales_drop_decimal * 100
+        return max_sales_drop_percent
     except ZeroDivisionError:
         return None
 
-def format_percentage_gr(number):
-    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
-    return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
-
-def calculate_min_required_sales_increase(
-    price_A,
-    profit_A,
-    profit_B,
-    profit_C,
-    price_change_pct,
-    percent_B,
-    percent_C
-):
+def calculate_min_required_sales_increase(price_A, profit_A, profit_B, profit_C, price_change_pct, percent_B, percent_C):
     percent_B = percent_B / 100
     percent_C = percent_C / 100
-    price_change = price_A * price_change_pct / 100  # π.χ. -10% => -20€
-
+    price_change = price_A * price_change_pct / 100
     added_profit = profit_B * percent_B + profit_C * percent_C
     numerator = -price_change
     denominator = ((profit_A + added_profit) / price_A) + price_change_pct / 100
-
     try:
         result_pct = numerator / denominator * 100
         return result_pct
     except ZeroDivisionError:
         return None
-        
-def format_percentage_gr(number):
-    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
-    return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
 
-def calculate_required_sales_increase(
-    price_per_unit_A,
-    profit_per_unit_A,
-    profit_per_unit_B,
-    profit_per_unit_C,
-    percent_B,
-    percent_C,
-    price_reduction_pct  # σε μορφή ποσοστού π.χ. -10 για -10%
-):
-    """
-    Υπολογίζει την ελάχιστη αύξηση πωλήσεων που απαιτείται μετά από μείωση τιμής
-    ώστε να διατηρηθεί το ίδιο συνολικό κέρδος, λαμβάνοντας υπόψη τα συμπληρωματικά προϊόντα.
-    """
-    price_reduction = price_reduction_pct / 100  # μετατροπή σε δεκαδικό
-
+def calculate_required_sales_increase(price_per_unit_A, profit_per_unit_A, profit_per_unit_B, profit_per_unit_C, percent_B, percent_C, price_reduction_pct):
+    price_reduction = price_reduction_pct / 100
     total_supplement_profit = (profit_per_unit_B * percent_B / 100) + (profit_per_unit_C * percent_C / 100)
     denominator = ((profit_per_unit_A + total_supplement_profit) / price_per_unit_A) + price_reduction
-
     if denominator == 0:
         return None
-
     required_sales_increase = -price_reduction / denominator
-    return required_sales_increase * 100  # Επιστρέφεται ως ποσοστό
+    return required_sales_increase * 100
+"""
+
+import timeit
+
+timings = {
+    "calculate_break_even": timeit.timeit("calculate_break_even(50, 30, 10000)", setup=setup_code, number=10000),
+    "calculate_break_even_shift_v2": timeit.timeit("calculate_break_even_shift_v2(50, 55, 30, 32, 2000, 5000)", setup=setup_code, number=10000),
+    "calculate_clv_detailed": timeit.timeit("calculate_clv_detailed(5, 10, 20, 8, 100, 0.05)", setup=setup_code, number=10000),
+    "calculate_max_product_A_sales_drop": timeit.timeit("calculate_max_product_A_sales_drop(100, 10, 30, 20, 15, 10, 0.4, 0.3, 0.2)", setup=setup_code, number=10000),
+    "calculate_min_required_sales_increase": timeit.timeit("calculate_min_required_sales_increase(200, 60, 20, 15, -10, 40, 30)", setup=setup_code, number=10000),
+    "calculate_required_sales_increase": timeit.timeit("calculate_required_sales_increase(100, 30, 15, 10, 20, 15, -10)", setup=setup_code, number=10000)
+}
+
+timings
+
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
