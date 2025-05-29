@@ -200,10 +200,6 @@ def calculate_min_required_sales_increase(
     except ZeroDivisionError:
         return None
         
-def format_percentage_gr(number):
-    """Μορφοποιεί αριθμό σε ποσοστό με δύο δεκαδικά σε ελληνική μορφή"""
-    return f"{number:,.2f}%".replace(",", "X").replace(".", ",").replace("X", ".")
-
 def calculate_required_sales_increase(
     price_per_unit_A,
     profit_per_unit_A,
