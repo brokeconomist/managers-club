@@ -21,9 +21,6 @@ def format_percentage_gr(number):
     
 ### ΥΠΟΛΟΓΙΣΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ###
 
-# Retry timing without importing unused modules (like streamlit, numpy, matplotlib)
-# These are not needed for the actual function execution and caused import errors
-
 def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     if price_per_unit <= variable_cost:
         return None, None
@@ -99,9 +96,6 @@ def calculate_required_sales_increase(price_per_unit_A, profit_per_unit_A, profi
         return None
     required_sales_increase = -price_reduction / denominator
     return required_sales_increase * 100
-"""
-
-
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
