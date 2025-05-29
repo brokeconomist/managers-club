@@ -387,19 +387,26 @@ menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
     "Όριο Απώλειας Πωλήσεων πριν Μείωση Τιμής"
 ))
 
-if menu == "Αρχική Σελίδα":
-    st.title("Καλώς ήρθες στο Managers' Club!")
-    st.markdown("Επίλεξε εργαλείο από το μενού για να ξεκινήσεις.")
-elif menu == "Υπολογιστής Νεκρού Σημείου":
-    show_break_even_calculator()
-elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
-    show_break_even_shift_calculator()
-elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
-    show_clv_calculator()
+def main():
+    st.set_page_config(page_title="Managers’ Club", layout="wide")
+
+    st.sidebar.title("Μενού")
+    menu = st.sidebar.radio("Επιλέξτε Εργαλείο:", 
+                            ("Αρχική", "Υπολογιστής Νεκρού Σημείου", "Ανάλυση Αλλαγής Νεκρού Σημείου", "Υπολογιστής CLV"))
+
+    if menu == "Αρχική":
+        show_home()
+    elif menu == "Υπολογιστής Νεκρού Σημείου":
+        show_break_even_calculator()
+    elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
+        show_break_even_shift_calculator()
+    elif menu == "Υπολογιστής CLV":
+        show_clv_calculator()
 elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
     show_price_increase_scenario()
 elif menu == "Ανάλυση Συμπληρωματικών Προϊόντων":
     show_required_sales_increase_calculator()
 elif menu == "Όριο Απώλειας Πωλήσεων πριν Μείωση Τιμής":
     show_loss_threshold_before_price_cut()
-
+if __name__ == "__main__":
+    main()
