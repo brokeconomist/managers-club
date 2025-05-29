@@ -100,7 +100,6 @@ timings = {
 
 timings
 
-
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
 def show_home():
