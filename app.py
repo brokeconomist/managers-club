@@ -610,27 +610,28 @@ def show_loss_threshold_before_price_cut():
 
 ### MAIN MENU ###
 
-import streamlit as st
-from tools.substitution import show_substitution_tool
-from tools.complementary import show_complementary_tool
-from tools.clv import show_clv_tool
+menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
+    "Αρχική Σελίδα",
+    "Υπολογιστής Νεκρού Σημείου",
+    "Ανάλυση Αλλαγής Νεκρού Σημείου",
+    "Υπολογιστής Αξίας Πελάτη (CLV)",
+    "Ανάλυση Υποκατάστασης Προϊόντων",
+    "Ανάλυση Συμπληρωματικών Προϊόντων",
+    "Όριο Απώλειας Πωλήσεων πριν Μείωση Τιμής"
+))
 
-from utils.formatters import format_number_gr, format_percentage_gr
-
-st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
-
-st.title("Managers' Club: Οικονομικά Εργαλεία")
-
-tool = st.sidebar.radio("Επιλέξτε εργαλείο:", [
-    "📊 Ανάλυση CLV",
-    "📉 Υποκατάσταση Προϊόντων",
-    "📈 Συμπληρωματικά Προϊόντα"
-])
-
-if tool == "📊 Ανάλυση CLV":
-    show_clv_tool()
-elif tool == "📉 Υποκατάσταση Προϊόντων":
-    show_substitution_tool()
-elif tool == "📈 Συμπληρωματικά Προϊόντα":
-    show_complementary_tool()
+if menu == "Αρχική Σελίδα":
+    show_home()
+elif menu == "Υπολογιστής Νεκρού Σημείου":
+    show_break_even_calculator()
+elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
+    show_break_even_shift_calculator()
+elif menu == "Υπολογιστής Αξίας Πελάτη (CLV)":
+    show_clv_calculator()
+elif menu == "Ανάλυση Υποκατάστασης Προϊόντων":
+    show_price_increase_scenario()
+elif menu == "Ανάλυση Συμπληρωματικών Προϊόντων":
+    show_required_sales_increase_calculator()
+elif menu == "Όριο Απώλειας Πωλήσεων πριν Μείωση Τιμής":
+    show_loss_threshold_before_price_cut()
 
