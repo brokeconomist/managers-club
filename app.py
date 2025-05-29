@@ -87,18 +87,7 @@ def calculate_required_sales_increase(price_per_unit_A, profit_per_unit_A, profi
     return required_sales_increase * 100
 """
 
-import timeit
 
-timings = {
-    "calculate_break_even": timeit.timeit("calculate_break_even(50, 30, 10000)", setup=setup_code, number=10000),
-    "calculate_break_even_shift_v2": timeit.timeit("calculate_break_even_shift_v2(50, 55, 30, 32, 2000, 5000)", setup=setup_code, number=10000),
-    "calculate_clv_detailed": timeit.timeit("calculate_clv_detailed(5, 10, 20, 8, 100, 0.05)", setup=setup_code, number=10000),
-    "calculate_max_product_A_sales_drop": timeit.timeit("calculate_max_product_A_sales_drop(100, 10, 30, 20, 15, 10, 0.4, 0.3, 0.2)", setup=setup_code, number=10000),
-    "calculate_min_required_sales_increase": timeit.timeit("calculate_min_required_sales_increase(200, 60, 20, 15, -10, 40, 30)", setup=setup_code, number=10000),
-    "calculate_required_sales_increase": timeit.timeit("calculate_required_sales_increase(100, 30, 15, 10, 20, 15, -10)", setup=setup_code, number=10000)
-}
-
-timings
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
