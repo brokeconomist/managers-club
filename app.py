@@ -1,12 +1,9 @@
 import streamlit as st
-
-st.set_page_config(page_title="Managers Club", page_icon="📊", layout="wide")
-
-st.title("Καλώς ήρθατε")
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+
+st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 
 ### Βοηθητικές συναρτήσεις μορφοποίησης και parsing ###
 
@@ -233,85 +230,40 @@ def calculate_required_sales_increase(
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
-import streamlit as st
-import streamlit.components.v1 as components
+def show_home():
+    st.title("📊 Managers’ Club")
+    st.markdown("""
+    ### 💼 Ο οικονομικός βοηθός κάθε μικρομεσαίας επιχείρησης
 
-# ----- Page Config -----
-st.set_page_config(
-    page_title="Managers' Club",
-    page_icon="📊",
-    layout="wide",
-)
+    **Καλώς ήρθες!**
 
-# ----- Custom CSS -----
-st.markdown("""
-    <style>
-    .main {
-        background-color: #f9f9f9;
-    }
-    .title-text {
-        font-size: 36px;
-        font-weight: 700;
-        color: #1F4E79;
-    }
-    .subtitle-text {
-        font-size: 18px;
-        color: #444;
-        margin-bottom: 20px;
-    }
-    .feature-card {
-        background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-        height: 100%;
-    }
-    .footer {
-        font-size: 14px;
-        color: gray;
-        margin-top: 40px;
-        text-align: center;
-    }
-    </style>
-""", unsafe_allow_html=True)
+    Το **Managers’ Club** είναι μια online εφαρμογή που σε βοηθά να παίρνεις οικονομικές αποφάσεις χωρίς πολύπλοκα οικονομικά.
 
-# ----- Header -----
-col1, col2 = st.columns([1, 3])
-with col1:
-    st.image("https://i.imgur.com/1A4dJ8U.png", width=120)  # Logo
-with col2:
-    st.markdown('<div class="title-text">Managers’ Club</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitle-text">Έξυπνα εργαλεία για οικονομικές αποφάσεις σε μικρές επιχειρήσεις</div>', unsafe_allow_html=True)
+    > 🧮 Εδώ, τα οικονομικά είναι στα χέρια σου. Απλά, καθαρά, χρήσιμα.
+    """)
 
-st.markdown("---")
+    tab1, tab2, tab3 = st.tabs(["📊 Οικονομικά Εργαλεία", "📈 Σενάρια & Στρατηγικές", "💼 Πελάτες & Χρηματοδότηση"])
 
-# ----- Call-to-Action -----
-st.markdown("#### 🚀 Ξεκίνα τώρα")
-st.markdown("Χρησιμοποίησε τα εργαλεία για να βρεις το break-even σημείο, να αναλύσεις την αξία πελατών ή να δεις την επίδραση τιμής στις πωλήσεις.")
-cta = st.button("🔎 Μετάβαση στο Dashboard")
+    with tab1:
+        st.markdown("""
+        - 📊 Υπολογισμός Νεκρού Σημείου (Break-Even)
+        - 📦 Διαχείριση Αποθεμάτων (υπό υλοποίηση)
+        - 📥 Διαχείριση Εισπρακτέων Λογαριασμών (υπό υλοποίηση)
+        - 📤 Διαχείριση Πληρωτέων Λογαριασμών (υπό υλοποίηση)
+        - ⚙️ Μέσο Κόστος Παραγωγής ανά Μονάδα σε Οχτάωρο και Υπερωρίες (υπό υλοποίηση)
+        """)
 
-if cta:
-    st.switch_page("pages/01_📈_Ανάλυση_Κερδοφορίας.py")  # προσαρμόστε το όνομα σελίδας
+    with tab2:
+        st.markdown("""
+        - 📈 Ανάλυση του Νεκρού Σημείου με Σενάρια Τιμής, Κόστους & Πάγιων
+        - 📉 Αξιολόγηση Επιπτώσεων Επένδυσης σε Νέες Υπηρεσίες ή Προϊόντα
+        """)
 
-# ----- Χαρακτηριστικά -----
-st.markdown("### 🧰 Βασικά Εργαλεία")
-
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown('<div class="feature-card">📉 <b>Break-Even Analysis</b><br>Ανακάλυψε το ελάχιστο απαιτούμενο για να μη μπαίνεις μέσα.</div>', unsafe_allow_html=True)
-with col2:
-    st.markdown('<div class="feature-card">💰 <b>CLV Υπολογιστής</b><br>Δες πόσα αξίζει κάθε πελάτης σου πραγματικά.</div>', unsafe_allow_html=True)
-with col3:
-    st.markdown('<div class="feature-card">🔄 <b>Ανάλυση Υποκατάστασης</b><br>Μέτρησε την επίδραση αλλαγών τιμών σε άλλα προϊόντα.</div>', unsafe_allow_html=True)
-
-st.markdown("")
-
-# ----- Feedback Form -----
-st.markdown("### 📬 Πες μας τη γνώμη σου")
-components.iframe("https://tally.so/r/xyz123", height=300)  # βάλε το δικό σου feedback form
-
-# ----- Footer -----
-st.markdown('<div class="footer">© 2025 Managers’ Club | Developed with ❤️ using Streamlit</div>', unsafe_allow_html=True)
+    with tab3:
+        st.markdown("""
+        - 💵 Ανάλυση Πελάτη & Διάρκειας Ζωής Πελάτη (CLV)
+        - 📅 Εκτίμηση Χρηματοδοτικών Αναγκών
+        """)
 
 ### ΒΑΣΙΚΕΣ ΕΙΣΟΔΟΙ ΚΑΙ ΥΠΟΛΟΓΙΣΜΟΙ ###
 
@@ -401,7 +353,7 @@ def parse_gr_number(s):
 
 def show_clv_calculator():
     st.header("Υπολογιστής Αξίας Πελάτη (CLV)") 
-    st.title("Πόσο λεφτά φέρνει στην επιχείρησή σας ένας πελάτης σας; 💰")
+    st.title("Πόσο αξίζει ένας πελάτης σας; 💰")
     st.markdown("""
     Θέλετε να μάθετε αν ένας πελάτης «βγάζει τα λεφτά του»; Αυτό το εργαλείο σάς δείχνει μια εκτίμηση του πόσα χρήματα κερδίζετε καθαρά από κάθε πελάτη δηλδή μετά τα έξοδα που κάνετε ειδικά για αυτόν.
 
@@ -467,7 +419,7 @@ def show_price_increase_scenario():
     st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
     st.title("Τι θα γίνει αν οι πελάτες προτιμήσουν άλλο προϊόν μου; 🔄")
     st.markdown("""
-    Έχετε 2 προϊόντα και σκεφτήκατε να αυξήσετε την τιμή στο ένα;
+    Έχετε 2 προϊόντα και σκεφτήκατε να αλλάξετε τιμή στο ένα;
 
     👉 Αυτό το εργαλείο σάς δείχνει με βάση το ποσοστό των πελατών που εκτιμάτε ότι θα μετακινηθούν από το ένα στο άλλο
      πώς θα επηρεαστούν οι συνολικές σας πωλήσεις και τα έσοδα.
