@@ -32,7 +32,7 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_units = fixed_costs / contribution_margin
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
-
+    
 def calculate_break_even_shift_v2(old_price, new_price, old_unit_cost, new_unit_cost, investment_cost, units_sold):
     denominator = new_price - new_unit_cost
     if denominator == 0 or units_sold == 0:
