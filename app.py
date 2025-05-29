@@ -31,6 +31,21 @@ def calculate_break_even(price_per_unit, variable_cost, fixed_costs):
     break_even_units = fixed_costs / contribution_margin
     break_even_revenue = break_even_units * price_per_unit
     return break_even_units, break_even_revenue
+
+def plot_break_even(price, variable_cost, fixed_costs, break_even_units):
+    units = list(range(0, int(break_even_units * 2) + 1))
+    revenue = [price * u for u in units]
+    total_cost = [fixed_costs + variable_cost * u for u in units]
+
+    fig, ax = plt.subplots()
+    ax.plot(units, revenue, label="Έσοδα", color="green")
+    ax.plot(units, total_cost, label="Συνολικό Κόστος", color="red")
+    ax.axvline(x=break_even_units, color="blue", linestyle="--", label="Νεκρό Σημείο")
+    ax.set_xlabel("Τεμάχια")
+    ax.set_ylabel("€")
+    ax.set_title("Διάγραμμα Νεκρού Σημείου")
+    ax.legend()
+    st.pyplot(fig)
     
 def calculate_break_even_shift_v2(old_price, new_price, old_unit_cost, new_unit_cost, investment_cost, units_sold):
     denominator = new_price - new_unit_cost
@@ -136,10 +151,10 @@ def show_break_even_calculator():
 
     Ιδανικό για: νέες επιχειρήσεις, νέες τιμολογήσεις, ή όταν ζυγίζετε αν «σας βγαίνει» μια προσπάθεια.
     """)
-    # Είσοδοι ως ελληνικά μορφοποιημένα κείμενα
+
     price_input = st.text_input("Τιμή Πώλησης ανά Μονάδα (€):", value="10,00")
     variable_cost_input = st.text_input("Μεταβλητό Κόστος ανά Μονάδα (€):", value="6,00")
-    fixed_costs_input = st.text_input("Πάγια Έξοδα (€):", value=format_number_gr(1000.00))
+    fixed_costs_input = st.text_input("Πάγια Έξοδα (€):", value="1.000,00")
 
     price = parse_gr_number(price_input)
     variable_cost = parse_gr_number(variable_cost_input)
@@ -481,7 +496,8 @@ menu = st.sidebar.radio("📊 Επιλογή Εργαλείου", (
 ))
 
 if menu == "Αρχική Σελίδα":
-    show_home()
+    st.title("Καλώς ήρθες στο Managers' Club!")
+    st.markdown("Επίλεξε εργαλείο από το μενού για να ξεκινήσεις.")
 elif menu == "Υπολογιστής Νεκρού Σημείου":
     show_break_even_calculator()
 elif menu == "Ανάλυση Αλλαγής Νεκρού Σημείου":
