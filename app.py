@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import home
 
 st.set_page_config(page_title="Managers' Club", page_icon="📊", layout="centered")
 
@@ -236,7 +235,7 @@ def show_home():
     st.markdown("""
     ### 💼 Ο οικονομικός βοηθός κάθε μικρομεσαίας επιχείρησης
 
-    Καλώς ήρθες!
+    print("Καλώς ήρθες!")
 
     Το **Managers’ Club** είναι μια online εφαρμογή που σε βοηθά να παίρνεις οικονομικές αποφάσεις χωρίς πολύπλοκα οικονομικά.
 
