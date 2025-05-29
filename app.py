@@ -230,40 +230,85 @@ def calculate_required_sales_increase(
 
 ### UI ΣΥΝΑΡΤΗΣΕΙΣ ###
 
-def show_home():
-    st.title("📊 Managers’ Club")
-    st.markdown("""
-    ### 💼 Ο οικονομικός βοηθός κάθε μικρομεσαίας επιχείρησης
+import streamlit as st
+import streamlit.components.v1 as components
 
-    **Καλώς ήρθες!**
+# ----- Page Config -----
+st.set_page_config(
+    page_title="Managers' Club",
+    page_icon="📊",
+    layout="wide",
+)
 
-    Το **Managers’ Club** είναι μια online εφαρμογή που σε βοηθά να παίρνεις οικονομικές αποφάσεις χωρίς πολύπλοκα οικονομικά.
+# ----- Custom CSS -----
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f9f9f9;
+    }
+    .title-text {
+        font-size: 36px;
+        font-weight: 700;
+        color: #1F4E79;
+    }
+    .subtitle-text {
+        font-size: 18px;
+        color: #444;
+        margin-bottom: 20px;
+    }
+    .feature-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+    .footer {
+        font-size: 14px;
+        color: gray;
+        margin-top: 40px;
+        text-align: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-    > 🧮 Εδώ, τα οικονομικά είναι στα χέρια σου. Απλά, καθαρά, χρήσιμα.
-    """)
+# ----- Header -----
+col1, col2 = st.columns([1, 3])
+with col1:
+    st.image("https://i.imgur.com/1A4dJ8U.png", width=120)  # Logo
+with col2:
+    st.markdown('<div class="title-text">Managers’ Club</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle-text">Έξυπνα εργαλεία για οικονομικές αποφάσεις σε μικρές επιχειρήσεις</div>', unsafe_allow_html=True)
 
-    tab1, tab2, tab3 = st.tabs(["📊 Οικονομικά Εργαλεία", "📈 Σενάρια & Στρατηγικές", "💼 Πελάτες & Χρηματοδότηση"])
+st.markdown("---")
 
-    with tab1:
-        st.markdown("""
-        - 📊 Υπολογισμός Νεκρού Σημείου (Break-Even)
-        - 📦 Διαχείριση Αποθεμάτων (υπό υλοποίηση)
-        - 📥 Διαχείριση Εισπρακτέων Λογαριασμών (υπό υλοποίηση)
-        - 📤 Διαχείριση Πληρωτέων Λογαριασμών (υπό υλοποίηση)
-        - ⚙️ Μέσο Κόστος Παραγωγής ανά Μονάδα σε Οχτάωρο και Υπερωρίες (υπό υλοποίηση)
-        """)
+# ----- Call-to-Action -----
+st.markdown("#### 🚀 Ξεκίνα τώρα")
+st.markdown("Χρησιμοποίησε τα εργαλεία για να βρεις το break-even σημείο, να αναλύσεις την αξία πελατών ή να δεις την επίδραση τιμής στις πωλήσεις.")
+cta = st.button("🔎 Μετάβαση στο Dashboard")
 
-    with tab2:
-        st.markdown("""
-        - 📈 Ανάλυση του Νεκρού Σημείου με Σενάρια Τιμής, Κόστους & Πάγιων
-        - 📉 Αξιολόγηση Επιπτώσεων Επένδυσης σε Νέες Υπηρεσίες ή Προϊόντα
-        """)
+if cta:
+    st.switch_page("pages/01_📈_Ανάλυση_Κερδοφορίας.py")  # προσαρμόστε το όνομα σελίδας
 
-    with tab3:
-        st.markdown("""
-        - 💵 Ανάλυση Πελάτη & Διάρκειας Ζωής Πελάτη (CLV)
-        - 📅 Εκτίμηση Χρηματοδοτικών Αναγκών
-        """)
+# ----- Χαρακτηριστικά -----
+st.markdown("### 🧰 Βασικά Εργαλεία")
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.markdown('<div class="feature-card">📉 <b>Break-Even Analysis</b><br>Ανακάλυψε το ελάχιστο απαιτούμενο για να μη μπαίνεις μέσα.</div>', unsafe_allow_html=True)
+with col2:
+    st.markdown('<div class="feature-card">💰 <b>CLV Υπολογιστής</b><br>Δες πόσα αξίζει κάθε πελάτης σου πραγματικά.</div>', unsafe_allow_html=True)
+with col3:
+    st.markdown('<div class="feature-card">🔄 <b>Ανάλυση Υποκατάστασης</b><br>Μέτρησε την επίδραση αλλαγών τιμών σε άλλα προϊόντα.</div>', unsafe_allow_html=True)
+
+st.markdown("")
+
+# ----- Feedback Form -----
+st.markdown("### 📬 Πες μας τη γνώμη σου")
+components.iframe("https://tally.so/r/xyz123", height=300)  # βάλε το δικό σου feedback form
+
+# ----- Footer -----
+st.markdown('<div class="footer">© 2025 Managers’ Club | Developed with ❤️ using Streamlit</div>', unsafe_allow_html=True)
 
 ### ΒΑΣΙΚΕΣ ΕΙΣΟΔΟΙ ΚΑΙ ΥΠΟΛΟΓΙΣΜΟΙ ###
 
