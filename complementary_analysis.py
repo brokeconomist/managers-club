@@ -6,32 +6,33 @@ def calculate_required_sales_increase(
     profit_A,
     profit_B,
     profit_C,
+    profit_D,
     percent_B,
     percent_C,
-    price_change_pct
+    percent_D,
+    price_reduction_pct  # π.χ. -10 για μείωση 10%
 ):
-    """
-    Υπολογίζει την ελάχιστη αύξηση πωλήσεων που απαιτείται μετά από αλλαγή τιμής
-    ώστε να διατηρηθεί το ίδιο συνολικό κέρδος, λαμβάνοντας υπόψη τα συμπληρωματικά προϊόντα.
-    """
     # Μετατροπή ποσοστών σε δεκαδικά
     percent_B /= 100
     percent_C /= 100
-    price_change = price_A * price_change_pct / 100  # π.χ. +10% = +τιμή σε €
+    percent_D /= 100
 
-    numerator = -price_change
+    price_reduction = price_reduction_pct / 100  # π.χ. -0.10
 
-    # Προσαρμοσμένο κέρδος λαμβάνοντας υπόψη ποσοστά πελατών και κέρδη από Β και Γ
-    adjusted_profit = profit_A - (percent_B * profit_B + percent_C * profit_C)
+    total_supplement_profit = (
+        profit_B * percent_B +
+        profit_C * percent_C +
+        profit_D * percent_D
+    )
 
-    denominator = (adjusted_profit / price_A) + (price_change_pct / 100)
+    denominator = ((profit_A + total_supplement_profit) / price_A) + price_reduction
 
-    try:
-        result_pct = numerator / denominator * 100  # ποσοστό αύξησης πωλήσεων
-        return result_pct
-    except ZeroDivisionError:
+    if denominator == 0:
         return None
 
+    required_increase = -price_reduction / denominator
+
+    return required_increase * 100  # Επιστρέφει ποσοστό %
 
 def show_complementary_analysis():
     st.title("➕ Ανάλυση Συμπληρωματικών Προϊόντων")
@@ -41,11 +42,13 @@ def show_complementary_analysis():
 
     profit_B = st.number_input("Κέρδος ανά μονάδα προϊόντος Β (€)", min_value=0.0, format="%.2f")
     profit_C = st.number_input("Κέρδος ανά μονάδα προϊόντος Γ (€)", min_value=0.0, format="%.2f")
+    profit_D = st.number_input("Κέρδος ανά μονάδα προϊόντος Δ (€)", min_value=0.0, format="%.2f")
 
     percent_B = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Β (%)", min_value=0.0, max_value=100.0, format="%.2f")
     percent_C = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Γ (%)", min_value=0.0, max_value=100.0, format="%.2f")
+    percent_D = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Δ (%)", min_value=0.0, max_value=100.0, format="%.2f")
 
-    price_change_pct = st.number_input("Αύξηση Τιμής Προϊόντος Α (%)", format="%.2f")
+    price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", format="%.2f")
 
     if st.button("Υπολόγισε Ελάχιστη Αύξηση Πωλήσεων"):
         result = calculate_required_sales_increase(
@@ -53,9 +56,11 @@ def show_complementary_analysis():
             profit_A,
             profit_B,
             profit_C,
+            profit_D,
             percent_B,
             percent_C,
-            price_change_pct
+            percent_D,
+            price_reduction_pct
         )
         if result is None:
             st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
