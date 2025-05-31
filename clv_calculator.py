@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.express as px
 from utils import format_number_gr, parse_gr_number
 
 def calculate_clv_discounted(
