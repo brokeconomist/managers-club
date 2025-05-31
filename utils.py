@@ -1,4 +1,6 @@
+# app.py
 import streamlit as st
+from break_even_calculator import show_break_even_calculator
 from break_even_shift import show_break_even_shift_calculator
 from clv_calculator import show_clv_calculator
 from substitution import show_substitution_tool
