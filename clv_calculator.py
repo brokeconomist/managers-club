@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+import plotly.express as px
 from utils import format_number_gr, parse_gr_number
 
 def calculate_clv_discounted(
@@ -80,6 +82,7 @@ def show_clv_calculator():
         st.error("Παρακαλώ συμπληρώστε σωστά όλα τα πεδία με αριθμούς.")
         return
 
+    # Υπολογισμός CLV
     clv = calculate_clv_discounted(
         purchases_per_period=purchases,
         price_per_purchase=price,
@@ -91,5 +94,31 @@ def show_clv_calculator():
 
     if clv is None:
         st.error("Σφάλμα στους υπολογισμούς. Ελέγξτε τις τιμές εισόδου.")
-    else:
-        st.success(f"Η εκτιμώμενη καθαρή παρούσα αξία πελάτη είναι: {format_number_gr(clv)} €")
+        return
+
+    st.success(f"Η εκτιμώμενη καθαρή παρούσα αξία πελάτη είναι: {format_number_gr(clv)} €")
+
+    # Tornado Chart
+    st.subheader("📊 Ανάλυση Ευαισθησίας (Tornado Chart)")
+
+    params = {
+        "purchases_per_period": purchases,
+        "price_per_purchase": price,
+        "cost_per_purchase": cost,
+        "marketing_cost_per_period": marketing,
+        "retention_years": retention,
+        "discount_rate": discount,
+    }
+
+    df_tornado = tornado_data(clv, params, delta=0.1)
+
+    fig = px.bar(
+        df_tornado,
+        x="Επίδραση (%)",
+        y="Παράμετρος",
+        color="Μεταβολή",
+        orientation="h",
+        title="Ευαισθησία CLV σε Μεταβολές Παραμέτρων",
+        height=500
+    )
+    st.plotly_chart(fig, use_container_width=True)
