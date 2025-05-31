@@ -1,7 +1,7 @@
 import streamlit as st
 from utils import format_number_gr, parse_gr_number
 
-def show_substitution_product_analysis():
+def show_substitution_analysis():
     st.header("🔄 Ανάλυση Υποκατάστασης Προϊόντων")
     st.markdown("""
     Αναλύστε την επίδραση μιας αλλαγής τιμής ή πωλήσεων σε ένα προϊόν που ανταγωνίζεται άλλο προϊόν.
@@ -36,3 +36,4 @@ def show_substitution_product_analysis():
         st.success(f"✅ Ποσοστό Υποκατάστασης: {substitution_ratio:.2f}%")
 
     st.markdown("---")
+
