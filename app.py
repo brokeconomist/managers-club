@@ -29,7 +29,7 @@ elif tool == "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόσ
     show_break_even_shift_calculator()
 elif tool == "👥 CLV - Αξία Πελάτη":
     show_clv_calculator()
-elif selected_option == "🔄 Ανάλυση Υποκατάστασης":
+elif tool == "🔄 Ανάλυση Υποκατάστασης Προϊόντων":
     show_substitution_analysis()
 elif tool == "➕ Ανάλυση Συμπληρωματικών Προϊόντων":
     show_complementary_analysis()
