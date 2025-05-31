@@ -1,7 +1,7 @@
 import streamlit as st
 from utils import format_number_gr, parse_gr_number
 
-def show_complementary_product_analysis():
+def show_complementary_analysis():
     st.header("➕ Ανάλυση Συμπληρωματικών Προϊόντων")
     st.markdown("""
     Αναλύστε πώς η αύξηση ή μείωση πωλήσεων ενός προϊόντος επηρεάζει την πώληση συμπληρωματικών προϊόντων.
