@@ -1,0 +1,131 @@
+import streamlit as st
+
+def calculate_discount_effect(
+    current_sales,
+    extra_sales,
+    discount_pct,
+    pct_accept_discount,
+    days_accept_pay,
+    pct_reject_discount,
+    days_reject_pay,
+    cash_payment_days,
+    cost_of_sales_pct,
+    wacc,
+    current_avg_collection_days
+):
+    # Νέο σύνολο πωλήσεων
+    new_sales = current_sales + extra_sales
+
+    # Υπολογισμός μέσης περιόδου είσπραξης μετά την έκπτωση
+    # Βάρος ανάλογο των πελατών που αποδέχονται και δεν αποδέχονται την έκπτωση
+    new_avg_collection_days_after_discount = (
+        pct_accept_discount * days_accept_pay + pct_reject_discount * days_reject_pay
+    )
+
+    # Υπολογισμός τρεχουσών απαιτήσεων
+    current_receivables = (current_sales * cost_of_sales_pct) * (current_avg_collection_days / 360)
+
+    # Νέες απαιτήσεις μετά την έκπτωση
+    new_receivables_after_discount = (current_sales * cost_of_sales_pct) * (new_avg_collection_days_after_discount / 360)
+
+    # Αποδέσμευση κεφαλαίων (μέσα σε €)
+    released_capital_discount = current_receivables - new_receivables_after_discount
+
+    # Ποσοστό πελατών που ακολουθεί τη νέα πολιτική (παραδοχή από σενάριο)
+    pct_follow_new_policy = (pct_accept_discount * current_sales + pct_reject_discount * current_sales) / new_sales
+
+    # Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων
+    # Παράδειγμα: 60% πελατών ακολουθούν νέα πολιτική, 40% παλιά, βάσει της προτεινόμενης κατανομής
+    new_avg_collection_days_after_increase = pct_follow_new_policy * new_avg_collection_days_after_discount + \
+                                             (1 - pct_follow_new_policy) * current_avg_collection_days
+
+    # Απαιτήσεις μετά την αύξηση πωλήσεων
+    new_receivables_after_increase = (new_sales * cost_of_sales_pct) * (new_avg_collection_days_after_increase / 360)
+
+    # Αποδέσμευση κεφαλαίων μετά την αύξηση
+    released_capital_after_increase = current_receivables - new_receivables_after_increase
+
+    # Κέρδος από επιπλέον πωλήσεις (μικτό κέρδος)
+    profit_from_extra_sales = extra_sales * (1 - cost_of_sales_pct)
+
+    # Κόστος έκπτωσης
+    discount_cost = (current_sales * pct_accept_discount + extra_sales) * discount_pct
+
+    # Κέρδος από αποδέσμευση κεφαλαίων
+    profit_from_released_capital = released_capital_after_increase * wacc
+
+    # Συνολικό κέρδος
+    total_profit = profit_from_extra_sales + profit_from_released_capital - discount_cost
+
+    # NPV (προεξοφλημένη αξία κέρδους με κόστος κεφαλαίου)
+    npv = total_profit / (1 + wacc)
+
+    # Μέγιστη έκπτωση για NPV break-even (απλοποίηση)
+    max_discount_break_even = (profit_from_extra_sales + profit_from_released_capital) / (current_sales + extra_sales)
+
+    # Βέλτιστη έκπτωση (υπολογισμός με ψευδοτυπική μέθοδο)
+    optimal_discount = discount_pct  # Σε πιο σύνθετο μοντέλο θα το βρούμε με optimization
+
+    return {
+        "current_receivables": current_receivables,
+        "new_avg_collection_days_after_discount": new_avg_collection_days_after_discount,
+        "new_receivables_after_discount": new_receivables_after_discount,
+        "released_capital_discount": released_capital_discount,
+        "new_avg_collection_days_after_increase": new_avg_collection_days_after_increase,
+        "new_receivables_after_increase": new_receivables_after_increase,
+        "released_capital_after_increase": released_capital_after_increase,
+        "profit_from_extra_sales": profit_from_extra_sales,
+        "discount_cost": discount_cost,
+        "profit_from_released_capital": profit_from_released_capital,
+        "total_profit": total_profit,
+        "npv": npv,
+        "max_discount_break_even": max_discount_break_even,
+        "optimal_discount": optimal_discount
+    }
+
+# Streamlit UI
+st.title("Υπολογισμός Επίδρασης Έκπτωσης Πληρωμής Τοις Μετρητοίς με Αύξηση Πωλήσεων")
+
+# Inputs
+current_sales = st.number_input("Τρέχουσες Πωλήσεις", value=1000, step=100)
+extra_sales = st.number_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης", value=250, step=50)
+discount_pct = st.number_input("Έκπτωση για Πληρωμή τοις Μετρητοίς (%)", value=2.0, step=0.1) / 100
+pct_accept_discount = st.number_input("% των πελατών που αποδέχεται την έκπτωση (%)", value=50.0, step=1.0) / 100
+days_accept_pay = st.number_input("% των πελατών που αποδέχεται την έκπτωση πληρώνει σε (μέρες)", value=60, step=1)
+pct_reject_discount = st.number_input("% των πελατών που δεν αποδέχεται την έκπτωση (%)", value=50.0, step=1.0) / 100
+days_reject_pay = st.number_input("% των πελατών που δεν αποδέχεται την έκπτωση πληρώνει σε (μέρες)", value=120, step=1)
+cash_payment_days = st.number_input("Μέρες για πληρωμή τοις μετρητοίς (πχ 10)", value=10, step=1)
+cost_of_sales_pct = st.number_input("Κόστος Πωλήσεων σε %", value=80.0, step=0.1) / 100
+wacc = st.number_input("Κόστος Κεφαλαίου (WACC) σε %", value=20.0, step=0.1) / 100
+current_avg_collection_days = st.number_input("Τρέχουσα Μέση Περίοδος Είσπραξης (μέρες)", value=90, step=1)
+
+if st.button("Υπολογισμός"):
+    results = calculate_discount_effect(
+        current_sales,
+        extra_sales,
+        discount_pct,
+        pct_accept_discount,
+        days_accept_pay,
+        pct_reject_discount,
+        days_reject_pay,
+        cash_payment_days,
+        cost_of_sales_pct,
+        wacc,
+        current_avg_collection_days
+    )
+
+    st.subheader("Αποτελέσματα Υπολογισμών")
+    st.write(f"Τρέχουσες Απαιτήσεις: {results['current_receivables']:.2f}")
+    st.write(f"Νέα Μέση Περίοδος Είσπραξης μετά την Έκπτωση: {results['new_avg_collection_days_after_discount']:.1f} ημέρες")
+    st.write(f"Νέες Απαιτήσεις μετά την Έκπτωση: {results['new_receivables_after_discount']:.2f}")
+    st.write(f"Αποδέσμευση Κεφαλαίων μετά την Έκπτωση: {results['released_capital_discount']:.2f}")
+    st.write(f"Νέα Μέση Περίοδος Είσπραξης μετά την Αύξηση Πωλήσεων: {results['new_avg_collection_days_after_increase']:.1f} ημέρες")
+    st.write(f"Απαιτήσεις μετά την Αύξηση Πωλήσεων: {results['new_receivables_after_increase']:.2f}")
+    st.write(f"Αποδέσμευση Κεφαλαίων μετά την Αύξηση Πωλήσεων: {results['released_capital_after_increase']:.2f}")
+    st.write(f"Κέρδος από Επιπλέον Πωλήσεις: {results['profit_from_extra_sales']:.2f}")
+    st.write(f"Κόστος Έκπτωσης: {results['discount_cost']:.2f}")
+    st.write(f"Κέρδος από Αποδέσμευση Κεφαλαίων: {results['profit_from_released_capital']:.2f}")
+    st.write(f"Συνολικό Κέρδος από την Πρόταση: {results['total_profit']:.2f}")
+    st.write(f"NPV: {results['npv']:.2f}")
+    st.write(f"Μέγιστη Έκπτωση (NPV Break Even): {results['max_discount_break_even'] * 100:.2f}%")
+    st.write(f"Βέλτιστη Έκπτωση: {results['optimal_discount'] * 100:.2f}%")
