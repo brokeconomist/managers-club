@@ -50,13 +50,13 @@ def tornado_data(clv_base, params, delta=0.1):
         })
 
     mapping = {
-        "purchases_per_period": "Αγορές ανά Περίοδο",
-        "price_per_purchase": "Τιμή ανά Αγορά",
-        "cost_per_purchase": "Κόστος ανά Αγορά",
-        "marketing_cost_per_period": "Δαπάνες Μάρκετινγκ",
-        "retention_years": "Χρόνια Παραμονής",
-        "discount_rate": "Επιτόκιο Προεξόφλησης"
-    }
+    "purchases_per_period": "Αγορές ανά Περίοδο",
+    "price_per_purchase": "Τιμή ανά Αγορά",
+    "cost_per_purchase": "Κόστος ανά Αγορά",
+    "marketing_cost_per_period": "Δαπάνες Μάρκετινγκ",
+    "retention_years": "Χρόνια Παραμονής",
+    "discount_rate": "Επιτόκιο Προεξόφλησης"
+}
 
     df = pd.DataFrame(results)
     df["Παράμετρος"] = df["Παράμετρος"].map(mapping)
