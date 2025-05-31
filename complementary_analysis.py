@@ -1,71 +1,106 @@
 import streamlit as st
-from utils import format_percentage_gr
+from utils import format_number_gr, parse_gr_number, format_percentage_gr
 
 def calculate_required_sales_increase(
-    price_A,
-    profit_A,
-    profit_B,
-    profit_C,
-    profit_D,
-    percent_B,
-    percent_C,
-    percent_D,
-    price_reduction_pct  # π.χ. -10 για μείωση 10%
+    old_price,
+    price_decrease_pct,
+    profit_suit,
+    profit_shirt,
+    profit_tie,
+    profit_belt,
+    profit_shoes,
+    percent_shirt,
+    percent_tie,
+    percent_belt,
+    percent_shoes
 ):
-    # Μετατροπή ποσοστών σε δεκαδικά
-    percent_B /= 100
-    percent_C /= 100
-    percent_D /= 100
-
-    # Μετατροπή μείωσης τιμής σε δεκαδικό (π.χ. -10% -> -0.10)
-    price_reduction = price_reduction_pct / 100
-
-    supplementary_profit = (
-        (percent_B * profit_B) +
-        (percent_C * profit_C) +
-        (percent_D * profit_D)
+    """
+    Υπολογίζει την ελάχιστη % αύξηση πωλήσεων στα Κοστούμια ώστε να διατηρηθεί το συνολικό κέρδος
+    μετά από μείωση τιμής, λαμβάνοντας υπόψη τα συμπληρωματικά προϊόντα.
+    """
+    combined_profit = (
+        profit_suit +
+        percent_shirt * profit_shirt +
+        percent_tie * profit_tie +
+        percent_belt * profit_belt +
+        percent_shoes * profit_shoes
     )
 
-    denominator = ((profit_A + supplementary_profit) / price_A) + price_reduction
+    new_price = old_price * (1 - price_decrease_pct)
+    new_profit = combined_profit - (old_price - new_price)
 
-    if denominator == 0:
+    try:
+        required_increase = (old_price - new_price) / new_profit
+        return required_increase * 100
+    except ZeroDivisionError:
         return None
 
-    required_increase = -price_reduction / denominator
+def show_complementary_product_analysis():
+    st.write("Ανάλυση Συμπληρωματικών Προϊόντων")
+    st.header("🧥 Εκτίμηση Αύξησης Πωλήσεων Κοστουμιών μετά από Έκπτωση")
+    st.title("Τι θα γίνει αν οι πελάτες αγοράζουν και τα αξεσουάρ; 👔👞")
+    st.markdown("""
+    Ο υπεύθυνος σκέφτεται να μειώσει την τιμή στα κοστούμια. Όμως, γνωρίζει ότι οι πελάτες αγοράζουν και
+    άλλα προϊόντα (π.χ. πουκάμισο, γραβάτα, παπούτσια).
 
-    return required_increase * 100  # Επιστρέφει ποσοστό %
+    👉 Πόση αύξηση στις πωλήσεις κοστουμιών χρειάζεται για να μη μειωθεί το συνολικό κέρδος;
+    """)
 
-def show_complementary_analysis():
-    st.title("➕ Ανάλυση Συμπληρωματικών Προϊόντων")
+    with st.form("discount_impact_form"):
+        col1, col2 = st.columns(2)
 
-    price_A = st.number_input("Τιμή προϊόντος Α (€)", min_value=0.01, format="%.2f")
-    profit_A = st.number_input("Κέρδος ανά μονάδα προϊόντος Α (€)", min_value=0.0, format="%.2f")
+        with col1:
+            old_price_input = st.text_input("Τιμή Κοστουμιού (€)", value=format_number_gr(200))
+            cost_suit_input = st.text_input("Κόστος Κοστουμιού (€)", value=format_number_gr(140))
+            price_decrease_input = st.text_input("Μείωση Τιμής Κοστουμιού (%)", value=format_number_gr(10.0))
 
-    profit_B = st.number_input("Κέρδος ανά μονάδα προϊόντος Β (€)", min_value=0.0, format="%.2f")
-    profit_C = st.number_input("Κέρδος ανά μονάδα προϊόντος Γ (€)", min_value=0.0, format="%.2f")
-    profit_D = st.number_input("Κέρδος ανά μονάδα προϊόντος Δ (€)", min_value=0.0, format="%.2f")
+            shirt_profit_input = st.text_input("Κέρδος Πουκαμίσου (€)", value=format_number_gr(13))
+            tie_profit_input = st.text_input("Κέρδος Γραβάτας (€)", value=format_number_gr(11))
 
-    percent_B = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Β (%)", min_value=0.0, max_value=100.0, format="%.2f")
-    percent_C = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Γ (%)", min_value=0.0, max_value=100.0, format="%.2f")
-    percent_D = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Δ (%)", min_value=0.0, max_value=100.0, format="%.2f")
+        with col2:
+            belt_profit_input = st.text_input("Κέρδος Ζώνης (€)", value=format_number_gr(11))
+            shoes_profit_input = st.text_input("Κέρδος Παπουτσιών (€)", value=format_number_gr(45))
 
-    price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%) (π.χ. -10 για μείωση 10%)", format="%.2f")
+            percent_shirt = st.slider("% πελατών που αγοράζουν πουκάμισο", 0.0, 100.0, 90.0) / 100
+            percent_tie = st.slider("% πελατών που αγοράζουν γραβάτα", 0.0, 100.0, 70.0) / 100
+            percent_belt = st.slider("% πελατών που αγοράζουν ζώνη", 0.0, 100.0, 10.0) / 100
+            percent_shoes = st.slider("% πελατών που αγοράζουν παπούτσια", 0.0, 100.0, 5.0) / 100
 
-    if st.button("Υπολόγισε Ελάχιστη Αύξηση Πωλήσεων"):
+        submitted = st.form_submit_button("Υπολογισμός")
+
+    if submitted:
+        old_price = parse_gr_number(old_price_input)
+        cost_suit = parse_gr_number(cost_suit_input)
+        price_decrease_pct = parse_gr_number(price_decrease_input) / 100
+        profit_suit = old_price - cost_suit
+
+        profit_shirt = parse_gr_number(shirt_profit_input)
+        profit_tie = parse_gr_number(tie_profit_input)
+        profit_belt = parse_gr_number(belt_profit_input)
+        profit_shoes = parse_gr_number(shoes_profit_input)
+
+        if None in (
+            old_price, cost_suit, price_decrease_pct, profit_suit,
+            profit_shirt, profit_tie, profit_belt, profit_shoes
+        ):
+            st.error("❌ Έλεγξε ότι όλα τα αριθμητικά πεδία είναι σωστά συμπληρωμένα.")
+            return
+
         result = calculate_required_sales_increase(
-            price_A,
-            profit_A,
-            profit_B,
-            profit_C,
-            profit_D,
-            percent_B,
-            percent_C,
-            percent_D,
-            price_reduction_pct
+            old_price,
+            price_decrease_pct,
+            profit_suit,
+            profit_shirt,
+            profit_tie,
+            profit_belt,
+            profit_shoes,
+            percent_shirt,
+            percent_tie,
+            percent_belt,
+            percent_shoes
         )
-        if result is None:
-            st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
-        else:
-            st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
 
-    st.markdown("---")
+        if result is None:
+            st.error("❌ Δεν μπορεί να υπολογιστεί. Δοκίμασε διαφορετικές τιμές.")
+        else:
+            st.success(f"✅ Απαιτούμενη αύξηση πωλήσεων κοστουμιών: {format_percentage_gr(result)}")
