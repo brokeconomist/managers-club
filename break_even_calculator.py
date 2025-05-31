@@ -1,15 +1,19 @@
 # break_even_calculator.py
+
 import streamlit as st
 from utils import format_number_gr, parse_gr_number
+from break_even_chart import plot_break_even  # Εισαγωγή του διαγράμματος από άλλο αρχείο
 
+# Συνάρτηση υπολογισμού νεκρού σημείου
 def calculate_break_even_point(fixed_costs, price_per_unit, variable_cost_per_unit):
     try:
         if price_per_unit == variable_cost_per_unit:
-            return None
+            return None  # Δεν υπάρχει break-even αν δεν υπάρχει περιθώριο κέρδους
         return fixed_costs / (price_per_unit - variable_cost_per_unit)
     except ZeroDivisionError:
         return None
 
+# UI συνάρτηση του Streamlit module
 def show_break_even_calculator():
     st.header("🟢 Υπολογιστής Νεκρού Σημείου (Break-Even Point)")
     st.markdown("Υπολογίστε πόσες μονάδες πρέπει να πουλήσετε για να καλύψετε τα σταθερά και μεταβλητά κόστη σας.")
@@ -21,6 +25,7 @@ def show_break_even_calculator():
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
+        # Μετατροπή σε αριθμούς (με ελληνική μορφοποίηση)
         fixed_costs = parse_gr_number(fixed_costs_input)
         price_per_unit = parse_gr_number(price_per_unit_input)
         variable_cost_per_unit = parse_gr_number(variable_cost_per_unit_input)
@@ -34,18 +39,4 @@ def show_break_even_calculator():
             st.error("⚠️ Η τιμή πρέπει να είναι μεγαλύτερη από το μεταβλητό κόστος.")
         else:
             st.success(f"✅ Νεκρό Σημείο: {format_number_gr(bep)} μονάδες")
-
-    def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
-    units = list(range(0, int(break_even_units * 2) + 1))
-    revenue = [price_per_unit * u for u in units]
-    total_cost = [fixed_costs + variable_cost * u for u in units]
-    fig, ax = plt.subplots()
-    ax.plot(units, revenue, label="Έσοδα")
-    ax.plot(units, total_cost, label="Συνολικό Κόστος")
-    ax.axvline(break_even_units, color="red", linestyle="--", label="Νεκρό Σημείο")
-    ax.set_xlabel("Μονάδες Πώλησης")
-    ax.set_ylabel("€")
-    ax.set_title("Break-Even Analysis")
-    ax.legend()
-    st.pyplot(fig)
-    st.markdown("---")
+            plot_break_even(price_per_unit, variable_cost_per_unit, fixed_costs, bep)
