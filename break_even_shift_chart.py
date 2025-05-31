@@ -1,47 +1,51 @@
-# break_even_shift_chart.py
-
-import matplotlib.pyplot as plt
 import streamlit as st
-from utils import format_number_gr
+import matplotlib.pyplot as plt
 
-def calculate_break_even_shift(
-    old_price, new_price,
-    old_unit_cost, new_unit_cost,
-    investment_cost, units_sold
-):
-    denominator = new_price - new_unit_cost
-    if denominator == 0 or units_sold == 0:
-        return None, None
+def calculate_break_even_units(price, cost, fixed_costs):
+    contribution_margin = price - cost
+    if contribution_margin <= 0:
+        return None
+    return fixed_costs / contribution_margin
 
-    percent_change = -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator \
-                     + (investment_cost / (denominator * units_sold))
+def calculate_break_even_shift_v2(old_price, new_price, old_cost, new_cost, investment_cost, units_sold):
+    old_cm = old_price - old_cost
+    new_cm = new_price - new_cost
 
-    units_change = ( -((new_price - old_price) - (new_unit_cost - old_unit_cost)) / denominator * units_sold ) \
-                   + (investment_cost / denominator)
+    if old_cm <= 0 or new_cm <= 0:
+        return (None, None)
 
-    return percent_change * 100, units_change
+    # Υπολογισμός αρχικών και νέων σταθερών εξόδων
+    fixed_costs_old = old_cm * units_sold
+    fixed_costs_new = fixed_costs_old + investment_cost
 
+    old_break_even = fixed_costs_old / old_cm
+    new_break_even = fixed_costs_new / new_cm
 
-def plot_break_even_shift(units_sold, new_price, new_cost, investment_cost, units_change):
-    max_units = int(units_sold + abs(units_change) + 100)
-    units = list(range(0, max_units + 1))
-    revenue = [u * new_price for u in units]
-    cost = [investment_cost + u * new_cost for u in units]
+    percent_change = (new_break_even - old_break_even) / old_break_even
+    units_change = new_break_even - old_break_even
 
-    break_even_new = None
-    for u, r, c in zip(units, revenue, cost):
-        if r >= c:
-            break_even_new = u
-            break
+    return percent_change, units_change
 
-    fig, ax = plt.subplots()
-    ax.plot(units, revenue, label="Έσοδα (νέα τιμή)", color="green")
-    ax.plot(units, cost, label="Συνολικό Κόστος (με επένδυση)", color="orange")
-    if break_even_new:
-        ax.axvline(break_even_new, color="red", linestyle="--", label="Νέο Νεκρό Σημείο")
-    ax.set_xlabel("Μονάδες")
-    ax.set_ylabel("€")
-    ax.set_title("Μεταβολή Νεκρού Σημείου")
-    ax.legend()
-    st.pyplot(fig)
-    st.markdown(f"**Νέο Νεκρό Σημείο:** {format_number_gr(break_even_new, 0)} μονάδες")
+def plot_break_even_shift(old_price, new_price, old_cost, new_cost, investment_cost, units_sold):
+    # Υπολογισμός σταθερών εξόδων
+    old_cm = old_price - old_cost
+    fixed_costs_old = old_cm * units_sold
+    fixed_costs_new = fixed_costs_old + investment_cost
+
+    x = list(range(0, int(units_sold * 2)))
+    old_total_cost = [fixed_costs_old + old_cost * q for q in x]
+    new_total_cost = [fixed_costs_new + new_cost * q for q in x]
+    old_revenue = [old_price * q for q in x]
+    new_revenue = [new_price * q for q in x]
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(x, old_total_cost, 'r--', label="Παλαιό Κόστος")
+    plt.plot(x, new_total_cost, 'r-', label="Νέο Κόστος")
+    plt.plot(x, old_revenue, 'g--', label="Παλαιά Τιμή")
+    plt.plot(x, new_revenue, 'g-', label="Νέα Τιμή")
+    plt.xlabel("Πωληθείσες Μονάδες")
+    plt.ylabel("€")
+    plt.title("Σύγκριση Νεκρού Σημείου")
+    plt.legend()
+    plt.grid(True)
+    st.pyplot(plt)
