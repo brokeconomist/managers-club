@@ -1,100 +1,70 @@
 import streamlit as st
-from utils import format_number_gr, parse_gr_number, format_percentage_gr
+from utils.number_formatting import format_percentage_gr
 
-def calculate_max_product_A_sales_drop(
-    old_price,
-    price_increase_absolute,
-    profit_A,
-    profit_B,
-    profit_C,
-    profit_D,
+
+def calculate_required_sales_increase(
+    price_per_unit_A,
+    profit_per_unit_A,
+    profit_per_unit_B,
+    profit_per_unit_C,
     percent_B,
     percent_C,
-    percent_D
+    price_reduction_pct
 ):
     """
-    Επιστρέφει το εκτιμώμενο μέγιστο % μείωσης των πωλήσεων του Προϊόντος Α
-    ώστε το συνολικό κέρδος να μην μειωθεί, με ακρίβεια ποσοστού (π.χ. -31.00).
+    Υπολογίζει την ελάχιστη αύξηση πωλήσεων που απαιτείται μετά από μείωση τιμής,
+    ώστε να διατηρηθεί το ίδιο συνολικό κέρδος, λαμβάνοντας υπόψη τα συμπληρωματικά προϊόντα.
     """
-    benefit_substitutes = (
-        percent_B * profit_B +
-        percent_C * profit_C +
-        percent_D * profit_D
+    price_reduction = price_reduction_pct / 100  # π.χ. -10 -> -0.10
+
+    total_supplement_profit = (
+        profit_per_unit_B * percent_B / 100 +
+        profit_per_unit_C * percent_C / 100
     )
 
-    denominator = ((profit_A - benefit_substitutes) / old_price) + price_increase_absolute
-    numerator = -price_increase_absolute
+    denominator = ((profit_per_unit_A + total_supplement_profit) / price_per_unit_A) + price_reduction
 
-    try:
-        max_sales_drop_decimal = numerator / denominator
-        max_sales_drop_percent = max_sales_drop_decimal * 100
-        return max_sales_drop_percent
-    except ZeroDivisionError:
+    if denominator == 0:
         return None
 
+    required_sales_increase = -price_reduction / denominator
+    return required_sales_increase * 100
+
+
 def show_complementary_analysis():
-    st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
-    st.title("Τι θα γίνει αν οι πελάτες προτιμήσουν άλλο προϊόν μου; 🔄")
-    st.markdown("""
-    Έχετε 2 προϊόντα και σκεφτήκατε να αλλάξετε τιμή στο ένα;
+    st.header("📈 Ανάλυση Συμπληρωματικών Προϊόντων")
+    st.markdown("### 🎯 Στόχος: Υπολόγισε πόσο πρέπει να αυξηθούν οι πωλήσεις του κύριου προϊόντος σου, μετά από μείωση τιμής, ώστε να διατηρηθεί το συνολικό κέρδος.")
 
-    👉 Αυτό το εργαλείο σάς δείχνει με βάση το ποσοστό των πελατών που εκτιμάτε ότι θα μετακινηθούν από το ένα στο άλλο
-     πώς θα επηρεαστούν οι συνολικές σας πωλήσεις και τα έσοδα.
-
-    Χρήσιμο όταν έχετε παρόμοια προϊόντα ή όταν σκέφτεστε προωθητικές ενέργειες.
-    """)
-    with st.form("price_increase_form"):
+    with st.form("complementary_form"):
         col1, col2 = st.columns(2)
 
         with col1:
-            old_price_input = st.text_input("Τιμή ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(1.50))
-            price_increase_input = st.text_input("Αύξηση τιμής (%)", value=format_number_gr(5.0))
-            profit_A_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(0.30))
+            price_A = st.number_input("Τιμή Προϊόντος Α (€)", min_value=0.01, format="%.2f")
+            profit_A = st.number_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", format="%.2f")
+            price_reduction_pct = st.number_input("Ποσοστό Μείωσης Τιμής (%)", format="%.2f")
 
         with col2:
-            profit_B_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", value=format_number_gr(0.20))
-            profit_C_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", value=format_number_gr(0.20))
-            profit_D_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", value=format_number_gr(0.05))
+            profit_B = st.number_input("Κέρδος ανά μονάδα Συμπληρωματικού Β (€)", format="%.2f")
+            percent_B = st.number_input("Ποσοστό πελατών που αγοράζουν και το Β (%)", min_value=0.0, max_value=100.0, format="%.1f")
+            profit_C = st.number_input("Κέρδος ανά μονάδα Συμπληρωματικού Γ (€)", format="%.2f")
+            percent_C = st.number_input("Ποσοστό πελατών που αγοράζουν και το Γ (%)", min_value=0.0, max_value=100.0, format="%.1f")
 
-        percent_B = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Β (%)", 0.0, 100.0, 45.0) / 100
-        percent_C = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Γ (%)", 0.0, 100.0, 20.0) / 100
-        percent_D = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Δ (%)", 0.0, 100.0, 5.0) / 100
-
-        submitted = st.form_submit_button("Υπολογισμός")
+        submitted = st.form_submit_button("📊 Υπολογισμός")
 
     if submitted:
-        old_price = parse_gr_number(old_price_input)
-        price_increase_pct = parse_gr_number(price_increase_input) / 100
-        profit_A = parse_gr_number(profit_A_input)
-        profit_B = parse_gr_number(profit_B_input)
-        profit_C = parse_gr_number(profit_C_input)
-        profit_D = parse_gr_number(profit_D_input)
-
-        if None in (old_price, price_increase_pct, profit_A, profit_B, profit_C, profit_D):
-            st.error("❌ Έλεγξε ότι όλα τα αριθμητικά πεδία είναι σωστά συμπληρωμένα.")
-            return
-
-        total_substitute = percent_B + percent_C + percent_D
-        if total_substitute > 1:
-            st.error("❌ Το συνολικό ποσοστό πελατών που επιλέγουν άλλα προϊόντα δεν μπορεί να ξεπερνά το 100%.")
-            return
-
-        no_purchase = 1 - total_substitute
-
-        result = calculate_max_product_A_sales_drop(
-            old_price,
-            price_increase_pct,
+        result = calculate_required_sales_increase(
+            price_A,
             profit_A,
             profit_B,
             profit_C,
-            profit_D,
             percent_B,
             percent_C,
-            percent_D
+            price_reduction_pct
         )
 
         if result is None:
-            st.error("❌ Αδυναμία υπολογισμού. Δοκίμασε άλλες τιμές.")
+            st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές (π.χ. μηδενικό κόστος ή τιμή).")
         else:
-            st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_percentage_gr(result)}")
-            st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
+            st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
+
+    st.markdown("---")
