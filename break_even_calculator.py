@@ -35,4 +35,17 @@ def show_break_even_calculator():
         else:
             st.success(f"✅ Νεκρό Σημείο: {format_number_gr(bep)} μονάδες")
 
+    def plot_break_even(price_per_unit, variable_cost, fixed_costs, break_even_units):
+    units = list(range(0, int(break_even_units * 2) + 1))
+    revenue = [price_per_unit * u for u in units]
+    total_cost = [fixed_costs + variable_cost * u for u in units]
+    fig, ax = plt.subplots()
+    ax.plot(units, revenue, label="Έσοδα")
+    ax.plot(units, total_cost, label="Συνολικό Κόστος")
+    ax.axvline(break_even_units, color="red", linestyle="--", label="Νεκρό Σημείο")
+    ax.set_xlabel("Μονάδες Πώλησης")
+    ax.set_ylabel("€")
+    ax.set_title("Break-Even Analysis")
+    ax.legend()
+    st.pyplot(fig)
     st.markdown("---")
