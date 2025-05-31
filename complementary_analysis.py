@@ -32,7 +32,7 @@ def calculate_max_product_A_sales_drop(
     except ZeroDivisionError:
         return None
 
-def show_price_increase_scenario():
+def show_complementary_price_analysis():
     st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
     st.title("Τι θα γίνει αν οι πελάτες προτιμήσουν άλλο προϊόν μου; 🔄")
     st.markdown("""
