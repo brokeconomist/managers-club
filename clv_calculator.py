@@ -13,12 +13,12 @@ def calculate_clv_discounted(
 ):
     try:
         margin_per_purchase = price_per_purchase - cost_per_purchase
-        net_margin_per_year = (purchases_per_period * margin_per_purchase) - marketing_cost
+        annual_profit = (purchases_per_period * margin_per_purchase) - marketing_cost
         if discount_rate == 0:
-            return net_margin_per_year * retention_years
+            return annual_profit * retention_years
         else:
-            pv_factor = (1 - (1 + discount_rate) ** (-retention_years)) / discount_rate
-            return net_margin_per_year * pv_factor
+            discount_factor = (1 - (1 + discount_rate) ** (-retention_years)) / discount_rate
+            return annual_profit * discount_factor
     except Exception:
         return None
 
