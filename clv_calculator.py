@@ -8,18 +8,35 @@ def calculate_clv_discounted(
     purchases_per_period,
     price_per_purchase,
     cost_per_purchase,
-    marketing_cost,
+    marketing_cost_per_period,
     retention_years,
     discount_rate
 ):
+    """
+    Υπολογίζει την εκτιμώμενη καθαρή παρούσα αξία μελλοντικών εισπράξεων από τον πελάτη.
+    
+    Παράμετροι:
+    - purchases_per_period: προβλεπόμενες αγορές ανά περίοδο όσο ο πελάτης παραμένει
+    - price_per_purchase: τιμή πώλησης ανά αγορά
+    - cost_per_purchase: κόστος ανά αγορά
+    - marketing_cost_per_period: δαπάνες μάρκετινγκ ανά περίοδο για τον πελάτη
+    - retention_years: εκτιμώμενος αριθμός περιόδων (χρόνια παραμονής)
+    - discount_rate: προεξοφλητικό επιτόκιο (π.χ. 0.05 για 5%)
+    
+    Επιστρέφει:
+    - την προεξοφλημένη καθαρή αξία πελάτη (float) ή None σε περίπτωση σφάλματος
+    """
     try:
-        margin_per_purchase = price_per_purchase - cost_per_purchase
-        annual_profit = (purchases_per_period * margin_per_purchase) - marketing_cost
+        net_margin_per_period = (purchases_per_period * (price_per_purchase - cost_per_purchase)) - marketing_cost_per_period
+        
         if discount_rate == 0:
-            return annual_profit * retention_years
+            # Απλός πολλαπλασιασμός χωρίς προεξόφληση
+            clv = net_margin_per_period * retention_years
         else:
             discount_factor = (1 - (1 + discount_rate) ** (-retention_years)) / discount_rate
-            return annual_profit * discount_factor
+            clv = net_margin_per_period * discount_factor
+        
+        return clv
     except Exception:
         return None
 
