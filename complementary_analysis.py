@@ -17,7 +17,7 @@ def calculate_required_sales_increase(
     percent_C /= 100
     percent_D /= 100
 
-    price_reduction = price_reduction_pct / 100  # π.χ. -0.10
+    price_reduction = price_reduction_pct / 100  # πχ -10% -> -0.10
 
     total_supplement_profit = (
         profit_B * percent_B +
@@ -48,9 +48,11 @@ def show_complementary_analysis():
     percent_C = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Γ (%)", min_value=0.0, max_value=100.0, format="%.2f")
     percent_D = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Δ (%)", min_value=0.0, max_value=100.0, format="%.2f")
 
-    price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", format="%.2f")
+    # Εδώ δίνουμε μόνο αρνητικές τιμές για μείωση τιμής από 0% έως -100%
+    price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", min_value=-100.0, max_value=0.0, format="%.2f")
 
     if st.button("Υπολόγισε Ελάχιστη Αύξηση Πωλήσεων"):
+        st.write(f"DEBUG: price_reduction_pct = {price_reduction_pct}")  # debug
         result = calculate_required_sales_increase(
             price_A,
             profit_A,
