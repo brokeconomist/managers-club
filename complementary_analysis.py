@@ -35,7 +35,7 @@ def calculate_required_sales_increase(
     except ZeroDivisionError:
         return None
 
-def show_complementary_product_analysis():
+def show_complementary_analysis():
     st.write("Ανάλυση Συμπληρωματικών Προϊόντων")
     st.header("🧥 Εκτίμηση Αύξησης Πωλήσεων Κοστουμιών μετά από Έκπτωση")
     st.title("Τι θα γίνει αν οι πελάτες αγοράζουν και τα αξεσουάρ; 👔👞")
