@@ -32,9 +32,6 @@ def calculate_max_product_A_sales_drop(
     except ZeroDivisionError:
         return None
 
-import streamlit as st
-from utils import format_number_gr, parse_gr_number
-
 def show_complementary_analysis():
     st.header("➕ Ανάλυση Συμπληρωματικών Προϊόντων")
     st.markdown("""
