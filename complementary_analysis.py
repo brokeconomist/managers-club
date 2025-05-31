@@ -32,68 +32,69 @@ def calculate_max_product_A_sales_drop(
     except ZeroDivisionError:
         return None
 
-def show_complementary_analysis():
-    st.header("➕ Ανάλυση Συμπληρωματικών Προϊόντων")
+def show_price_increase_scenario():
+    st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
+    st.title("Τι θα γίνει αν οι πελάτες προτιμήσουν άλλο προϊόν μου; 🔄")
     st.markdown("""
-    Υπολογίστε τη μέγιστη επιτρεπτή μείωση των πωλήσεων ενός προϊόντος μετά από αύξηση τιμής, 
-    με βάση τα κέρδη από συμπληρωματικά προϊόντα.
+    Έχετε 2 προϊόντα και σκεφτήκατε να αλλάξετε τιμή στο ένα;
+
+    👉 Αυτό το εργαλείο σάς δείχνει με βάση το ποσοστό των πελατών που εκτιμάτε ότι θα μετακινηθούν από το ένα στο άλλο
+     πώς θα επηρεαστούν οι συνολικές σας πωλήσεις και τα έσοδα.
+
+    Χρήσιμο όταν έχετε παρόμοια προϊόντα ή όταν σκέφτεστε προωθητικές ενέργειες.
     """)
-
-    with st.form("complementary_form"):
-        st.subheader("🔢 Εισαγωγή Δεδομένων")
-
+    with st.form("price_increase_form"):
         col1, col2 = st.columns(2)
 
         with col1:
-            old_price = st.text_input("Αρχική Τιμή Προϊόντος A (€)", value=format_number_gr(10.0))
-            price_increase = st.text_input("Αύξηση Τιμής Προϊόντος A (€)", value=format_number_gr(0.10))
-            profit_A = st.text_input("Κέρδος ανά τεμάχιο Προϊόντος A (€)", value=format_number_gr(3.0))
-            profit_B = st.text_input("Κέρδος ανά τεμάχιο Προϊόντος B (€)", value=format_number_gr(2.5))
-            percent_B = st.text_input("Ποσοστό πελατών που αγοράζουν και το B", value="0.40")
+            old_price_input = st.text_input("Τιμή ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(1.50))
+            price_increase_input = st.text_input("Αύξηση τιμής (%)", value=format_number_gr(5.0))
+            profit_A_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Α (€)", value=format_number_gr(0.30))
 
         with col2:
-            profit_C = st.text_input("Κέρδος ανά τεμάχιο Προϊόντος C (€)", value=format_number_gr(1.5))
-            profit_D = st.text_input("Κέρδος ανά τεμάχιο Προϊόντος D (€)", value=format_number_gr(1.0))
-            percent_C = st.text_input("Ποσοστό πελατών που αγοράζουν και το C", value="0.30")
-            percent_D = st.text_input("Ποσοστό πελατών που αγοράζουν και το D", value="0.20")
+            profit_B_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Β (€)", value=format_number_gr(0.20))
+            profit_C_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Γ (€)", value=format_number_gr(0.20))
+            profit_D_input = st.text_input("Κέρδος ανά μονάδα Προϊόντος Δ (€)", value=format_number_gr(0.05))
+
+        percent_B = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Β (%)", 0.0, 100.0, 45.0) / 100
+        percent_C = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Γ (%)", 0.0, 100.0, 20.0) / 100
+        percent_D = st.slider("Ποσοστό πελατών που θα αγοράσουν Προϊόν Δ (%)", 0.0, 100.0, 5.0) / 100
 
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
-        inputs = [old_price, price_increase, profit_A, profit_B, profit_C, profit_D, percent_B, percent_C, percent_D]
-        parsed_inputs = [parse_gr_number(x) for x in inputs]
+        old_price = parse_gr_number(old_price_input)
+        price_increase_pct = parse_gr_number(price_increase_input) / 100
+        profit_A = parse_gr_number(profit_A_input)
+        profit_B = parse_gr_number(profit_B_input)
+        profit_C = parse_gr_number(profit_C_input)
+        profit_D = parse_gr_number(profit_D_input)
 
-        if None in parsed_inputs:
-            st.error("⚠️ Έλεγξε ότι όλα τα πεδία είναι σωστά συμπληρωμένα.")
+        if None in (old_price, price_increase_pct, profit_A, profit_B, profit_C, profit_D):
+            st.error("❌ Έλεγξε ότι όλα τα αριθμητικά πεδία είναι σωστά συμπληρωμένα.")
             return
 
-        (
-            old_price_val,
-            price_increase_val,
-            profit_A_val,
-            profit_B_val,
-            profit_C_val,
-            profit_D_val,
-            percent_B_val,
-            percent_C_val,
-            percent_D_val
-        ) = parsed_inputs
+        total_substitute = percent_B + percent_C + percent_D
+        if total_substitute > 1:
+            st.error("❌ Το συνολικό ποσοστό πελατών που επιλέγουν άλλα προϊόντα δεν μπορεί να ξεπερνά το 100%.")
+            return
+
+        no_purchase = 1 - total_substitute
 
         result = calculate_max_product_A_sales_drop(
-            old_price_val,
-            price_increase_val,
-            profit_A_val,
-            profit_B_val,
-            profit_C_val,
-            profit_D_val,
-            percent_B_val,
-            percent_C_val,
-            percent_D_val
+            old_price,
+            price_increase_pct,
+            profit_A,
+            profit_B,
+            profit_C,
+            profit_D,
+            percent_B,
+            percent_C,
+            percent_D
         )
 
         if result is None:
-            st.error("⚠️ Προέκυψε διαίρεση με το μηδέν. Έλεγξε τα κέρδη και την τιμή.")
+            st.error("❌ Αδυναμία υπολογισμού. Δοκίμασε άλλες τιμές.")
         else:
-            st.success(f"✅ Μέγιστη επιτρεπτή μείωση πωλήσεων Προϊόντος A: {result:.2f}%")
-
-    st.markdown("---")
+            st.success(f"✅ Μέγιστη αποδεκτή μείωση πωλήσεων Προϊόντος Α: {format_percentage_gr(result)}")
+            st.info(f"ℹ️ Ποσοστό πελατών που δεν θα αγοράσουν τίποτα: {format_percentage_gr(no_purchase * 100)}")
