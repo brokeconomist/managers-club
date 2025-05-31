@@ -1,7 +1,3 @@
-import streamlit as st
-from utils import format_number_gr, parse_gr_number, format_percentage_gr
-from break_even_shift_chart import calculate_break_even_shift_v2, plot_break_even_shift
-
 def show_break_even_shift_calculator():
     st.header("🟠 Ανάλυση Αλλαγής στο Νεκρό Σημείο με Νέα Τιμή / Κόστος / Επένδυση")
     st.title("Τι αλλάζει στο 'μηδέν' μου αν ανεβάσω τιμές ή επενδύσω;")
@@ -38,7 +34,7 @@ def show_break_even_shift_calculator():
             st.warning("⚠️ Παρακαλώ εισάγετε έγκυρους αριθμούς σε όλα τα πεδία.")
             return
 
-        percent_change, units_change = calculate_break_even_shift_v2(
+        percent_change, units_change = calculate_break_even_shift(
             old_price, new_price, old_cost, new_cost, investment_cost, units_sold
         )
 
@@ -50,10 +46,11 @@ def show_break_even_shift_calculator():
         st.success(f"📦 Αλλαγή Νεκρού Σημείου (μονάδες): {format_number_gr(units_change, 0)} μονάδες")
 
         plot_break_even_shift(
-            old_price, new_price,
-            old_cost, new_cost,
+            units_sold,
+            new_price,
+            new_cost,
             investment_cost,
-            units_sold
+            units_change
         )
 
         st.markdown("---")
