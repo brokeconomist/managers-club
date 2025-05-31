@@ -9,6 +9,8 @@ from loss_threshold import show_loss_threshold_before_price_cut
 
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
+st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
+
 tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", [
     "🏠 Αρχική",
     "🟢 Νεκρό Σημείο (Break-Even)",
@@ -27,7 +29,7 @@ elif tool == "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόσ
     show_break_even_shift_calculator()
 elif tool == "👥 CLV - Αξία Πελάτη":
     show_clv_calculator()
-elif tool == "🔄 Ανάλυση Υποκατάστασης Προϊόντων":
+elif selected_option == "🔄 Ανάλυση Υποκατάστασης":
     show_substitution_analysis()
 elif tool == "➕ Ανάλυση Συμπληρωματικών Προϊόντων":
     show_complementary_analysis()
