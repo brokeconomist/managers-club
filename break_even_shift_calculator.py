@@ -1,8 +1,6 @@
 import streamlit as st
-
-def show_break_even_shift_calculator():
-    st.header("Test Header")
-
+from utils import format_number_gr, parse_gr_number, format_percentage_gr
+from break_even_shift_chart import calculate_break_even_shift_v2, plot_break_even_shift
 
 def show_break_even_shift_calculator():
     st.header("🟠 Ανάλυση Αλλαγής στο Νεκρό Σημείο με Νέα Τιμή / Κόστος / Επένδυση")
@@ -29,6 +27,7 @@ def show_break_even_shift_calculator():
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
+        # Ανάλυση και μετατροπή τιμών
         old_price = parse_gr_number(old_price_input)
         new_price = parse_gr_number(new_price_input)
         old_cost = parse_gr_number(old_cost_input)
@@ -40,23 +39,24 @@ def show_break_even_shift_calculator():
             st.warning("⚠️ Παρακαλώ εισάγετε έγκυρους αριθμούς σε όλα τα πεδία.")
             return
 
-        percent_change, units_change = calculate_break_even_shift(
+        # Υπολογισμός αλλαγής στο νεκρό σημείο
+        percent_change, units_change = calculate_break_even_shift_v2(
             old_price, new_price, old_cost, new_cost, investment_cost, units_sold
         )
 
         if percent_change is None:
-            st.error("🚫 Υπολογισμός αδύνατος με τα δοσμένα στοιχεία (διαίρεση με μηδέν).")
+            st.error("🚫 Υπολογισμός αδύνατος με τα δοσμένα στοιχεία (π.χ. διαίρεση με μηδέν).")
             return
 
         st.success(f"📉 Αλλαγή Νεκρού Σημείου (%): {format_percentage_gr(percent_change)}")
         st.success(f"📦 Αλλαγή Νεκρού Σημείου (μονάδες): {format_number_gr(units_change, 0)} μονάδες")
 
+        # Διάγραμμα
         plot_break_even_shift(
-            units_sold,
-            new_price,
-            new_cost,
+            old_price, new_price,
+            old_cost, new_cost,
             investment_cost,
-            units_change
+            units_sold
         )
 
         st.markdown("---")
