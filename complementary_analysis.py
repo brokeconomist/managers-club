@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.number_formatting import format_percentage_gr
+from utils import format_percentage_gr
 
 def calculate_required_sales_increase(
     price_per_unit_A,
