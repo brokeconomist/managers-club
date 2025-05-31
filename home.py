@@ -49,7 +49,7 @@ def show_home():
     ✉️ [managersclub@example.com](mailto:managersclub@example.com)
 
     ---
-
+    
     ## 🚀 Έτοιμος να πάρεις τον έλεγχο στα χέρια σου;
 
     👉 Ξεκίνα από το μενού και δες τις δυνατότητες του Managers’ Club στην πράξη.
