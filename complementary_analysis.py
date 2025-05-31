@@ -37,16 +37,16 @@ def calculate_required_sales_increase(
 def show_complementary_analysis():
     st.title("➕ Ανάλυση Συμπληρωματικών Προϊόντων")
 
-    price_A = st.number_input("Τιμή προϊόντος Α (€)", min_value=0.01, format="%.2f")
-    profit_A = st.number_input("Κέρδος ανά μονάδα προϊόντος Α (€)", min_value=0.0, format="%.2f")
+    price_A = st.number_input("Τιμή προϊόντος Α (€)", min_value=200.01, format="%.2f")
+    profit_A = st.number_input("Κέρδος ανά μονάδα προϊόντος Α (€)", min_value=60.0, format="%.2f")
 
-    profit_B = st.number_input("Κέρδος ανά μονάδα προϊόντος Β (€)", min_value=0.0, format="%.2f")
-    profit_C = st.number_input("Κέρδος ανά μονάδα προϊόντος Γ (€)", min_value=0.0, format="%.2f")
-    profit_D = st.number_input("Κέρδος ανά μονάδα προϊόντος Δ (€)", min_value=0.0, format="%.2f")
+    profit_B = st.number_input("Κέρδος ανά μονάδα προϊόντος Β (€)", min_value=18.0, format="%.2f")
+    profit_C = st.number_input("Κέρδος ανά μονάδα προϊόντος Γ (€)", min_value=11.0, format="%.2f")
+    profit_D = st.number_input("Κέρδος ανά μονάδα προϊόντος Δ (€)", min_value=14.0, format="%.2f")
 
-    percent_B = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Β (%)", min_value=0.0, max_value=100.0, format="%.2f")
-    percent_C = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Γ (%)", min_value=0.0, max_value=100.0, format="%.2f")
-    percent_D = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Δ (%)", min_value=0.0, max_value=100.0, format="%.2f")
+    percent_B = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Β (%)", min_value=90.0, max_value=100.0, format="%.2f")
+    percent_C = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Γ (%)", min_value=70.0, max_value=100.0, format="%.2f")
+    percent_D = st.number_input("Ποσοστό πελατών που αγοράζουν προϊόν Δ (%)", min_value=10.0, max_value=100.0, format="%.2f")
 
     price_reduction_pct = st.number_input("Μείωση Τιμής Προϊόντος Α (%)", format="%.2f")
 
