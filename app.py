@@ -1,3 +1,5 @@
+import streamlit as st
+
 tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", [
     "🏠 Αρχική",
     "🟢 Νεκρό Σημείο (Break-Even)",
