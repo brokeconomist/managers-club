@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from utils import format_number_gr
 
-def calculate_break_even_shift_v2(
+def calculate_break_even_shift(
     old_price, new_price,
     old_unit_cost, new_unit_cost,
     investment_cost, units_sold
