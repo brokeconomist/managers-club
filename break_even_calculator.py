@@ -1,25 +1,23 @@
+# break_even_calculator.py
 import streamlit as st
 from utils import format_number_gr, parse_gr_number
 
 def calculate_break_even_point(fixed_costs, price_per_unit, variable_cost_per_unit):
     try:
         if price_per_unit == variable_cost_per_unit:
-            return None  # Απεριόριστο (ή λάθος)
+            return None
         return fixed_costs / (price_per_unit - variable_cost_per_unit)
     except ZeroDivisionError:
         return None
 
 def show_break_even_calculator():
     st.header("🟢 Υπολογιστής Νεκρού Σημείου (Break-Even Point)")
-    st.markdown("""
-    Υπολογίστε πόσες μονάδες πρέπει να πουλήσετε για να καλύψετε τα σταθερά και μεταβλητά κόστη σας.
-    """)
+    st.markdown("Υπολογίστε πόσες μονάδες πρέπει να πουλήσετε για να καλύψετε τα σταθερά και μεταβλητά κόστη σας.")
 
     with st.form("break_even_form"):
         fixed_costs_input = st.text_input("Σταθερά Κόστη (€)", value=format_number_gr(10000))
         price_per_unit_input = st.text_input("Τιμή ανά Μονάδα (€)", value=format_number_gr(50))
         variable_cost_per_unit_input = st.text_input("Μεταβλητό Κόστος ανά Μονάδα (€)", value=format_number_gr(30))
-        
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
