@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import format_percentage_gr
+from utils.number_formatting import format_percentage_gr
 
 def calculate_required_sales_increase(
     price_A,
@@ -11,31 +11,23 @@ def calculate_required_sales_increase(
     price_change_pct
 ):
     """
-    Υπολογίζει την ελάχιστη αύξηση πωλήσεων που απαιτείται μετά από αύξηση τιμής προϊόντος Α,
-    ώστε να διατηρηθεί το ίδιο συνολικό κέρδος, λαμβάνοντας υπόψη τα συμπληρωματικά προϊόντα Β και Γ.
-
-    Τύπος:
-    -Αύξηση τιμής προιόντος Α /
-    (
-      (κέρδος προιόν Α - ((% πελατών που θα αγοράσουν Β * Κέρδος από Β) + (% πελατών που θα αγοράσουν Γ * Κέρδος από Γ)))
-      / Τιμή προϊόντος Α
-      + Αύξηση στην τιμή προϊόντος Α
-    )
+    Υπολογίζει την ελάχιστη αύξηση πωλήσεων που απαιτείται μετά από αλλαγή τιμής
+    ώστε να διατηρηθεί το ίδιο συνολικό κέρδος, λαμβάνοντας υπόψη τα συμπληρωματικά προϊόντα.
     """
+    # Μετατροπή ποσοστών σε δεκαδικά
+    percent_B /= 100
+    percent_C /= 100
+    price_change = price_A * price_change_pct / 100  # π.χ. +10% = +τιμή σε €
 
-    # Μετατροπή ποσοστών από % σε δεκαδικό
-    percent_B = percent_B / 100
-    percent_C = percent_C / 100
-    price_change = price_A * price_change_pct / 100  # π.χ. +10% => +τιμή σε €
+    numerator = -price_change
 
-    # Υπολογισμός προστιθέμενου κέρδους από συμπληρωματικά προϊόντα
-    added_profit = (percent_B * profit_B) + (percent_C * profit_C)
+    # Προσαρμοσμένο κέρδος λαμβάνοντας υπόψη ποσοστά πελατών και κέρδη από Β και Γ
+    adjusted_profit = profit_A - (percent_B * profit_B + percent_C * profit_C)
 
-    numerator = -price_change  # Αύξηση τιμής (με αρνητικό πρόσημο)
-    denominator = ((profit_A - added_profit) / price_A) + (price_change_pct / 100)
+    denominator = (adjusted_profit / price_A) + (price_change_pct / 100)
 
     try:
-        result_pct = numerator / denominator * 100
+        result_pct = numerator / denominator * 100  # ποσοστό αύξησης πωλήσεων
         return result_pct
     except ZeroDivisionError:
         return None
@@ -55,7 +47,7 @@ def show_complementary_analysis():
 
     price_change_pct = st.number_input("Αύξηση Τιμής Προϊόντος Α (%)", format="%.2f")
 
-    if st.button("Υπολογισμός Ελάχιστης Αύξησης Πωλήσεων"):
+    if st.button("Υπολόγισε Ελάχιστη Αύξηση Πωλήσεων"):
         result = calculate_required_sales_increase(
             price_A,
             profit_A,
@@ -65,12 +57,9 @@ def show_complementary_analysis():
             percent_C,
             price_change_pct
         )
-
         if result is None:
             st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
         else:
             st.success(f"✅ Ελάχιστη Απαιτούμενη Αύξηση Πωλήσεων στο Προϊόν Α: {format_percentage_gr(result)}")
 
     st.markdown("---")
-    st.markdown(" ")
-    st.markdown(" ")
