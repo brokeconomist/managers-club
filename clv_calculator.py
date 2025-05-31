@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.express as px
 from utils import format_number_gr, parse_gr_number
 
 def calculate_clv_discounted(
@@ -54,10 +53,11 @@ def tornado_data(clv_base, params, delta=0.1):
         "purchases_per_period": "Αγορές ανά Περίοδο",
         "price_per_purchase": "Τιμή ανά Αγορά",
         "cost_per_purchase": "Κόστος ανά Αγορά",
-        "marketing_cost": "Δαπάνες Μάρκετινγκ",
+        "marketing_cost_per_period": "Δαπάνες Μάρκετινγκ",
         "retention_years": "Χρόνια Παραμονής",
         "discount_rate": "Επιτόκιο Προεξόφλησης"
     }
+
     df = pd.DataFrame(results)
     df["Παράμετρος"] = df["Παράμετρος"].map(mapping)
     return df
@@ -83,7 +83,6 @@ def show_clv_calculator():
         st.error("Παρακαλώ συμπληρώστε σωστά όλα τα πεδία με αριθμούς.")
         return
 
-    # Υπολογισμός CLV
     clv = calculate_clv_discounted(
         purchases_per_period=purchases,
         price_per_purchase=price,
