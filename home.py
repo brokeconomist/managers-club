@@ -1,7 +1,7 @@
 import streamlit as st
 
 def show_home():
-    st.image("banner_managers_club.png", use_column_width=True)
+    st.image("static/banner_managers_club.png", use_container_width=True)
 
     st.title("🎯 Καλωσόρισες στο Managers’ Club!")
     st.subheader("Το έξυπνο εργαλείο για σύγχρονες και τεκμηριωμένες οικονομικές αποφάσεις")
