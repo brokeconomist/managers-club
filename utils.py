@@ -11,3 +11,9 @@ def parse_gr_number(text):
         return float(text.replace(".", "").replace(",", "."))
     except Exception:
         return None
+        
+def format_percentage_gr(value):
+    try:
+        return f"{value:.2f}".replace('.', ',') + '%'
+    except:
+        return "-"
