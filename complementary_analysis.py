@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import format_number_gr, parse_gr_number
+from utils import format_number_gr, parse_gr_number, format_percentage_gr
 
 def calculate_max_product_A_sales_drop(
     old_price,
