@@ -31,7 +31,8 @@ def calculate_max_product_A_sales_drop(
     except ZeroDivisionError:
         return None
 
-def show_substitution_price_impact():
+def show_substitution_analysis():
+    st.write("Ανάλυση Υποκατάστασης Προϊόντων")
     st.header("📈 Εκτίμηση Αποδεκτής Μείωσης Πωλήσεων Προϊόντος Α μετά από Αύξηση Τιμής")
     st.title("Τι θα γίνει αν οι πελάτες προτιμήσουν άλλο προϊόν μου; 🔄")
     st.markdown("""
