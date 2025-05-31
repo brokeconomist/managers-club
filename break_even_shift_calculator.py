@@ -1,3 +1,9 @@
+import streamlit as st
+
+def show_break_even_shift_calculator():
+    st.header("Test Header")
+
+
 def show_break_even_shift_calculator():
     st.header("🟠 Ανάλυση Αλλαγής στο Νεκρό Σημείο με Νέα Τιμή / Κόστος / Επένδυση")
     st.title("Τι αλλάζει στο 'μηδέν' μου αν ανεβάσω τιμές ή επενδύσω;")
@@ -54,7 +60,3 @@ def show_break_even_shift_calculator():
         )
 
         st.markdown("---")
-import streamlit as st
-
-def show_break_even_shift_calculator():
-    st.header("Test Header")
