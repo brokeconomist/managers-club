@@ -7,8 +7,7 @@ from clv_calculator import show_clv_calculator
 from substitution_analysis import show_substitution_analysis
 from complementary_analysis import show_complementary_analysis
 from loss_threshold import show_loss_threshold_before_price_cut
-from discount_cash_calculator import show_discount_cash_calculator    # νέο import
-from discount_cash_ui import show_discount_cash_tool
+from discount_cash_app import show_discount_cash_app  # ✅ Νέο εργαλείο
 
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
@@ -22,7 +21,7 @@ tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", [
     "🔄 Ανάλυση Υποκατάστασης Προϊόντων",
     "➕ Ανάλυση Συμπληρωματικών Προϊόντων",
     "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών",
-    "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς"  # νέα επιλογή
+    "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς"  # ✅ Νέα επιλογή
 ])
 
 if tool == "🏠 Αρχική":
@@ -39,7 +38,5 @@ elif tool == "➕ Ανάλυση Συμπληρωματικών Προϊόντω
     show_complementary_analysis()
 elif tool == "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών":
     show_loss_threshold_before_price_cut()
-elif selected_tool == "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς":
-    discount_cash_ui()
 elif tool == "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς":
-    show_discount_cash_calculatorl()
+    show_discount_cash_app()  # ✅ Χρήση της νέας συνάρτησης
