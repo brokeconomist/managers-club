@@ -98,53 +98,59 @@ def show_discount_cash_tool():
 
     st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
-    with st.form("discount_form"):
-        col1, col2 = st.columns(2)
+with st.form("discount_form"):
+    col1, col2 = st.columns(2)
 
-        with col1:
-            current_sales = st.number_input(
-                "Τρέχουσες Πωλήσεις (€)",
-                value=DEFAULTS["current_sales"],
-                min_value=0.0, step=100.0, format="%.2f"
-            )
-            extra_sales = st.number_input(
-                "Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)",
-                value=DEFAULTS["extra_sales"],
-                min_value=0.0, step=50.0, format="%.2f"
-            )
-            gross_margin = st.slider(
-                "Καθαρό Περιθώριο Κέρδους (%)", 0.0, 100.0,
-                int(DEFAULTS["gross_margin"] * 100), step=1
-            ) / 100
+    with col1:
+        current_sales = st.number_input(
+            "Τρέχουσες Πωλήσεις (€)",
+            value=DEFAULTS["current_sales"],
+            min_value=0.0, step=100.0, format="%.2f"
+        )
+        extra_sales = st.number_input(
+            "Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)",
+            value=DEFAULTS["extra_sales"],
+            min_value=0.0, step=50.0, format="%.2f"
+        )
+        gross_margin = st.slider(
+            "Καθαρό Περιθώριο Κέρδους (%)", 0.0, 100.0,
+            int(DEFAULTS["gross_margin"] * 100), step=1
+        ) / 100
 
-            discount_rate = st.slider(
-                "Έκπτωση (%)", 0.0, 30.0,
-                DEFAULTS["discount_rate"] * 100, step=0.01
-            ) / 100
+        discount_rate = st.slider(
+            "Έκπτωση (%)", 0.0, 30.0,
+            DEFAULTS["discount_rate"] * 100, step=0.01
+        ) / 100
 
-        with col2:
-            accept_rate = st.slider(
-                "% Πελατών που Αποδέχεται την Έκπτωση", 0, 100,
-                int(DEFAULTS["accept_rate"] * 100), step=5
-            ) / 100
-            days_accept = st.number_input(
-                "Ημέρες Πληρωμής Αποδεκτών Έκπτωσης",
-                value=DEFAULTS["days_accept"], min_value=0, max_value=365, step=1, format="%d"
-            )
-            days_non_accept = st.number_input(
-                "Ημέρες Πληρωμής μη Αποδεκτών Έκπτωσης",
-                value=DEFAULTS["days_non_accept"], min_value=0, max_value=365, step=1, format="%d"
-            )
-            current_collection_days = st.number_input(
-                "Τρέχουσα Μέση Περίοδος Είσπραξης (μέρες)",
-                value=DEFAULTS["current_collection_days"], min_value=0, max_value=365, step=1, format="%d"
-            )
-            wacc = st.slider(
-                "WACC (%)", 0.0, 50.0,
-                DEFAULTS["wacc"] * 100, step=0.01
-            ) / 100
+    with col2:
+        accept_rate = st.slider(
+            "% Πελατών που Αποδέχεται την Έκπτωση", 0, 100,
+            int(DEFAULTS["accept_rate"] * 100), step=5
+        ) / 100
+        days_accept = st.number_input(
+            "Ημέρες Πληρωμής Αποδεκτών Έκπτωσης",
+            value=DEFAULTS["days_accept"], min_value=0, max_value=365, step=1, format="%d"
+        )
+        days_non_accept = st.number_input(
+            "Ημέρες Πληρωμής μη Αποδεκτών Έκπτωσης",
+            value=DEFAULTS["days_non_accept"], min_value=0, max_value=365, step=1, format="%d"
+        )
+        current_collection_days = st.number_input(
+            "Τρέχουσα Μέση Περίοδος Είσπραξης (μέρες)",
+            value=DEFAULTS["current_collection_days"], min_value=0, max_value=365, step=1, format="%d"
+        )
+        wacc = st.slider(
+            "WACC (%)", 0.0, 50.0,
+            DEFAULTS["wacc"] * 100, step=0.01
+        ) / 100
 
-        submitted = st.form_submit_button("Υπολογισμός")
+    submitted = st.form_submit_button("Υπολογισμός")
+
+if submitted:
+    # Παράδειγμα υπολογισμού που μπορείς να αντικαταστήσεις με τον δικό σου
+    net_margin = gross_margin * (1 - discount_rate)
+    st.write(f"Καθαρό περιθώριο μετά την έκπτωση: {net_margin:.2%}")
+    # Εδώ βάζεις όλη την υπόλοιπη λογική και αποτελέσματα
 
     if submitted:
         # Υπολογισμοί βάσει διορθωμένων τύπων
