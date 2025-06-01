@@ -1,6 +1,6 @@
 import streamlit as st
 
-def discount_cash_tool():
+def show_discount_cash_tool():
     st.title("Υπολογιστής Απόδοσης Έκπτωσης Πληρωμής τοις Μετρητοίς")
 
     # Εισαγόμενες παράμετροι
