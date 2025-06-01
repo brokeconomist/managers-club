@@ -28,7 +28,8 @@ def calculate_discount_cash_fixed_pct(
     pv_other_customers = total_sales * (1 - weighted_pct_discounted_total) * discount_factor(days_reject)
     pv_cost_extra_sales = cost_of_sales_pct * extra_sales * discount_factor(avg_supplier_pay_days)
 
-    old_avg_days = (0.5 * days_accept) + (0.5 * days_reject)
+    # Νέα σωστή προσέγγιση με βάση το ποσοστό αποδοχής της έκπτωσης
+    old_avg_days = (pct_customers_accept * days_accept) + ((1 - pct_customers_accept) * days_reject)
     pv_current_sales = current_sales * discount_factor(old_avg_days)
 
     npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
