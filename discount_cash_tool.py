@@ -27,35 +27,18 @@ def show_discount_cash_tool():
         days_accept, days_non_accept,
         current_collection_days, wacc
     ):
-        # 1. Κέρδος από επιπλέον πωλήσεις
+        # (υπολογισμοί όπως έχεις ήδη)
         profit_extra = extra_sales * gross_margin
-
-        # 2. Νέο σύνολο πωλήσεων μετά την έκπτωση
         new_sales = current_sales + extra_sales
-
-        # 3. Ποσοστό πελατών μετά την αύξηση πωλήσεων που πληρώνουν με έκπτωση
-        # (αντιστοιχεί στο ποσοστό που αποδέχεται την έκπτωση επί του παλαιού τζίρου + όλο το extra sales)
         pct_new_policy = (current_sales * accept_rate + extra_sales) / new_sales
         pct_old_policy = 1 - pct_new_policy
-
-        # 4. Νέα μεσοσταθμική μέση περίοδος είσπραξης
         new_avg_days = pct_new_policy * days_accept + pct_old_policy * days_non_accept
-
-        # 5. Απαιτήσεις (παλαιές και νέες) σε € (365 ημέρες)
         old_receivables = (current_sales * current_collection_days) / 365
         new_receivables = (new_sales * new_avg_days) / 365
-
-        # 6. Αποδέσμευση κεφαλαίων
         capital_released = old_receivables - new_receivables
         profit_release = capital_released * wacc
-
-        # 7. Κόστος έκπτωσης
         discount_cost = new_sales * pct_new_policy * discount_rate
-
-        # 8. Συνολικό καθαρό όφελος (πριν προεξόφληση)
         total_profit = profit_extra + profit_release - discount_cost
-
-        # 9. Καθαρή Παρούσα Αξία (NPV) – προεξόφληση 1 έτους με WACC
         npv = total_profit / (1 + wacc)
 
         return {
@@ -74,7 +57,6 @@ def show_discount_cash_tool():
         accept_rate, days_accept, days_non_accept,
         current_collection_days, wacc
     ):
-        # Δοκιμάζουμε ποσοστά έκπτωσης από 0% έως 30% (μικρότερο εύρος γιατί άνω του 30% δεν έχει νόημα)
         discounts = np.linspace(0.0, 0.30, 301)
         npv_list = []
         for d in discounts:
@@ -85,75 +67,63 @@ def show_discount_cash_tool():
             )
             npv_list.append(res["npv"])
         npv_arr = np.array(npv_list)
-
-        # 1. Βέλτιστη έκπτωση = εκεί που το NPV μεγιστοποιείται
         idx_opt = npv_arr.argmax()
         optimal_discount = discounts[idx_opt]
-
-        # 2. Break-even έκπτωση (πλησιέστερο σημείο όπου NPV ≈ 0)
         idx_be = (np.abs(npv_arr)).argmin()
         breakeven_discount = discounts[idx_be]
-
         return optimal_discount, breakeven_discount, discounts, npv_list
 
     st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
-with st.form("discount_form"):
-    col1, col2 = st.columns(2)
+    with st.form("discount_form"):
+        col1, col2 = st.columns(2)
 
-    with col1:
-        current_sales = st.number_input(
-            "Τρέχουσες Πωλήσεις (€)",
-            value=DEFAULTS["current_sales"],
-            min_value=0.0, step=100.0, format="%.2f"
-        )
-        extra_sales = st.number_input(
-            "Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)",
-            value=DEFAULTS["extra_sales"],
-            min_value=0.0, step=50.0, format="%.2f"
-        )
-        gross_margin = st.slider(
-            "Καθαρό Περιθώριο Κέρδους (%)", 0.0, 100.0,
-            int(DEFAULTS["gross_margin"] * 100), step=1
-        ) / 100
+        with col1:
+            current_sales = st.number_input(
+                "Τρέχουσες Πωλήσεις (€)",
+                value=DEFAULTS["current_sales"],
+                min_value=0.0, step=100.0, format="%.2f"
+            )
+            extra_sales = st.number_input(
+                "Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)",
+                value=DEFAULTS["extra_sales"],
+                min_value=0.0, step=50.0, format="%.2f"
+            )
+            gross_margin = st.slider(
+                "Καθαρό Περιθώριο Κέρδους (%)", 0.0, 100.0,
+                int(DEFAULTS["gross_margin"] * 100), step=1
+            ) / 100
 
-        discount_rate = st.slider(
-            "Έκπτωση (%)", 0.0, 30.0,
-            DEFAULTS["discount_rate"] * 100, step=0.01
-        ) / 100
+            discount_rate = st.slider(
+                "Έκπτωση (%)", 0.0, 30.0,
+                DEFAULTS["discount_rate"] * 100, step=0.01
+            ) / 100
 
-    with col2:
-        accept_rate = st.slider(
-            "% Πελατών που Αποδέχεται την Έκπτωση", 0, 100,
-            int(DEFAULTS["accept_rate"] * 100), step=5
-        ) / 100
-        days_accept = st.number_input(
-            "Ημέρες Πληρωμής Αποδεκτών Έκπτωσης",
-            value=DEFAULTS["days_accept"], min_value=0, max_value=365, step=1, format="%d"
-        )
-        days_non_accept = st.number_input(
-            "Ημέρες Πληρωμής μη Αποδεκτών Έκπτωσης",
-            value=DEFAULTS["days_non_accept"], min_value=0, max_value=365, step=1, format="%d"
-        )
-        current_collection_days = st.number_input(
-            "Τρέχουσα Μέση Περίοδος Είσπραξης (μέρες)",
-            value=DEFAULTS["current_collection_days"], min_value=0, max_value=365, step=1, format="%d"
-        )
-        wacc = st.slider(
-            "WACC (%)", 0.0, 50.0,
-            DEFAULTS["wacc"] * 100, step=0.01
-        ) / 100
+        with col2:
+            accept_rate = st.slider(
+                "% Πελατών που Αποδέχεται την Έκπτωση", 0, 100,
+                int(DEFAULTS["accept_rate"] * 100), step=5
+            ) / 100
+            days_accept = st.number_input(
+                "Ημέρες Πληρωμής Αποδεκτών Έκπτωσης",
+                value=DEFAULTS["days_accept"], min_value=0, max_value=365, step=1, format="%d"
+            )
+            days_non_accept = st.number_input(
+                "Ημέρες Πληρωμής μη Αποδεκτών Έκπτωσης",
+                value=DEFAULTS["days_non_accept"], min_value=0, max_value=365, step=1, format="%d"
+            )
+            current_collection_days = st.number_input(
+                "Τρέχουσα Μέση Περίοδος Είσπραξης (μέρες)",
+                value=DEFAULTS["current_collection_days"], min_value=0, max_value=365, step=1, format="%d"
+            )
+            wacc = st.slider(
+                "WACC (%)", 0.0, 50.0,
+                DEFAULTS["wacc"] * 100, step=0.01
+            ) / 100
 
-    submitted = st.form_submit_button("Υπολογισμός")
-
-if submitted:
-    # Παράδειγμα υπολογισμού που μπορείς να αντικαταστήσεις με τον δικό σου
-    net_margin = gross_margin * (1 - discount_rate)
-    st.write(f"Καθαρό περιθώριο μετά την έκπτωση: {net_margin:.2%}")
-    # Εδώ βάζεις όλη την υπόλοιπη λογική και αποτελέσματα
+        submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
-        # Υπολογισμοί βάσει διορθωμένων τύπων
         res = calculate_cash_discount(
             current_sales, extra_sales, gross_margin,
             discount_rate, accept_rate,
@@ -167,7 +137,6 @@ if submitted:
             current_collection_days, wacc
         )
 
-        # Δείχνουμε αποτελέσματα
         st.subheader("Αποτελέσματα")
         col1, col2, col3 = st.columns(3)
 
@@ -212,7 +181,6 @@ if submitted:
 
         st.markdown("---")
 
-        # Γράφημα NPV vs έκπτωση
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=discounts * 100,
