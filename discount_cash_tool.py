@@ -7,7 +7,7 @@ from discount_cash_calculations import calculate_cash_discount, find_break_even_
 def format_number_gr(x):
     """Μορφοποίηση αριθμών με ελληνικά δεκαδικά (κόμμα) και χιλιάδες (τελεία)."""
     return f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-
+    
 def format_percentage_gr(x):
     """Μορφοποίηση ποσοστών με ελληνικά δεκαδικά."""
     return f"{x*100:,.2f} %".replace(",", "X").replace(".", ",").replace("X", ".")
