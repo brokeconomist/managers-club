@@ -3,6 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 def show_discount_cash_tool():
+    # Default values
     DEFAULTS = {
         "current_sales": 1000.0,           # Τρέχουσες πωλήσεις (€)
         "extra_sales": 250.0,              # Επιπλέον πωλήσεις λόγω έκπτωσης (€)
@@ -27,7 +28,6 @@ def show_discount_cash_tool():
         days_accept, days_non_accept,
         current_collection_days, wacc
     ):
-        # (υπολογισμοί όπως έχεις ήδη)
         profit_extra = extra_sales * gross_margin
         new_sales = current_sales + extra_sales
         pct_new_policy = (current_sales * accept_rate + extra_sales) / new_sales
@@ -204,3 +204,6 @@ def show_discount_cash_tool():
             margin=dict(t=50, b=40, l=60, r=20)
         )
         st.plotly_chart(fig, use_container_width=True)
+
+if __name__ == "__main__":
+    show_discount_cash_tool()
