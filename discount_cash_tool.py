@@ -71,7 +71,7 @@ def show_discount_cash_tool():
 
     st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
-    with st.form("discount_form"):
+with st.form("discount_form"):
     col1, col2 = st.columns(2)
 
     with col1:
