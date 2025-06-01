@@ -1,7 +1,6 @@
 # discount_cash_app.py
 
 import streamlit as st
-from discount_cash_final import calculate_discount_cash_fixed_pct
 
 def show_discount_cash_app():
     st.title("Υπολογισμός Αποδοτικότητας Έκπτωσης Τοις Μετρητοίς")
