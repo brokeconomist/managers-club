@@ -42,4 +42,4 @@ elif tool == "📉 Όριο Απώλειας Πωλήσεων πριν τη Με
 elif selected_tool == "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς":
     discount_cash_ui()
 elif tool == "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς":
-    show_discount_cash_tool()
+    show_discount_cash_calculatorl()
