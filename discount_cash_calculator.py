@@ -1,115 +1,47 @@
 import streamlit as st
+from discount_cash_chart import calculate_discount_cash
+from utils import parse_gr_number, format_number_gr, format_percentage_gr
 
-def calculate_discount_cash_tool(
-    sales_current,
-    sales_extra,
-    discount_cash_percent,
-    perc_accept_discount,
-    days_accept_discount,
-    perc_not_accept_discount,
-    days_not_accept_discount,
-    days_cash_payment,
-    cost_of_sales_percent,
-    capital_cost,
-    avg_supplier_payment_days,
-    avg_collection_days,
-    perc_follow_new_policy
-):
-    # Μετατροπή ποσοστών σε δεκαδικά
-    discount_cash = discount_cash_percent / 100
-    cost_of_sales = cost_of_sales_percent / 100
-    perc_accept = perc_accept_discount / 100
-    perc_not_accept = perc_not_accept_discount / 100
-    perc_follow = perc_follow_new_policy / 100
-    capital_cost_daily = capital_cost / 365 / 100
+def show_discount_cash_calculator():
+    st.header("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
-    # Υπολογισμοί
-    # Τρέχουσα μέση περίοδος είσπραξης (σταθερό input)
-    # avg_collection_days εδώ δίνεται από input
+    with st.form("discount_cash_form"):
+        current_sales = parse_gr_number(st.text_input("Τρέχουσες Πωλήσεις (€)", "100000"))
+        extra_sales = parse_gr_number(st.text_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", "20000"))
+        cash_discount_rate = st.slider("Ποσοστό Έκπτωσης", 0.0, 0.1, 0.02, step=0.005)
 
-    # Κέρδος από επιπλέον πωλήσεις
-    profit_extra_sales = sales_extra * (1 - cost_of_sales)
-
-    # Νέα μέση περίοδος είσπραξης
-    weighted_collection_days = (
-        (sales_current * perc_accept * days_accept_discount + sales_current * perc_not_accept * days_not_accept_discount + sales_extra * perc_follow * days_cash_payment + sales_extra * (1 - perc_follow) * days_not_accept_discount)
-        / (sales_current + sales_extra)
-    )
-
-    # Παρούσα αξία των πωλήσεων με τη νέα πολιτική
-    pv_new_policy = (
-        (sales_current + sales_extra) * (
-            perc_follow * (1 - discount_cash) / ((1 + capital_cost_daily) ** days_cash_payment)
-            + (1 - perc_follow) / ((1 + capital_cost_daily) ** days_not_accept_discount)
-        )
-    )
-
-    # Αφαιρούμε το κόστος πωλήσεων επί των επιπλέον πωλήσεων (το προεξοφλούμε με βάση την περίοδο πληρωμής προμηθευτών)
-    cost_extra_sales_pv = cost_of_sales * sales_extra / ((1 + capital_cost_daily) ** avg_supplier_payment_days)
-
-    # Παρούσα αξία τρεχουσών πωλήσεων με τρέχουσα μέση περίοδο είσπραξης
-    pv_current_sales = sales_current / ((1 + capital_cost_daily) ** avg_collection_days)
-
-    # NPV = Παρούσα αξία νέας πολιτικής - κόστος επιπλέον πωλήσεων - παρούσα αξία τρεχουσών πωλήσεων
-    npv = pv_new_policy - cost_extra_sales_pv - pv_current_sales
-
-    # Υπολογισμός μέγιστης έκπτωσης (NPV Break Even) - εδώ πολύ απλοποιημένα για να ταιριάζει στο παράδειγμα
-    max_discount = (npv / profit_extra_sales) * 100 if profit_extra_sales != 0 else 0
-
-    # Υπολογισμός βέλτιστης έκπτωσης - απλοποιημένα ως το discount_cash αρχικό
-    optimal_discount = discount_cash_percent
-
-    return {
-        "NPV": npv,
-        "Max Discount %": max_discount,
-        "Optimal Discount %": optimal_discount,
-        "Profit Extra Sales": profit_extra_sales,
-        "Weighted Collection Days": weighted_collection_days
-    }
-
-
-def main():
-    st.title("Αποδοτικότητα Έκπτωσης Πληρωμής Τοις Μετρητοίς")
-
-    st.markdown("Εισάγετε τις παραμέτρους:")
-
-    sales_current = st.number_input("Τρέχουσες Πωλήσεις", value=1000.0, step=1.0)
-    sales_extra = st.number_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης", value=250.0, step=1.0)
-    discount_cash_percent = st.number_input("Έκπτωση για Πληρωμή Τοις Μετρητοίς (%)", value=2.0, step=0.1)
-    perc_accept_discount = st.number_input("% Πελατών που Αποδέχεται την Έκπτωση", value=50.0, step=1.0)
-    days_accept_discount = st.number_input("% Πελατών που Αποδέχεται Πληρώνει σε (Μέρες)", value=60, step=1)
-    perc_not_accept_discount = st.number_input("% Πελατών που Δεν Αποδέχεται την Έκπτωση", value=50.0, step=1.0)
-    days_not_accept_discount = st.number_input("% Πελατών που Δεν Αποδέχεται Πληρώνει σε (Μέρες)", value=120, step=1)
-    days_cash_payment = st.number_input("Μέρες για Πληρωμή Τοις Μετρητοίς", value=10, step=1)
-    cost_of_sales_percent = st.number_input("Κόστος Πωλήσεων σε %", value=80.0, step=0.1)
-    capital_cost = st.number_input("Κόστος Κεφαλαίου (%)", value=20.0, step=0.1)
-    avg_supplier_payment_days = st.number_input("Μέση Περίοδος Αποπληρωμής Προμηθευτών (Μέρες)", value=0, step=1)
-    avg_collection_days = st.number_input("Τρέχουσα Μέση Περίοδος Είσπραξης (Μέρες)", value=90, step=1)
-    perc_follow_new_policy = st.number_input("% Πελατών που θα Ακολουθεί τη Νέα Πολιτική", value=60.0, step=1.0)
-
-    if st.button("Υπολόγισε"):
-        results = calculate_discount_cash_tool(
-            sales_current,
-            sales_extra,
-            discount_cash_percent,
-            perc_accept_discount,
-            days_accept_discount,
-            perc_not_accept_discount,
-            days_not_accept_discount,
-            days_cash_payment,
-            cost_of_sales_percent,
-            capital_cost,
-            avg_supplier_payment_days,
-            avg_collection_days,
-            perc_follow_new_policy
+        pct_customers_accept = st.slider(
+            "Ποσοστό Παλαιών Πελατών που αποδέχονται την έκπτωση (%)",
+            0.0, 1.0, 0.5, step=0.05
         )
 
-        st.write(f"**NPV:** {results['NPV']:.2f} €")
-        st.write(f"**Μέγιστη έκπτωση που μπορεί να δοθεί επί των πωλήσεων (NPV Break Even):** {results['Max Discount %']:.2f} %")
-        st.write(f"**Βέλτιστη έκπτωση που πρέπει να δοθεί:** {results['Optimal Discount %']:.2f} %")
-        st.write(f"**Κέρδος από επιπλέον πωλήσεις:** {results['Profit Extra Sales']:.2f} €")
-        st.write(f"**Μέση περίοδος είσπραξης με νέα πολιτική:** {results['Weighted Collection Days']:.2f} ημέρες")
+        days_accept = st.number_input("Ημέρες πληρωμής με έκπτωση", min_value=0, value=10)
+        days_reject = st.number_input("Ημέρες πληρωμής χωρίς έκπτωση", min_value=0, value=120)
+        avg_supplier_pay_days = st.number_input("Μέρες αποπληρωμής Προμηθευτών", min_value=0, value=0)
 
-if __name__ == "__main__":
-    main()
+        cost_of_sales_pct = st.slider("Κόστος Πωληθέντων (%)", 0.0, 1.0, 0.8, step=0.05)
+        cost_of_capital_annual = st.slider("Ετήσιο Κόστος Κεφαλαίου (%)", 0.0, 1.0, 0.2, step=0.01)
 
+        submitted = st.form_submit_button("Υπολογισμός")
+
+    if submitted:
+        result = calculate_discount_cash(
+            current_sales=current_sales,
+            extra_sales=extra_sales,
+            cash_discount_rate=cash_discount_rate,
+            pct_customers_accept=pct_customers_accept,
+            days_accept=days_accept,
+            days_reject=days_reject,
+            cost_of_sales_pct=cost_of_sales_pct,
+            cost_of_capital_annual=cost_of_capital_annual,
+            avg_supplier_pay_days=avg_supplier_pay_days
+        )
+
+        st.subheader("Αποτελέσματα")
+        st.metric("Καθαρή Παρούσα Αξία (NPV)", format_number_gr(result["NPV"]) + " €")
+        st.metric("Μέγιστο Επιτρεπτό Ποσοστό Έκπτωσης", format_percentage_gr(result["Max Discount %"]))
+        st.metric("Βέλτιστο Ποσοστό Έκπτωσης", format_percentage_gr(result["Optimal Discount %"]))
+
+        st.caption(
+            f"📊 Μεσοσταθμικά, το {format_percentage_gr(result['Weighted Customer Acceptance %'])} των πελατών πληρώνει με έκπτωση."
+        )
