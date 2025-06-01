@@ -12,69 +12,87 @@ def format_percentage_gr(x):
 
 # Δημιουργούμε τη νέα version της συνάρτησης υπολογισμού με βάση τους αναλυτικούς τύπους του χρήστη
 
-def calculate_discount_cash_tool(inputs):
-    # Είσοδοι (parse values)
-    current_sales = inputs["current_sales"]
-    extra_sales = inputs["extra_sales"]
-    discount = inputs["discount"]
-    accept_pct = inputs["accept_discount_pct"]
-    accept_days = inputs["accept_discount_days"]
-    reject_pct = inputs["reject_discount_pct"]
-    reject_days = inputs["reject_discount_days"]
-    cash_days = inputs["cash_days"]
-    cost_pct = inputs["cost_pct"]
-    wacc = inputs["wacc"]
-    payables_days = inputs["payables_days"]
-    current_collection_days = inputs["current_collection_days"]
-    days_in_year = 365
-
-    # Νέα μέση περίοδος είσπραξης (αρχικά μόνο με την έκπτωση)
-    new_avg_days_discount_only = (accept_pct * accept_days + reject_pct * reject_days)
+def calculate_cash_discount(
+    current_sales,
+    extra_sales,
+    gross_margin,
+    discount_rate,
+    accept_rate,
+    days_accept,
+    days_non_accept,
+    current_collection_days,
+    wacc
+):
+    decline_rate = 1 - accept_rate
+    total_sales = current_sales + extra_sales
 
     # Τρέχουσες απαιτήσεις
-    current_receivables = current_sales * current_collection_days / days_in_year
+    current_receivables = (current_sales * current_collection_days) / 365
 
-    # Νέες απαιτήσεις μετά την έκπτωση (χωρίς αύξηση πωλήσεων)
-    new_receivables_discount_only = current_sales * new_avg_days_discount_only / days_in_year
-
-    # Αποδέσμευση κεφαλαίων από την απλή έκπτωση (όχι αύξηση)
-    capital_release_discount_only = current_receivables - new_receivables_discount_only
-
-    # Ποσοστά στο νέο σύνολο πελατών
-    new_policy_pct = (current_sales * accept_pct + extra_sales) / (current_sales + extra_sales)
-    old_policy_pct = 1 - new_policy_pct
-
-    # Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων
-    new_avg_days_total = new_policy_pct * cash_days + old_policy_pct * reject_days
-
-    # Απαιτήσεις μετά την αύξηση πωλήσεων
-    total_sales = current_sales + extra_sales
-    new_receivables_total = total_sales * new_avg_days_total / days_in_year
-
-    # Αποδέσμευση κεφαλαίων τελικά
-    capital_release_total = current_receivables - new_receivables_total
-
-    # Κέρδος από επιπλέον πωλήσεις
-    profit_extra_sales = extra_sales * (1 - cost_pct)
-
-    # Κέρδος αποδέσμευσης κεφαλαίου
-    capital_saving_profit = capital_release_total * wacc
-
-    # Κόστος έκπτωσης
-    discount_cost = total_sales * new_policy_pct * discount
-
-    # Συνολικό κέρδος από την πρόταση
-    total_profit = profit_extra_sales + capital_saving_profit - discount_cost
-
-    # NPV (με πλήρη τύπο)
-    npv = (
-        total_sales * new_policy_pct * (1 - discount) / (1 + wacc / days_in_year) ** cash_days +
-        total_sales * (1 - new_policy_pct) / (1 + wacc / days_in_year) ** reject_days -
-        cost_pct * extra_sales / current_sales * current_sales / (1 + wacc / days_in_year) ** payables_days -
-        current_sales / (1 + wacc / days_in_year) ** new_avg_days_total
+    # Νέα μέση περίοδος είσπραξης μετά την έκπτωση (πριν την αύξηση πωλήσεων)
+    new_days_post_discount = (
+        accept_rate * days_accept +
+        decline_rate * days_non_accept
     )
 
-    # Μέγιστη και βέλτιστη έκπτωση – για τώρα placeholders, μπορούμε να τους υπολογίσουμε αργότερα αν χρειάζεται
+    # Νέες απαιτήσεις με βάση τις τρέχουσες πωλήσεις
+    new_receivables_pre_increase = (current_sales * new_days_post_discount) / 365
+
+    # Αποδέσμευση κεφαλαίου (πριν την αύξηση πωλήσεων)
+    capital_release_intermediate = current_receivables - new_receivables_pre_increase
+
+    # Ποσοστό πελατών που ακολουθεί τη νέα πολιτική στο νέο σύνολο
+    new_policy_share = ((current_sales * accept_rate) + extra_sales) / total_sales
+    old_policy_share = 1 - new_policy_share
+
+    # Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων
+    new_collection_days = (
+        new_policy_share * days_accept +
+        old_policy_share * days_non_accept
+    )
+
+    # Νέες απαιτήσεις μετά την αύξηση πωλήσεων
+    new_receivables_total = (total_sales * new_collection_days) / 365
+
+    # Οριστική αποδέσμευση κεφαλαίου
+    capital_release = current_receivables - new_receivables_total
+
+    # Κέρδος από επιπλέον πωλήσεις
+    profit_from_extra_sales = extra_sales * gross_margin
+
+    # Κέρδος από αποδέσμευση κεφαλαίου (τοκισμένο)
+    capital_benefit = capital_release * wacc
+
+    # Κόστος έκπτωσης
+    discount_cost = total_sales * new_policy_share * discount_rate
+
+    # Συνολικό κέρδος
+    total_profit = profit_from_extra_sales + capital_benefit - discount_cost
+
+    # NPV (αναλυτικά με προεξόφληση)
+    daily_wacc = wacc / 365
+    npv = (
+        total_sales * new_policy_share * (1 - discount_rate) /
+        ((1 + daily_wacc) ** days_accept)
+        +
+        total_sales * (1 - new_policy_share) /
+        ((1 + daily_wacc) ** days_non_accept)
+        -
+        discount_cost * (extra_sales / current_sales)
+    )
+
+    return {
+        "new_policy_share": new_policy_share,
+        "new_collection_days": new_collection_days,
+        "current_receivables": current_receivables,
+        "new_receivables_total": new_receivables_total,
+        "capital_release": capital_release,
+        "profit_from_extra_sales": profit_from_extra_sales,
+        "discount_cost": discount_cost,
+        "capital_benefit": capital_benefit,
+        "total_profit": total_profit,
+        "npv": npv
+    }
 
     return {
         "current_receivables": round(current_receivables, 2),
