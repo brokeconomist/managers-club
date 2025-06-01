@@ -1,112 +1,122 @@
-def cash_discount_analysis(
-    current_sales, extra_sales, discount_rate,
-    accept_rate, days_accept, days_non_accept,
-    current_collection_days, gross_margin, wacc
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+
+# -----------------------------
+# ΥΠΟΛΟΓΙΣΤΙΚΗ ΣΥΝΑΡΤΗΣΗ
+# -----------------------------
+def calculate_cash_discount(
+    current_sales,
+    extra_sales,
+    gross_margin,
+    discount_rate,
+    accept_rate,
+    days_accept,
+    days_non_accept,
+    current_collection_days,
+    wacc
 ):
-    """
-    Υπολογίζει την επίδραση έκπτωσης τοις μετρητοίς σε δύο στάδια:
-    1. Μόνο με την έκπτωση χωρίς επιπλέον πωλήσεις
-    2. Με την έκπτωση και την αύξηση πωλήσεων
-    Επιστρέφει λεξικό με όλα τα ενδιάμεσα και τελικά μεγέθη.
-    """
+    new_sales = current_sales + extra_sales
+    decline_rate = 1 - accept_rate
 
-    days_per_year = 365
+    # Νέα μέση περίοδος είσπραξης
+    new_collection_days = accept_rate * days_accept + decline_rate * days_non_accept
 
-    # --- Στάδιο 1: Μόνο έκπτωση, χωρίς επιπλέον πωλήσεις ---
+    # Υπολογισμός απαιτήσεων
+    old_receivables = (current_collection_days / 360) * current_sales
+    new_receivables = (new_collection_days / 360) * new_sales
+    capital_release = old_receivables - new_receivables
 
-    # Νέες πωλήσεις = τρέχουσες (χωρίς αύξηση)
-    new_sales_stage1 = current_sales
+    # Κέρδος από νέες πωλήσεις
+    profit_from_sales = extra_sales * gross_margin
 
-    # Ποσοστό πελατών με νέα πολιτική (αποδέκτες έκπτωσης)
-    pct_new_policy_stage1 = accept_rate
+    # Κόστος έκπτωσης
+    discount_cost = new_sales * discount_rate * accept_rate
 
-    # Ποσοστό πελατών παλαιά πολιτική
-    pct_old_policy_stage1 = 1 - pct_new_policy_stage1
+    # Κέρδος αποδέσμευσης κεφαλαίου (τοκισμένο)
+    capital_benefit = capital_release * wacc
 
-    # Νέα μέση μέρα είσπραξης
-    new_avg_days_stage1 = pct_new_policy_stage1 * days_accept + pct_old_policy_stage1 * days_non_accept
-
-    # Τρέχουσες απαιτήσεις (σε €)
-    old_receivables = (current_sales * current_collection_days) / days_per_year
-
-    # Νέες απαιτήσεις μετά την έκπτωση (χωρίς αύξηση πωλήσεων)
-    new_receivables_stage1 = (new_sales_stage1 * new_avg_days_stage1) / days_per_year
-
-    # Αποδέσμευση κεφαλαίων (θετικό αν μειώνονται οι απαιτήσεις)
-    capital_released_stage1 = old_receivables - new_receivables_stage1
-
-    # Κέρδος από αποδέσμευση κεφαλαίων
-    profit_release_stage1 = capital_released_stage1 * wacc
-
-    # Κόστος έκπτωσης (επί τω υπάρχοντος όγκου πωλήσεων)
-    discount_cost_stage1 = new_sales_stage1 * pct_new_policy_stage1 * discount_rate
-
-    # Κέρδος από επιπλέον πωλήσεις = 0 (δεν υπάρχουν ακόμα)
-    profit_extra_stage1 = 0
-
-    # Συνολικό κέρδος στάδιο 1
-    total_profit_stage1 = profit_extra_stage1 + profit_release_stage1 - discount_cost_stage1
-
-    # NPV στάδιο 1
-    npv_stage1 = total_profit_stage1 / (1 + wacc)
-
-
-    # --- Στάδιο 2: Προσθέτουμε την αύξηση πωλήσεων λόγω έκπτωσης ---
-
-    new_sales_stage2 = current_sales + extra_sales
-
-    # Ποσοστό πελατών με νέα πολιτική επί του νέου συνόλου
-    pct_new_policy_stage2 = (current_sales * accept_rate + extra_sales) / new_sales_stage2
-
-    pct_old_policy_stage2 = 1 - pct_new_policy_stage2
-
-    new_avg_days_stage2 = pct_new_policy_stage2 * days_accept + pct_old_policy_stage2 * days_non_accept
-
-    new_receivables_stage2 = (new_sales_stage2 * new_avg_days_stage2) / days_per_year
-
-    capital_released_stage2 = old_receivables - new_receivables_stage2
-
-    profit_release_stage2 = capital_released_stage2 * wacc
-
-    profit_extra_stage2 = extra_sales * gross_margin
-
-    discount_cost_stage2 = new_sales_stage2 * pct_new_policy_stage2 * discount_rate
-
-    total_profit_stage2 = profit_extra_stage2 + profit_release_stage2 - discount_cost_stage2
-
-    npv_stage2 = total_profit_stage2 / (1 + wacc)
-
+    # Συνολικό κέρδος
+    total_profit = profit_from_sales + capital_benefit - discount_cost
 
     return {
-        # Στάδιο 1 (μόνο έκπτωση)
-        "stage1": {
-            "new_sales": new_sales_stage1,
-            "pct_new_policy": pct_new_policy_stage1,
-            "pct_old_policy": pct_old_policy_stage1,
-            "new_avg_days": new_avg_days_stage1,
-            "old_receivables": old_receivables,
-            "new_receivables": new_receivables_stage1,
-            "capital_released": capital_released_stage1,
-            "profit_release": profit_release_stage1,
-            "discount_cost": discount_cost_stage1,
-            "profit_extra": profit_extra_stage1,
-            "total_profit": total_profit_stage1,
-            "npv": npv_stage1,
-        },
-
-        # Στάδιο 2 (με αύξηση πωλήσεων)
-        "stage2": {
-            "new_sales": new_sales_stage2,
-            "pct_new_policy": pct_new_policy_stage2,
-            "pct_old_policy": pct_old_policy_stage2,
-            "new_avg_days": new_avg_days_stage2,
-            "old_receivables": old_receivables,
-            "new_receivables": new_receivables_stage2,
-            "capital_released": capital_released_stage2,
-            "profit_release": profit_release_stage2,
-            "discount_cost": discount_cost_stage2,
-            "profit_extra": profit_extra_stage2,
-            "total_profit": total_profit_stage2,
-            "npv": npv_stage2,
-        }
+        "new_collection_days": new_collection_days,
+        "old_receivables": old_receivables,
+        "new_receivables": new_receivables,
+        "capital_release": capital_release,
+        "profit_from_sales": profit_from_sales,
+        "discount_cost": discount_cost,
+        "capital_benefit": capital_benefit,
+        "total_profit": total_profit,
+        "npv": total_profit
     }
+
+# -----------------------------
+# STREAMLIT UI
+# -----------------------------
+st.set_page_config(page_title="Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς", layout="centered")
+
+st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
+
+# Εισαγωγή παραμέτρων
+st.subheader("Παράμετροι")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    current_sales = st.number_input("Τρέχουσες πωλήσεις (€)", value=1000.0, step=100.0)
+    extra_sales = st.number_input("Επιπλέον πωλήσεις λόγω έκπτωσης (€)", value=250.0, step=50.0)
+    gross_margin = st.slider("Μικτό περιθώριο κέρδους (%)", 0.0, 100.0, value=20.0) / 100
+    wacc = st.slider("Κόστος κεφαλαίου (WACC) (%)", 0.0, 50.0, value=20.0) / 100
+
+with col2:
+    accept_rate = st.slider("% πελατών που αποδέχεται την έκπτωση", 0.0, 100.0, value=60.0) / 100
+    days_accept = st.number_input("Μέρες πληρωμής (με έκπτωση)", value=10)
+    days_non_accept = st.number_input("Μέρες πληρωμής (χωρίς έκπτωση)", value=120)
+    current_collection_days = st.number_input("Τρέχουσα μέση περίοδος είσπραξης (μέρες)", value=84)
+
+# Υπολογισμοί για εύρος εκπτώσεων
+discounts = np.linspace(0.0, 0.30, 301)
+npvs = []
+for d in discounts:
+    res = calculate_cash_discount(
+        current_sales=current_sales,
+        extra_sales=extra_sales,
+        gross_margin=gross_margin,
+        discount_rate=d,
+        accept_rate=accept_rate,
+        days_accept=days_accept,
+        days_non_accept=days_non_accept,
+        current_collection_days=current_collection_days,
+        wacc=wacc
+    )
+    npvs.append(res["npv"])
+
+npvs = np.array(npvs)
+optimal_idx = npvs.argmax()
+optimal_discount = discounts[optimal_idx]
+breakeven_idx = np.abs(npvs).argmin()
+breakeven_discount = discounts[breakeven_idx]
+
+# Αποτελέσματα
+st.subheader("Αποτελέσματα")
+
+st.markdown(f"✅ **Βέλτιστη έκπτωση**: **{optimal_discount:.2%}**")
+st.markdown(f"🟡 **Έκπτωση break-even (NPV = 0)**: **{breakeven_discount:.2%}**")
+st.markdown(f"📈 **Μέγιστο NPV**: **{npvs[optimal_idx]:.2f} €**")
+
+# Γράφημα
+st.subheader("Γράφημα NPV σε σχέση με την έκπτωση")
+
+fig, ax = plt.subplots()
+ax.plot(discounts * 100, npvs, label="NPV")
+ax.axhline(0, color="gray", linestyle="--")
+ax.axvline(optimal_discount * 100, color="green", linestyle="--", label="Βέλτιστη έκπτωση")
+ax.axvline(breakeven_discount * 100, color="orange", linestyle="--", label="Break-even έκπτωση")
+ax.set_xlabel("Έκπτωση (%)")
+ax.set_ylabel("NPV (€)")
+ax.set_title("NPV σε σχέση με την Έκπτωση Τοις Μετρητοίς")
+ax.legend()
+ax.grid(True)
+
+st.pyplot(fig)
