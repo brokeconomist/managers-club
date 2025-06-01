@@ -31,45 +31,28 @@ def calculate_discount_cash_tool(
     # Μέση περίοδος είσπραξης μετά την εφαρμογή της έκπτωσης (λαμβάνοντας υπόψη και το % πελατών που θα ακολουθήσουν τη νέα πολιτική)
     avg_days_after = (pct_accept * days_pay_discount + pct_reject * days_pay_no_discount)  # χωρίς % πελατών που ακολουθούν νέα πολιτική
 
-    # Για απλοποίηση θα χρησιμοποιήσουμε avg_days_after = weighted avg days με βάση % πελατών που ακολουθούν τη νέα πολιτική
-    # Στο πρόβλημα έδωσες % πελατών που ακολουθούν τη νέα πολιτική (πχ 60%)
-    # Θα το πάρουμε σαν input ξεχωριστό (όμως αν δεν υπάρχει, θεωρούμε 100%)
-    # Αν θέλεις να το βάλουμε input, πρόσθεσέ το
-
-    # Cash released (Αποδέσμευση Κεφαλαίων)
-    # Προϋποθέτουμε ότι το κεφάλαιο είναι οι μέρες είσπραξης επί πωλήσεις * κόστος πωλήσεων / 365
-
-    capital_before = current_sales * cost * avg_days_before / 365
-    capital_after = new_total_sales * cost * avg_days_after / 365
-
-    released_capital = capital_before - capital_after
+    # *** ΑΦΑΙΡΕΜΕΝΟ το κομμάτι αποδέσμευσης κεφαλαίων ***
 
     # Υπολογισμός NPV (προεξόφληση κεφαλαίου)
-    npv = released_capital * capital_cost_rate
+    # Θα υπολογίσουμε NPV μόνο ως κέρδος προεξόφλησης έκπτωσης επί επιπλέον πωλήσεις
+
+    # Ας υποθέσουμε NPV σαν κέρδος από μείωση εκπτώσεων (απλοποιημένο παράδειγμα):
+    npv = profit_additional_sales * capital_cost_rate  # απλοποιημένος υπολογισμός
 
     # Μέγιστη έκπτωση που ισοσκελίζει το NPV (Break-Even discount)
-    # Ισοσκελισμός: Κέρδος από έκπτωση = Κέρδος από επιπλέον πωλήσεις - κόστος έκπτωσης
-
-    # Κόστος έκπτωσης = discount * επιπλέον πωλήσεις
-    # Έτσι, για break even:
-    # profit_additional_sales = discount * additional_sales
-    # => max_discount = profit_additional_sales / additional_sales
-
     if additional_sales != 0:
         max_discount_break_even = profit_additional_sales / additional_sales
     else:
         max_discount_break_even = 0
 
-    # Βέλτιστη έκπτωση: Προτείνεται ένα ποσοστό μικρότερο από το μέγιστο για να υπάρχει κέρδος
-    optimal_discount = max_discount_break_even * 0.25  # πχ 25% του μέγιστου
+    # Βέλτιστη έκπτωση: 25% του μέγιστου
+    optimal_discount = max_discount_break_even * 0.25
 
-    # Μετατροπή σε ποσοστά
     max_discount_break_even_pct = max_discount_break_even * 100
     optimal_discount_pct = optimal_discount * 100
 
     return {
         "profit_additional_sales": profit_additional_sales,
-        "released_capital": released_capital,
         "npv": npv,
         "max_discount_break_even_pct": max_discount_break_even_pct,
         "optimal_discount_pct": optimal_discount_pct,
@@ -107,8 +90,7 @@ def show_discount_cash_tool():
 
         st.subheader("Αποτελέσματα")
         st.write(f"Κέρδος από επιπλέον πωλήσεις: €{results['profit_additional_sales']:.2f}")
-        st.write(f"Αποδέσμευση κεφαλαίων (μέρες είσπραξης): {results['released_capital']:.2f} €")
+        # Αφαιρέθηκε η γραμμή με το released_capital
         st.write(f"Καθαρή Παρούσα Αξία (NPV): €{results['npv']:.2f}")
         st.write(f"Μέγιστη έκπτωση Break Even: {results['max_discount_break_even_pct']:.2f} %")
         st.write(f"Προτεινόμενη βέλτιστη έκπτωση: {results['optimal_discount_pct']:.2f} %")
-
