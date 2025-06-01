@@ -145,7 +145,7 @@ def show_discount_cash_tool():
 
         st.subheader("📈 Διάγραμμα NPV σε σχέση με την Έκπτωση")
         st.plotly_chart(fig, use_container_width=True)
-
+        
         st.markdown("""
         - ✅ Η **πράσινη διακεκομμένη γραμμή** δείχνει τη βέλτιστη έκπτωση που μεγιστοποιεί το NPV.
         - ❌ Η **κόκκινη διακεκομμένη γραμμή** δείχνει το break-even σημείο (όπου το NPV = 0).
