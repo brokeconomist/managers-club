@@ -233,3 +233,37 @@ def show_discount_cash_tool():
 
 if __name__ == "__main__":
     show_discount_cash_tool()
+def find_break_even_and_optimal(
+    current_sales,
+    extra_sales,
+    gross_margin,
+    accept_rate,
+    days_accept,
+    days_non_accept,
+    current_collection_days,
+    wacc
+):
+    discounts = [i / 1000 for i in range(0, 101)]  # 0.0 έως 0.1 (δηλ. 0%–10%)
+    npv_list = []
+    
+    for d in discounts:
+        result = calculate_cash_discount(
+            current_sales, extra_sales, gross_margin,
+            d, accept_rate, days_accept, days_non_accept,
+            current_collection_days, wacc
+        )
+        npv_list.append(result["npv"])
+    
+    # Βέλτιστη έκπτωση: αυτή που δίνει μέγιστο NPV
+    max_npv = max(npv_list)
+    optimal_index = npv_list.index(max_npv)
+    optimal_discount = discounts[optimal_index]
+    
+    # Break-even: όπου το NPV αλλάζει πρόσημο
+    breakeven_discount = None
+    for i in range(1, len(npv_list)):
+        if npv_list[i - 1] > 0 and npv_list[i] < 0:
+            breakeven_discount = discounts[i]
+            break
+
+    return optimal_discount, breakeven_discount, discounts, npv_list
