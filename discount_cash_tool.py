@@ -93,6 +93,9 @@ def show_discount_cash_tool():
     cost_pct = st.number_input("Κόστος Πωλήσεων σε %", min_value=0.0, max_value=100.0, value=80.0, step=0.1)
     capital_cost = st.number_input("Κόστος Κεφαλαίου σε %", min_value=0.0, max_value=100.0, value=20.0, step=0.1)
 
+    avg_days_suppliers_payment = st.number_input("Μέση περίοδος αποπληρωμής προμηθευτών (μέρες)", min_value=0, value=30)
+    avg_days_receivable_current = st.number_input("Τρέχουσα μέση περίοδος είσπραξης (μέρες)", min_value=0, value=45)
+
     if st.button("Υπολόγισε ΚΠΑ και Έκπτωση"):
         results = calculate_discount_cash_tool(
             current_sales=current_sales,
@@ -104,12 +107,14 @@ def show_discount_cash_tool():
             days_pay_no_discount=days_pay_no_discount,
             days_pay_cash=days_pay_cash,
             cost_pct=cost_pct,
-            capital_cost=capital_cost
+            capital_cost=capital_cost,
+            avg_days_suppliers_payment=avg_days_suppliers_payment,
+            avg_days_receivable_current=avg_days_receivable_current
         )
 
         st.subheader("Αποτελέσματα")
         st.write(f"Κέρδος από επιπλέον πωλήσεις: €{results['profit_additional_sales']:.2f}")
-        # Αφαιρέθηκε η γραμμή με το released_capital
+        st.write(f"Αποδέσμευση Κεφαλαίου: €{results['released_capital']:.2f}")
         st.write(f"Καθαρή Παρούσα Αξία (NPV): €{results['npv']:.2f}")
         st.write(f"Μέγιστη έκπτωση Break Even: {results['max_discount_break_even_pct']:.2f} %")
         st.write(f"Προτεινόμενη βέλτιστη έκπτωση: {results['optimal_discount_pct']:.2f} %")
