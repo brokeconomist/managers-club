@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
 
+from discount_cash_calculations import calculate_cash_discount, find_break_even_and_optimal
+
 def format_number_gr(x):
     """Μορφοποίηση αριθμών με ελληνικά δεκαδικά (κόμμα) και χιλιάδες (τελεία)."""
     return f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
