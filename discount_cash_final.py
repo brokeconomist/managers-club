@@ -1,7 +1,3 @@
-import streamlit as st
-
-# discount_cash_final.py
-
 def calculate_discount_cash_fixed_pct(
     current_sales,
     extra_sales,
@@ -11,52 +7,46 @@ def calculate_discount_cash_fixed_pct(
     days_reject,
     cost_of_sales_pct,
     cost_of_capital_annual,
-    avg_supplier_pay_days
+    avg_supplier_pay_days,
+    current_collection_days
 ):
     total_sales = current_sales + extra_sales
-    gross_profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
+    cost_of_capital_daily = cost_of_capital_annual / 365
 
-    def discount_factor(days):
-        return 1 / ((1 + cost_of_capital_annual / 365) ** days)
-
-    # Μέσο σταθμικό ποσοστό αποδοχής έκπτωσης επί του νέου συνόλου πωλήσεων
-    weighted_pct_discounted_total = (
+    # Σταθμισμένο ποσοστό πελατών που αποδέχεται την έκπτωση επί του νέου συνόλου
+    weighted_accept_rate_total = (
         (current_sales * pct_customers_accept) + extra_sales
-    ) / (current_sales + extra_sales)
+    ) / total_sales
 
-    # Παρούσα αξία εσόδων από πελάτες που αποδέχονται την έκπτωση
-    pv_discount_customers = (
-        total_sales * weighted_pct_discounted_total
+    # Παρούσα αξία από πελάτες που αποδέχονται την έκπτωση και πληρώνουν τοις μετρητοίς
+    pv_accept = (
+        total_sales
+        * weighted_accept_rate_total
         * (1 - cash_discount_rate)
-        * discount_factor(days_accept)
+        * (1 / ((1 + cost_of_capital_daily) ** days_accept))
     )
 
-    # Παρούσα αξία εσόδων από πελάτες που **δεν** αποδέχονται την έκπτωση
-    pv_other_customers = (
-        total_sales * (1 - weighted_pct_discounted_total)
-        * discount_factor(days_reject)
+    # Παρούσα αξία από πελάτες που δεν αποδέχονται την έκπτωση
+    pv_reject = (
+        total_sales
+        * (1 - weighted_accept_rate_total)
+        * (1 / ((1 + cost_of_capital_daily) ** days_reject))
     )
 
-    # Κόστος επιπλέον πωλήσεων (discounted)
+    # Κόστος πωλήσεων σε παρούσα αξία λόγω επιπλέον πωλήσεων
     pv_cost_extra_sales = (
-        cost_of_sales_pct * (extra_sales / current_sales) * current_sales
-        * discount_factor(avg_supplier_pay_days)
+        cost_of_sales_pct
+        * (extra_sales / current_sales)
+        * current_sales
+        * (1 / ((1 + cost_of_capital_daily) ** avg_supplier_pay_days))
     )
 
-    # Παρούσα αξία των υφιστάμενων πωλήσεων
-    pv_current_sales = current_sales * discount_factor(days_reject)
+    # Παρούσα αξία από τρέχουσες πωλήσεις χωρίς καμία αλλαγή
+    pv_current_sales = current_sales * (
+        1 / ((1 + cost_of_capital_daily) ** current_collection_days)
+    )
 
-    # Τελική NPV
-    npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
+    # Υπολογισμός NPV
+    npv = pv_accept + pv_reject - pv_cost_extra_sales - pv_current_sales
 
-    # Υπολογισμός μέγιστης & "βέλτιστης" έκπτωσης (αν θέλεις να δείχνεις προτεινόμενο ποσοστό)
-    max_discount = gross_profit_extra_sales / total_sales if total_sales else 0
-    optimal_discount = max_discount * 0.25
-
-    return {
-        "NPV": round(npv, 2),
-        "Max Discount %": round(max_discount * 100, 2),
-        "Optimal Discount %": round(optimal_discount * 100, 2),
-        "Gross Profit Extra Sales": round(gross_profit_extra_sales, 2),
-        "Weighted Acceptance Rate": round(weighted_pct_discounted_total * 100, 2)
-    }
+    return round(npv, 2)
