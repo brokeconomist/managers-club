@@ -11,42 +11,41 @@ def calculate_discount_cash_fixed_pct(
     current_collection_days
 ):
     total_sales = current_sales + extra_sales
-    cost_of_capital_daily = cost_of_capital_annual / 365
+    capital_daily_rate = cost_of_capital_annual / 365
 
-    # Σταθμισμένο ποσοστό πελατών που αποδέχεται την έκπτωση επί του νέου συνόλου
-    weighted_accept_rate_total = (
-        (current_sales * pct_customers_accept) + extra_sales
-    ) / total_sales
+    # Βάρος αποδοχής έκπτωσης στο νέο σύνολο
+    weighted_acceptance = (current_sales * pct_customers_accept + extra_sales) / total_sales
 
-    # Παρούσα αξία από πελάτες που αποδέχονται την έκπτωση και πληρώνουν τοις μετρητοίς
-    pv_accept = (
+    # (1) Πελάτες που αποδέχονται την έκπτωση
+    pv_discount_customers = (
         total_sales
-        * weighted_accept_rate_total
+        * weighted_acceptance
         * (1 - cash_discount_rate)
-        * (1 / ((1 + cost_of_capital_daily) ** days_accept))
+        * (1 / ((1 + capital_daily_rate) ** days_accept))
     )
 
-    # Παρούσα αξία από πελάτες που δεν αποδέχονται την έκπτωση
-    pv_reject = (
+    # (2) Πελάτες που δεν την αποδέχονται
+    pv_other_customers = (
         total_sales
-        * (1 - weighted_accept_rate_total)
-        * (1 / ((1 + cost_of_capital_daily) ** days_reject))
+        * (1 - weighted_acceptance)
+        * (1 / ((1 + capital_daily_rate) ** days_reject))
     )
 
-    # Κόστος πωλήσεων σε παρούσα αξία λόγω επιπλέον πωλήσεων
+    # (3) Κόστος επιπλέον πωλήσεων
     pv_cost_extra_sales = (
         cost_of_sales_pct
         * (extra_sales / current_sales)
         * current_sales
-        * (1 / ((1 + cost_of_capital_daily) ** avg_supplier_pay_days))
+        * (1 / ((1 + capital_daily_rate) ** avg_supplier_pay_days))
     )
 
-    # Παρούσα αξία από τρέχουσες πωλήσεις χωρίς καμία αλλαγή
-    pv_current_sales = current_sales * (
-        1 / ((1 + cost_of_capital_daily) ** current_collection_days)
+    # (4) Παρούσα αξία τρεχουσών πωλήσεων με τις παλιές μέρες είσπραξης
+    pv_current_sales = (
+        current_sales
+        * (1 / ((1 + capital_daily_rate) ** current_collection_days))
     )
 
-    # Υπολογισμός NPV
-    npv = pv_accept + pv_reject - pv_cost_extra_sales - pv_current_sales
+    # Τελική καθαρή παρούσα αξία
+    npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
 
     return round(npv, 2)
