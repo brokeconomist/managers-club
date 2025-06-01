@@ -5,7 +5,7 @@ from discount_cash_final import calculate_discount_cash_fixed_pct
 from utils import parse_gr_number, format_number_gr, format_percentage_gr
 
 def show_discount_cash_app():
-    st.header("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς (60% σταθμισμένο)")
+    st.header("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
     with st.form("discount_cash_form"):
         col1, col2 = st.columns(2)
