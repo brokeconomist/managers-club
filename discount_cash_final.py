@@ -1,5 +1,4 @@
 import streamlit as st
-from discount_cash_final import calculate_discount_cash_fixed_pct
 
 st.set_page_config(page_title="Αποδοτικότητα Έκπτωσης", page_icon="💶")
 st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
