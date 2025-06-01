@@ -84,19 +84,6 @@ def calculate_cash_discount(
     )
 
     return {
-        "new_policy_share": new_policy_share,
-        "new_collection_days": new_collection_days,
-        "current_receivables": current_receivables,
-        "new_receivables_total": new_receivables_total,
-        "capital_release": capital_release,
-        "profit_from_extra_sales": profit_from_extra_sales,
-        "discount_cost": discount_cost,
-        "capital_benefit": capital_benefit,
-        "total_profit": total_profit,
-        "npv": npv
-    }
-
-    return {
         "current_receivables": round(current_receivables, 2),
         "new_avg_days_discount_only": round(new_avg_days_discount_only, 2),
         "new_receivables_discount_only": round(new_receivables_discount_only, 2),
