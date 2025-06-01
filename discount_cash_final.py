@@ -1,41 +1,38 @@
-# discount_cash_final.py
+import streamlit as st
+from discount_cash_final import calculate_discount_cash_fixed_pct
 
-def calculate_discount_cash_fixed_pct(
-    current_sales,
-    extra_sales,
-    cash_discount_rate,
-    pct_customers_accept,  # included for consistency with app, not used
-    days_accept,
-    days_reject,
-    cost_of_sales_pct,
-    cost_of_capital_annual,
-    avg_supplier_pay_days
-):
-    total_sales = current_sales + extra_sales
-    gross_profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
+def show_discount_cash_app():
+    st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
+    st.write("🔍 Ανάλυση καθαρής παρούσας αξίας (NPV) από την πολιτική παροχής έκπτωσης για άμεση πληρωμή.")
 
-    def discount_factor(days):
-        return 1 / ((1 + cost_of_capital_annual) ** (days / 365))
+    st.header("📥 Εισαγωγή Δεδομένων")
 
-    # 60% μέσος όρος όλων των πελατών (παλιοί + νέοι) παίρνει την έκπτωση
-    pct_discounted_total = 0.6
+    current_sales = st.number_input("Τρέχουσες Πωλήσεις (€)", min_value=0.0, value=1000.0, step=100.0)
+    extra_sales = st.number_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", min_value=0.0, value=250.0, step=50.0)
+    cash_discount_rate = st.number_input("Ποσοστό Έκπτωσης για Πληρωμή Τοις Μετρητοίς (%)", min_value=0.0, max_value=100.0, value=2.0, step=0.1) / 100
+    pct_customers_accept = st.number_input("Ποσοστό Πελατών που Αποδέχεται την Έκπτωση (%)", min_value=0.0, max_value=100.0, value=50.0, step=1.0) / 100
+    days_accept = st.number_input("Ημέρες Πληρωμής για Πελάτες που Αποδέχονται (μέρες)", min_value=0, value=10, step=1)
+    days_reject = st.number_input("Ημέρες Πληρωμής για Πελάτες που Δεν Αποδέχονται (μέρες)", min_value=0, value=120, step=1)
+    cost_of_sales_pct = st.number_input("Κόστος Πωλήσεων (%)", min_value=0.0, max_value=100.0, value=80.0, step=1.0) / 100
+    cost_of_capital_annual = st.number_input("Κόστος Κεφαλαίου (% ετησίως)", min_value=0.0, max_value=100.0, value=20.0, step=0.5) / 100
+    avg_supplier_pay_days = st.number_input("Μέση Περίοδος Αποπληρωμής Προμηθευτών (μέρες)", min_value=0, value=0, step=1)
 
-    pv_discount_customers = total_sales * pct_discounted_total * (1 - cash_discount_rate) * discount_factor(days_accept)
-    pv_other_customers = total_sales * (1 - pct_discounted_total) * discount_factor(days_reject)
-    pv_cost_extra_sales = cost_of_sales_pct * extra_sales * discount_factor(avg_supplier_pay_days)
+    if st.button("💡 Υπολογισμός"):
+        results = calculate_discount_cash_fixed_pct(
+            current_sales=current_sales,
+            extra_sales=extra_sales,
+            cash_discount_rate=cash_discount_rate,
+            pct_customers_accept=pct_customers_accept,
+            days_accept=days_accept,
+            days_reject=days_reject,
+            cost_of_sales_pct=cost_of_sales_pct,
+            cost_of_capital_annual=cost_of_capital_annual,
+            avg_supplier_pay_days=avg_supplier_pay_days
+        )
 
-    # Προσεγγιστικά παλιά στάθμιση: μέσος όρος ημερών χωρίς πολιτική
-    old_avg_days = (0.5 * days_accept) + (0.5 * days_reject)
-    pv_current_sales = current_sales * discount_factor(old_avg_days)
-
-    npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
-
-    max_discount = gross_profit_extra_sales / total_sales
-    optimal_discount = max_discount * 0.25
-
-    return {
-        "NPV": round(npv, 2),
-        "Max Discount %": round(max_discount * 100, 2),
-        "Optimal Discount %": round(optimal_discount * 100, 2),
-        "Gross Profit Extra Sales": round(gross_profit_extra_sales, 2)
-    }
+        st.subheader("📈 Αποτελέσματα")
+        st.metric("NPV", f"{results['NPV']} €")
+        st.metric("Κέρδος από Επιπλέον Πωλήσεις", f"{results['Gross Profit Extra Sales']} €")
+        st.metric("Μέγιστη Επιτρεπτή Έκπτωση", f"{results['Max Discount %']} %")
+        st.metric("Βέλτιστη Έκπτωση", f"{results['Optimal Discount %']} %")
+        st.metric("Πελάτες που Αποδέχονται Έκπτωση (Παλαιοί + Νέοι)", f"{results['Weighted Acceptance Rate']} %")
