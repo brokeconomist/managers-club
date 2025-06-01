@@ -46,7 +46,19 @@ def calculate_discount_cash_fixed_pct(
 
     npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
 
-    max_discount = gross_profit_extra_sales / total_sales
+    # ✅ ΝΕΟΣ ΤΥΠΟΣ για Μέγιστη Δυνητική Έκπτωση (~8.34%)
+    r = cost_of_capital_annual
+    D = current_collection_days
+    d = days_cash
+    cogs_pct = cost_of_sales_pct
+    extra_ratio = extra_sales / current_sales
+
+    numerator = 1 - 1 / (1 + extra_ratio)
+    denominator = (1 / (1 + r / 365)) ** (D - d) * (
+        numerator + ((1 + r / 365) ** (d - avg_supplier_pay_days) + cogs_pct * extra_ratio * (1 + r / 365) ** (d - days_reject)) / (1 + extra_ratio)
+    )
+
+    max_discount = 1 - denominator
     optimal_discount = max_discount * 0.25
 
     return {
