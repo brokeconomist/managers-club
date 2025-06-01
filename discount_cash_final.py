@@ -1,8 +1,10 @@
+# discount_cash_final.py
+
 def calculate_discount_cash_fixed_pct(
     current_sales,
     extra_sales,
     cash_discount_rate,
-    pct_customers_accept,  # Αυτό παραβλέπεται — χρησιμοποιείται σταθερό 60%
+    pct_customers_accept,  # included for consistency with app, not used
     days_accept,
     days_reject,
     cost_of_sales_pct,
@@ -12,17 +14,17 @@ def calculate_discount_cash_fixed_pct(
     total_sales = current_sales + extra_sales
     gross_profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
 
-    # Χρησιμοποιούμε σταθερό 60% ως ποσοστό πελατών που δέχονται την έκπτωση
-    pct_customers_discount_total = 0.6
-
     def discount_factor(days):
         return 1 / ((1 + cost_of_capital_annual) ** (days / 365))
 
-    pv_discount_customers = total_sales * pct_customers_discount_total * (1 - cash_discount_rate) * discount_factor(days_accept)
-    pv_other_customers = total_sales * (1 - pct_customers_discount_total) * discount_factor(days_reject)
+    # 60% μέσος όρος όλων των πελατών (παλιοί + νέοι) παίρνει την έκπτωση
+    pct_discounted_total = 0.6
+
+    pv_discount_customers = total_sales * pct_discounted_total * (1 - cash_discount_rate) * discount_factor(days_accept)
+    pv_other_customers = total_sales * (1 - pct_discounted_total) * discount_factor(days_reject)
     pv_cost_extra_sales = cost_of_sales_pct * extra_sales * discount_factor(avg_supplier_pay_days)
 
-    # Για να συγκρίνουμε με την πρότερη κατάσταση
+    # Προσεγγιστικά παλιά στάθμιση: μέσος όρος ημερών χωρίς πολιτική
     old_avg_days = (0.5 * days_accept) + (0.5 * days_reject)
     pv_current_sales = current_sales * discount_factor(old_avg_days)
 
@@ -35,5 +37,5 @@ def calculate_discount_cash_fixed_pct(
         "NPV": round(npv, 2),
         "Max Discount %": round(max_discount * 100, 2),
         "Optimal Discount %": round(optimal_discount * 100, 2),
-        "Profit from Extra Sales": round(gross_profit_extra_sales, 2)
+        "Gross Profit Extra Sales": round(gross_profit_extra_sales, 2)
     }
