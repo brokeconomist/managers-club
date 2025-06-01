@@ -12,79 +12,121 @@ def format_percentage_gr(x):
     return f"{x*100:,.2f} %".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
-def calculate_cash_discount(
-    current_sales,
-    extra_sales,
-    gross_margin,
-    discount_rate,
-    accept_rate,
-    days_accept,
-    days_non_accept,
-    current_collection_days,
-    wacc
+def calculate(
+    current_sales,                     # c2: τρέχουσες πωλήσεις (€)
+    gross_margin,                     # c3: περιθώριο κέρδους (π.χ. 0.3 για 30%)
+    discount_rate,                   # c5: έκπτωση τοις μετρητοίς (π.χ. 0.02 για 2%)
+    customers_accept_discount,       # c6: ποσοστό πελατών που αποδέχεται έκπτωση (π.χ. 0.4)
+    days_pay_discount,               # c7: μέρες πληρωμής για πελάτες με έκπτωση (π.χ. 10)
+    days_pay_no_discount,            # c8: μέρες πληρωμής πελατών χωρίς έκπτωση (π.χ. 30)
+    additional_sales_pct,            # c9: αύξηση πωλήσεων λόγω έκπτωσης (π.χ. 0.1 για +10%)
+    wacc,                           # c10: κόστος κεφαλαίου (π.χ. 0.1 για 10% ετήσιο)
+    supplier_payment_days           # c15: μέση περίοδος αποπληρωμής προμηθευτών (π.χ. 30)
 ):
-    decline_rate = 1 - accept_rate
-    total_sales = current_sales + extra_sales
-
-    current_receivables = (current_sales * current_collection_days) / 365
-
-    new_avg_days_discount_only = (
-        accept_rate * days_accept +
-        decline_rate * days_non_accept
+    # 1. Τρέχουσα μέση περίοδος είσπραξης (σταθμισμένος μέσος όρος)
+    current_avg_collection_days = (
+        days_pay_discount * customers_accept_discount +
+        days_pay_no_discount * (1 - customers_accept_discount)
     )
-
-    new_receivables_discount_only = (current_sales * new_avg_days_discount_only) / 365
-
-    capital_release_discount_only = current_receivables - new_receivables_discount_only
-
-    new_policy_pct = ((current_sales * accept_rate) + extra_sales) / total_sales
-    old_policy_pct = 1 - new_policy_pct
-
-    new_avg_days_total = (
-        new_policy_pct * days_accept +
-        old_policy_pct * days_non_accept
+    
+    # 2. Τρέχουσες απαιτήσεις
+    current_receivables = current_sales * current_avg_collection_days / 365
+    
+    # 3. Νέα μέση περίοδος είσπραξης μετά την έκπτωση
+    new_avg_collection_days_discount = (
+        days_pay_discount * customers_accept_discount +
+        days_pay_no_discount * (1 - customers_accept_discount)
     )
-
-    new_receivables_total = (total_sales * new_avg_days_total) / 365
-
-    capital_release_total = current_receivables - new_receivables_total
-
-    profit_extra = extra_sales * gross_margin
-
-    capital_saving_profit = capital_release_total * wacc
-
-    discount_cost = total_sales * new_policy_pct * discount_rate
-
-    total_profit = profit_extra + capital_saving_profit - discount_cost
-
-    daily_wacc = wacc / 365
-
-    # Υπολογισμός NPV με προεξόφληση ταμειακών ροών (προσαρμοσμένος)
+    
+    # 4. Νέες απαιτήσεις μετά την έκπτωση
+    new_receivables_discount = current_sales * new_avg_collection_days_discount / 365
+    
+    # 5. Αποδέσμευση κεφαλαίων από μείωση απαιτήσεων (πριν αύξηση πωλήσεων)
+    capital_released_before_sales_increase = current_receivables - new_receivables_discount
+    
+    # 6. % πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου
+    additional_sales = current_sales * additional_sales_pct
+    new_total_sales = current_sales + additional_sales
+    pct_customers_new_policy = (
+        (current_sales * customers_accept_discount + additional_sales) / new_total_sales
+    )
+    
+    # 7. % πελατών που παραμένει με την παλιά κατάσταση επί του νέου συνόλου
+    pct_customers_old_policy = 1 - pct_customers_new_policy
+    
+    # 8. Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων
+    new_avg_collection_days_after_increase = (
+        pct_customers_new_policy * days_pay_discount +
+        pct_customers_old_policy * days_pay_no_discount
+    )
+    
+    # 9. Απαιτήσεις μετά την αύξηση πωλήσεων
+    receivables_after_sales_increase = new_total_sales * new_avg_collection_days_after_increase / 365
+    
+    # 10. Τελική αποδέσμευση κεφαλαίων μετά την αύξηση πωλήσεων
+    capital_released_after_sales_increase = current_receivables - receivables_after_sales_increase
+    
+    # 11. Κέρδος από επιπλέον πωλήσεις (brutto)
+    profit_additional_sales = additional_sales * gross_margin
+    
+    # 12. Κέρδος από αποδέσμευση κεφαλαίων
+    profit_from_capital_release = capital_released_after_sales_increase * wacc
+    
+    # 13. Κόστος έκπτωσης
+    discount_cost = new_total_sales * pct_customers_new_policy * discount_rate
+    
+    # 14. Συνολικό κέρδος από την πρόταση
+    total_profit = profit_additional_sales + profit_from_capital_release - discount_cost
+    
+    # Παράμετροι για NPV:
+    daily_wacc = (1 + wacc) ** (1/365) - 1
+    
+    # 15. NPV (με προεξόφληση ανά ημέρα)
     npv = (
-        (total_sales * new_policy_pct * (1 - discount_rate)) / ((1 + daily_wacc) ** days_accept)
-        +
-        (total_sales * (1 - new_policy_pct)) / ((1 + daily_wacc) ** days_non_accept)
-        -
-        discount_cost * (extra_sales / current_sales)
+        new_total_sales * pct_customers_new_policy * (1 - discount_rate) * (1 / (1 + daily_wacc) ** days_pay_discount) +
+        new_total_sales * pct_customers_old_policy * (1 / (1 + daily_wacc) ** days_pay_no_discount) -
+        current_sales * (additional_sales / current_sales) * (1 / (1 + daily_wacc) ** supplier_payment_days) * discount_cost / discount_rate -  # Προσαρμοσμένο κόστος (c11*...)
+        current_sales * (1 / (1 + daily_wacc) ** supplier_payment_days)
     )
-
+    
+    # 16. Μέγιστη έκπτωση (Break-even NPV)
+    # Έστω:
+    A = (1 + daily_wacc) ** (days_pay_discount - days_pay_no_discount)
+    B = (1 - (1 / pct_customers_new_policy))
+    C = (1 + daily_wacc) ** (days_pay_no_discount - supplier_payment_days)
+    D = (additional_sales / current_sales)
+    E = (1 + daily_wacc) ** (days_pay_no_discount - supplier_payment_days)
+    F = pct_customers_new_policy * (1 + D)
+    
+    try:
+        max_discount = 1 - (A * (B + (C + D * E) / F))
+        if max_discount < 0:
+            max_discount = 0.0
+    except ZeroDivisionError:
+        max_discount = 0.0
+    
+    # 17. Βέλτιστη έκπτωση
+    optimal_discount = (1 - (1 + daily_wacc) ** (days_pay_discount - current_avg_collection_days)) / 2
+    
     return {
-        "current_receivables": round(current_receivables, 2),
-        "new_avg_days_discount_only": round(new_avg_days_discount_only, 2),
-        "new_receivables_discount_only": round(new_receivables_discount_only, 2),
-        "capital_release_discount_only": round(capital_release_discount_only, 2),
-        "new_policy_pct": round(new_policy_pct, 2),
-        "old_policy_pct": round(old_policy_pct, 2),
-        "new_avg_days_total": round(new_avg_days_total, 2),
-        "new_receivables_total": round(new_receivables_total, 2),
-        "capital_release_total": round(capital_release_total, 2),
-        "profit_extra": round(profit_extra, 2),
-        "capital_saving_profit": round(capital_saving_profit, 2),
-        "discount_cost": round(discount_cost, 2),
-        "total_profit": round(total_profit, 2),
-        "npv": round(npv, 2)
+        "current_avg_collection_days": current_avg_collection_days,
+        "current_receivables": current_receivables,
+        "new_avg_collection_days_discount": new_avg_collection_days_discount,
+        "new_receivables_discount": new_receivables_discount,
+        "capital_released_before_sales_increase": capital_released_before_sales_increase,
+        "pct_customers_new_policy": pct_customers_new_policy,
+        "pct_customers_old_policy": pct_customers_old_policy,
+        "new_avg_collection_days_after_increase": new_avg_collection_days_after_increase,
+        "receivables_after_sales_increase": receivables_after_sales_increase,
+        "capital_released_after_sales_increase": capital_released_after_sales_increase,
+        "profit_additional_sales": profit_additional_sales,
+        "profit_from_capital_release": profit_from_capital_release,
+        "discount_cost": discount_cost,
+        "total_profit": total_profit,
+        "npv": npv,
+        "max_discount": max_discount,
+        "optimal_discount": optimal_discount,
     }
-
 
 def find_break_even_and_optimal(
     current_sales,
