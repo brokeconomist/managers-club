@@ -17,13 +17,11 @@ def show_discount_cash_app():
 
     if st.button("Υπολογισμός"):
 
-        # ✅ Υπολογισμός νέας μέσης περιόδου είσπραξης (DSO) βάσει ποσοστών αποδοχής
         weighted_collection_days = (
             pct_customers_accept * days_cash +
             (1 - pct_customers_accept) * days_reject
         )
 
-        # ✅ Κλήση της συνάρτησης με το σταθμισμένο DSO
         results = calculate_discount_cash_fixed_pct(
             current_sales=current_sales,
             extra_sales=extra_sales,
@@ -34,11 +32,9 @@ def show_discount_cash_app():
             cost_of_sales_pct=cost_of_sales_pct,
             cost_of_capital_annual=cost_of_capital_annual,
             avg_supplier_pay_days=avg_supplier_pay_days,
-            current_collection_days=weighted_collection_days  # ✅ Νέο
+            current_collection_days=weighted_collection_days
         )
 
         st.write(f"**NPV (€):** {results['NPV']}")
         st.write(f"**Μέγιστη Δυνητική Έκπτωση (%):** {results['Max Discount %']}%")
         st.write(f"**Βέλτιστη Έκπτωση (%):** {results['Optimal Discount %']}%")
-        st.write(f"**Μικτό Κέρδος από Extra Πωλήσεις (€):** {results['Gross Profit Extra Sales']}")
-        st.write(f"**Σταθμισμένο Ποσοστό Αποδοχής (%):** {results['Weighted Acceptance Rate']}%")
