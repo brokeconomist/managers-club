@@ -1,33 +1,29 @@
 import streamlit as st
 import numpy as np
-import plotly.graph_objects as go
 
 def format_number_gr(x):
-    """Μορφοποίηση αριθμών με ελληνικά δεκαδικά (κόμμα) και χιλιάδες (τελεία)."""
     return f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def format_percentage_gr(x):
-    """Μορφοποίηση ποσοστών με ελληνικά δεκαδικά."""
     return f"{x*100:,.2f} %".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def calculate(
-    current_sales,                  # τρέχουσες πωλήσεις (€)
-    gross_margin,                  # περιθώριο κέρδους (π.χ. 0.3 για 30%)
-    discount_rate,                 # έκπτωση τοις μετρητοίς (π.χ. 0.02 για 2%)
-    customers_accept_discount,     # ποσοστό πελατών που αποδέχεται έκπτωση (π.χ. 0.4)
-    days_pay_discount,             # μέρες πληρωμής για πελάτες με έκπτωση (π.χ. 10)
-    days_pay_no_discount,          # μέρες πληρωμής πελατών χωρίς έκπτωση (π.χ. 30)
-    additional_sales_pct,          # αύξηση πωλήσεων λόγω έκπτωσης (π.χ. 0.1 για +10%)
-    wacc,                         # κόστος κεφαλαίου (π.χ. 0.1 για 10% ετήσιο)
-    supplier_payment_days          # μέση περίοδος αποπληρωμής προμηθευτών (π.χ. 30)
+    current_sales,
+    cost_of_goods_sold,
+    discount_rate,
+    customers_accept_discount,
+    days_pay_discount,
+    days_pay_no_discount,
+    additional_sales_pct,
+    wacc,
+    supplier_payment_days
 ):
     current_avg_collection_days = (
         days_pay_discount * customers_accept_discount +
-        days_pay_no_discount * days_pay_no_discount
+        days_pay_no_discount * (1 - customers_accept_discount)
     )
     current_receivables = current_sales * current_avg_collection_days / 365
 
-    # Υπολογισμοί μετά την έκπτωση
     additional_sales = current_sales * additional_sales_pct
     new_total_sales = current_sales + additional_sales
 
@@ -44,7 +40,9 @@ def calculate(
 
     capital_released_after_sales_increase = current_receivables - receivables_after_sales_increase
 
-    profit_additional_sales = additional_sales * gross_margin
+    margin_per_euro = 1 - (cost_of_goods_sold / current_sales) if current_sales != 0 else 0
+
+    profit_additional_sales = additional_sales * margin_per_euro
     profit_from_capital_release = capital_released_after_sales_increase * wacc
     discount_cost = new_total_sales * pct_customers_new_policy * discount_rate
     total_profit = profit_additional_sales + profit_from_capital_release - discount_cost
@@ -92,13 +90,12 @@ def calculate(
         "optimal_discount": optimal_discount,
     }
 
-
 def show_discount_cash_tool():
     st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
     DEFAULTS = {
         "current_sales": 1000.0,
-        "gross_margin": 0.20,
+        "cost_of_goods_sold": 800.0,
         "discount_rate": 0.02,
         "customers_accept_discount": 0.4,
         "days_pay_discount": 10,
@@ -116,10 +113,10 @@ def show_discount_cash_tool():
                 "Τρέχουσες Πωλήσεις (€)",
                 value=DEFAULTS["current_sales"], min_value=0.0, step=100.0, format="%.2f"
             )
-            gross_margin = st.slider(
-                "Καθαρό Περιθώριο Κέρδους (%)",
-                0, 100, int(DEFAULTS["gross_margin"]*100), step=1
-            ) / 100
+            cost_of_goods_sold = st.number_input(
+                "Κόστος Πωληθέντων (€)",
+                value=DEFAULTS["cost_of_goods_sold"], min_value=0.0, max_value=current_sales, step=50.0, format="%.2f"
+            )
             discount_rate = st.slider(
                 "Έκπτωση (%)",
                 0.0, 30.0, DEFAULTS["discount_rate"]*100, step=0.1
@@ -156,7 +153,7 @@ def show_discount_cash_tool():
     if submitted:
         res = calculate(
             current_sales,
-            gross_margin,
+            cost_of_goods_sold,
             discount_rate,
             customers_accept_discount,
             days_pay_discount,
@@ -172,50 +169,11 @@ def show_discount_cash_tool():
         col1.metric("Κέρδος από Επιπλέον Πωλήσεις (€)", format_number_gr(res["profit_additional_sales"]))
         col1.metric("Κέρδος Αποδέσμευσης Κεφαλαίου (€)", format_number_gr(res["profit_from_capital_release"]))
         col1.metric("Κόστος Έκπτωσης (€)", format_number_gr(res["discount_cost"]))
+        col2.metric("Συνολικό Καθαρό Κέρδος (€)", format_number_gr(res["total_profit"]))
+        col2.metric("Καθαρό Κεφάλαιο Πελατών (ημ.)", f'{res["current_avg_collection_days"]:.1f}')
+        col2.metric("Νέες Ημέρες Είσπραξης (ημ.)", f'{res["new_avg_collection_days_after_increase"]:.1f}')
+        col3.metric("Κεφάλαιο σε Είσπραξη (πριν) (€)", format_number_gr(res["current_receivables"]))
+        col3.metric("Κεφάλαιο σε Είσπραξη (μετά) (€)", format_number_gr(res["receivables_after_sales_increase"]))
+        col3.metric("Αποδεσμευμένο Κεφάλαιο (€)", format_number_gr(res["capital_released_after_sales_increase"]))
 
-        col2.metric("Καθαρό Κέρδος (€)", format_number_gr(res["total_profit"]))
-        col2.metric("NPV (Κέρδη Καθαρής Παρούσας Αξίας)", format_number_gr(res["npv"]))
-        col2.metric("Μέσος Όρος Ημερών Είσπραξης Τρέχοντος", f"{res['current_avg_collection_days']:.1f}")
-
-        col3.metric("Νέος Μέσος Όρος Ημερών Είσπραξης", f"{res['new_avg_collection_days_after_increase']:.1f}")
-        col3.metric("Αποδέσμευση Κεφαλαίου (€)", format_number_gr(res["capital_released_after_sales_increase"]))
-        col3.metric("Μέγιστη Επιτρεπτή Έκπτωση (%)", format_percentage_gr(res["max_discount"]))
-        col3.metric("Βέλτιστη Έκπτωση (%)", format_percentage_gr(res["optimal_discount"]))
-
-        # Γράφημα: Καθαρό Κέρδος ανά ποσοστό αποδοχής έκπτωσης
-        acceptance_rates = np.linspace(0, 1, 101)
-        net_profits = []
-        for rate in acceptance_rates:
-            tmp = calculate(
-                current_sales,
-                gross_margin,
-                discount_rate,
-                rate,
-                days_pay_discount,
-                days_pay_no_discount,
-                additional_sales_pct,
-                wacc,
-                supplier_payment_days
-            )
-            net_profits.append(tmp["total_profit"])
-
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=acceptance_rates * 100,
-            y=net_profits,
-            mode="lines",
-            fill="tozeroy",
-            name="Καθαρό Κέρδος"
-        ))
-        fig.update_layout(
-            title="Καθαρό Κέρδος σε σχέση με % Πελατών που Αποδέχονται Έκπτωση",
-            xaxis_title="% Πελατών που Αποδέχονται Έκπτωση",
-            yaxis_title="Καθαρό Κέρδος (€)",
-            xaxis_tickformat = ".0f",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-
-if __name__ == "__main__":
-    show_discount_cash_tool()
+        st.markdown(f"**Μέγιστη Επιτρεπτή Έκπτωση:** {format_percentage_gr(res['max_discount'])}")
