@@ -69,28 +69,75 @@ def show_discount_cash_tool():
         except:
             return str(x)
 
-    st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
+     st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
     with st.form("discount_form"):
         col1, col2 = st.columns(2)
 
         with col1:
-            sales_now = st.number_input("Τρέχουσες Πωλήσεις (€)", value=DEFAULTS["current_sales"], min_value=0.0, step=100.0)
-            extra_sales = st.number_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", value=DEFAULTS["extra_sales"], min_value=0.0, step=50.0)
-            discount_rate = st.slider("Ποσοστό Έκπτωσης (%)", 0.0, 30.0, 2.0, step=0.5) / 100
-            accept_rate = st.slider("% Πελατών που Αποδέχεται την Έκπτωση", 0, 100, int(DEFAULTS["cash_discount_accept_pct"]*100), step=5) / 100
-            cost_ratio = st.slider("Κόστος Πωλήσεων (% επί των Πωλήσεων)", 0, 100, int(DEFAULTS["cost_pct"]*100), step=1) / 100
+            # Ακέραιοι αριθμοί (int) για τα ποσά:
+            sales_now = st.number_input(
+                "Τρέχουσες Πωλήσεις (€)", 
+                value=DEFAULTS["current_sales"], 
+                min_value=0, 
+                step=100, 
+                format="%d"
+            )
+            extra_sales = st.number_input(
+                "Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", 
+                value=DEFAULTS["extra_sales"], 
+                min_value=0, 
+                step=50, 
+                format="%d"
+            )
+            # Ποσοστά ως float (slider, που δέχεται float από 0 έως 30% με βήμα 0.5%)
+            discount_rate = st.slider(
+                "Ποσοστό Έκπτωσης (%)", 0.0, 30.0, 2.0, step=0.5
+            ) / 100
+            accept_rate = st.slider(
+                "% Πελατών που Αποδέχεται την Έκπτωση", 0, 100, int(DEFAULTS["cash_discount_accept_pct"]*100), step=5
+            ) / 100
+            cost_ratio = st.slider(
+                "Κόστος Πωλήσεων (% επί των Πωλήσεων)", 0, 100, int(DEFAULTS["cost_pct"]*100), step=1
+            ) / 100
 
         with col2:
-            days_discount = st.number_input("Μέρες για Πληρωμή με Έκπτωση", value=DEFAULTS["cash_discount_days"], min_value=0, max_value=180)
-            days_accept = st.number_input("Μέρες Πληρωμής όσων Αποδέχονται την Έκπτωση", value=DEFAULTS["cash_discount_accept_days"], min_value=0, max_value=180)
-            days_non_accept = st.number_input("Μέρες Πληρωμής όσων Δεν Αποδέχονται την Έκπτωση", value=DEFAULTS["non_discount_accept_days"], min_value=0, max_value=180)
-            wacc = st.slider("Κόστος Κεφαλαίου (WACC %)", 0.0, 30.0, int(DEFAULTS["wacc"]*100), step=0.5) / 100
-            avg_collection_days = st.number_input("Τρέχουσα Μέση Περίοδος Είσπραξης (μέρες)", value=DEFAULTS["current_collection_period"], min_value=0, max_value=365)
+            # Ακέραιοι αριθμοί (int) για μέρες
+            days_discount = st.number_input(
+                "Μέρες για Πληρωμή με Έκπτωση", 
+                value=DEFAULTS["cash_discount_days"], 
+                min_value=0, max_value=180, 
+                step=1,
+                format="%d"
+            )
+            days_accept = st.number_input(
+                "Μέρες Πληρωμής όσων Αποδέχονται την Έκπτωση", 
+                value=DEFAULTS["cash_discount_accept_days"], 
+                min_value=0, max_value=180,
+                step=1,
+                format="%d"
+            )
+            days_non_accept = st.number_input(
+                "Μέρες Πληρωμής όσων Δεν Αποδέχονται την Έκπτωση", 
+                value=DEFAULTS["non_discount_accept_days"], 
+                min_value=0, max_value=180,
+                step=1,
+                format="%d"
+            )
+            wacc = st.slider(
+                "Κόστος Κεφαλαίου (WACC %)", 0.0, 30.0, int(DEFAULTS["wacc"]*100), step=0.5
+            ) / 100
+            avg_collection_days = st.number_input(
+                "Τρέχουσα Μέση Περίοδος Είσπραξης (μέρες)", 
+                value=DEFAULTS["current_collection_period"], 
+                min_value=0, max_value=365,
+                step=1,
+                format="%d"
+            )
 
         submitted = st.form_submit_button("Υπολογισμός")
-
-    if submitted:
+    
+if submitted:
         results = calculate_discount_npv(
             sales_now, extra_sales, discount_rate, accept_rate,
             days_discount, days_accept, days_non_accept,
