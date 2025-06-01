@@ -15,18 +15,18 @@ def show_discount_cash_app():
     avg_supplier_pay_days = st.number_input("Μέση Περίοδος Αποπληρωμής Προμηθευτών", min_value=0, value=0)
     current_collection_days = st.number_input("Τρέχουσα Μέση Περίοδος Είσπραξης", min_value=0, value=90)
 
-    if st.button("Υπολογισμός"):
-        results = calculate_discount_cash_fixed_pct(
-            current_sales=current_sales,
-            extra_sales=extra_sales,
-            cash_discount_rate=cash_discount_rate,
-            pct_customers_accept=pct_customers_accept,
-            days_cash=days_cash,
-            days_reject=days_reject,
-            cost_of_sales_pct=cost_of_sales_pct,
-            cost_of_capital_annual=cost_of_capital_annual,
-            avg_supplier_pay_days=avg_supplier_pay_days,
-            current_collection_days=current_collection_days
+        if st.button("Υπολογισμός"):
+            results = calculate_discount_cash_fixed_pct(
+                current_sales=current_sales,
+                extra_sales=extra_sales,
+                cash_discount_rate=cash_discount_rate,
+                pct_customers_accept=pct_customers_accept,
+                days_cash=days_cash,
+                days_reject=days_reject,
+                cost_of_sales_pct=cost_of_sales_pct,
+                cost_of_capital_annual=cost_of_capital_annual,
+                avg_supplier_pay_days=avg_supplier_pay_days,
+                current_collection_days=current_collection_days
     )
 
     st.write(f"**NPV (€):** {results['NPV']}")
