@@ -27,8 +27,9 @@ def show_discount_cash_app():
             cost_of_capital_annual=cost_of_capital_annual,
             avg_supplier_pay_days=avg_supplier_pay_days,
             current_collection_days=current_collection_days
-        )
+    )
 
+    st.write(f"**NPV (€):** {results['NPV']}")
     st.write(f"**Μέγιστη Δυνητική Έκπτωση (%):** {results['Max Discount %']}%")
     st.write(f"**Βέλτιστη Έκπτωση (%):** {results['Optimal Discount %']}%")
     st.write(f"**Μικτό Κέρδος από Extra Πωλήσεις (€):** {results['Gross Profit Extra Sales']}")
