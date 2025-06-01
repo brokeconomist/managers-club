@@ -31,7 +31,8 @@ def show_discount_cash_app():
 
         st.subheader("Αποτελέσματα:")
         st.write(f"**Καθαρή Παρούσα Αξία (NPV):** {results['NPV']} €")
-      # st.write(f"**Μέγιστη Δυνητική Έκπτωση (%):** {results['Max Discount %']}%")
-        st.write(f"**Βέλτιστη Έκπτωση (%):** {results['Optimal Discount %']}%")
-        st.write(f"**Μικτό Κέρδος από Extra Πωλήσεις:** {results['Gross Profit Extra Sales']} €")
-        st.write(f"**Σταθμισμένο Ποσοστό Αποδοχής:** {results['Weighted Acceptance Rate']}%")
+        # st.write(f"**Μέγιστη Δυνητική Έκπτωση (%):** {results['Max Discount %']}%")
+        # st.write(f"**Βέλτιστη Έκπτωση (%):** {results['Optimal Discount %']}%")
+        # st.write(f"**Μικτό Κέρδος από Extra Πωλήσεις:** {results['Gross Profit Extra Sales']} €")
+        # st.write(f"**Σταθμισμένο Ποσοστό Αποδοχής:** {results['Weighted Acceptance Rate']}%")
+
