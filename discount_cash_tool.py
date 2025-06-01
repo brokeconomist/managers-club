@@ -23,7 +23,7 @@ def calculate(
 ):
     current_avg_collection_days = (
         days_pay_discount * customers_accept_discount +
-        days_pay_no_discount * (1 - customers_accept_discount)
+        days_pay_no_discount * days_pay_no_discount
     )
     current_receivables = current_sales * current_avg_collection_days / 365
 
