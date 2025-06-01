@@ -1,5 +1,5 @@
 import streamlit as st
-from discount_cash_chart import calculate_discount_cash
+from discount_cash_final import calculate_discount_cash_fixed_pct as calculate_discount_cash
 from utils import parse_gr_number, format_number_gr, format_percentage_gr
 
 def show_discount_cash_calculator():
