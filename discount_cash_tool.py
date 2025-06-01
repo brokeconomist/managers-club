@@ -164,34 +164,34 @@ def show_discount_cash_tool():
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
-        res = calculate_cash_discount(
-            current_sales, extra_sales, gross_margin,
-            discount_rate, accept_rate,
-            days_accept, days_non_accept,
-            current_collection_days, wacc
-        )
+    res = calculate_cash_discount(
+        current_sales, extra_sales, gross_margin,
+        discount_rate, accept_rate,
+        days_accept, days_non_accept,
+        current_collection_days, wacc
+    )
 
-        optimal_discount, breakeven_discount, discounts, npv_list = find_break_even_and_optimal(
-            current_sales, extra_sales, gross_margin,
-            accept_rate, days_accept, days_non_accept,
-            current_collection_days, wacc
-        )
+    optimal_discount, breakeven_discount, discounts, npv_list = find_break_even_and_optimal(
+        current_sales, extra_sales, gross_margin,
+        accept_rate, days_accept, days_non_accept,
+        current_collection_days, wacc
+    )
 
-        st.subheader("Αποτελέσματα")
+    st.subheader("Αποτελέσματα")
 
-        col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-        col1.metric("Κέρδος από Επιπλέον Πωλήσεις (€)", format_number_gr(res["profit_extra"]))
-        col1.metric("Κέρδος Αποδέσμευσης Κεφαλαίου (€)", format_number_gr(res["profit_release"]))
-        col1.metric("Κόστος Έκπτωσης (€)", format_number_gr(res["discount_cost"]))
+    col1.metric("Κέρδος από Επιπλέον Πωλήσεις (€)", format_number_gr(res["profit_extra"]))
+    col1.metric("Κέρδος Αποδέσμευσης Κεφαλαίου (€)", format_number_gr(res["capital_saving_profit"]))
+    col1.metric("Κόστος Έκπτωσης (€)", format_number_gr(res["discount_cost"]))
 
-        col2.metric("Συνολικό Κέρδος (€)", format_number_gr(res["total_profit"]))
-        col2.metric("Καθαρή Παρούσα Αξία (NPV) (€)", format_number_gr(res["npv"]))
-        col2.metric("Νέα Μέση Περίοδος Είσπραξης (ημέρες)", f"{res['new_avg_days']:.1f}")
+    col2.metric("Συνολικό Κέρδος (€)", format_number_gr(res["total_profit"]))
+    col2.metric("Καθαρή Παρούσα Αξία (NPV) (€)", format_number_gr(res["npv"]))
+    col2.metric("Νέα Μέση Περίοδος Είσπραξης (ημέρες)", f"{res['new_avg_days_total']:.1f}")
 
-        col3.metric("Ποσοστό Πελατών με Έκπτωση (%)", format_percentage_gr(res["pct_new_policy"]))
-        col3.metric("Νέες Πωλήσεις (€)", format_number_gr(res["new_sales"]))
-        col3.metric("WACC (%)", format_percentage_gr(wacc))
+    col3.metric("Ποσοστό Πελατών με Έκπτωση (%)", format_percentage_gr(res["new_policy_pct"]))
+    col3.metric("Νέες Πωλήσεις (€)", format_number_gr(current_sales + extra_sales))
+    col3.metric("WACC (%)", format_percentage_gr(wacc))
 
         st.markdown("---")
 
