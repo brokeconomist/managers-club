@@ -15,48 +15,6 @@ def show_discount_cash_tool():
         "current_collection_period": 90
     }
 
-    def calculate_discount_npv(current_sales, extra_sales, discount_rate, accept_rate,
-                               days_discount, days_accept, days_non_accept,
-                               cost_pct, wacc, fixed_discount_pct, current_collection_period):
-        new_avg_collection = (accept_rate * days_accept +
-                              (1 - accept_rate) * days_non_accept)
-        new_receivables = (current_sales * (1 - discount_rate) * new_avg_collection) / 365
-        old_receivables = (current_sales * current_collection_period) / 365
-        capital_release = old_receivables - new_receivables
-        profit_extra_sales = extra_sales * (1 - cost_pct)
-        profit_release = capital_release * wacc
-        cost_discount = current_sales * discount_rate * accept_rate
-        npv = profit_extra_sales + profit_release - cost_discount
-        return {
-            'capital_release': capital_release,
-            'profit_extra_sales': profit_extra_sales,
-            'profit_release': profit_release,
-            'cost_discount': cost_discount,
-            'total_profit': profit_extra_sales + profit_release - cost_discount,
-            'npv': npv
-        }
-
-    def find_optimal_and_breakeven(discount_rates, current_sales, extra_sales, accept_rate,
-                                   days_discount, days_accept, days_non_accept,
-                                   cost_pct, wacc, fixed_discount_pct, current_collection_period):
-        npvs = [calculate_discount_npv(
-            current_sales, extra_sales, d, accept_rate,
-            days_discount, days_accept, days_non_accept,
-            cost_pct, wacc, fixed_discount_pct, current_collection_period
-        )['npv'] for d in discount_rates]
-
-        max_npv = max(npvs)
-        max_index = npvs.index(max_npv)
-        optimal_discount = discount_rates[max_index]
-
-        breakeven_discount = None
-        for i in range(1, len(npvs)):
-            if npvs[i-1] > 0 and npvs[i] < 0:
-                breakeven_discount = discount_rates[i-1] + (discount_rates[i] - discount_rates[i-1])/2
-                break
-
-        return optimal_discount, breakeven_discount, npvs
-
     def format_number_gr(x):
         try:
             return f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -68,6 +26,67 @@ def show_discount_cash_tool():
             return f"{x*100:,.2f} %".replace(",", "X").replace(".", ",").replace("X", ".")
         except:
             return str(x)
+
+    def calculate_discount_npv(current_sales, extra_sales, discount_rate, accept_rate,
+                               days_discount, days_accept, days_non_accept,
+                               cost_pct, wacc, current_collection_period):
+        """
+        Υπολογίζει NPV βασισμένο στην αποδέσμευση κεφαλαίων, το κέρδος από επιπλέον πωλήσεις, 
+        και το κόστος της έκπτωσης.
+        """
+        # Νέα μέση περίοδος είσπραξης μετά την έκπτωση
+        new_avg_collection = accept_rate * days_accept + (1 - accept_rate) * days_non_accept
+
+        # Αποδεσμευόμενα κεφάλαια (παλιά - νέα)
+        old_receivables = (current_sales * current_collection_period) / 365
+        new_receivables = (current_sales * (1 - discount_rate) * new_avg_collection) / 365
+        capital_release = old_receivables - new_receivables
+
+        # Κέρδος από επιπλέον πωλήσεις (με κόστος)
+        profit_extra_sales = extra_sales * (1 - cost_pct)
+
+        # Κέρδος από αποδέσμευση κεφαλαίων (πληρώνουμε λιγότερο κόστος κεφαλαίου)
+        profit_release = capital_release * wacc
+
+        # Κόστος έκπτωσης που αποδέχονται οι πελάτες
+        cost_discount = current_sales * discount_rate * accept_rate
+
+        # Καθαρό NPV
+        npv = profit_extra_sales + profit_release - cost_discount
+
+        return {
+            'capital_release': capital_release,
+            'profit_extra_sales': profit_extra_sales,
+            'profit_release': profit_release,
+            'cost_discount': cost_discount,
+            'total_profit': npv,
+            'npv': npv
+        }
+
+    def find_optimal_and_breakeven(discount_rates, current_sales, extra_sales, accept_rate,
+                                   days_discount, days_accept, days_non_accept,
+                                   cost_pct, wacc, current_collection_period):
+        npvs = [calculate_discount_npv(
+            current_sales, extra_sales, d, accept_rate,
+            days_discount, days_accept, days_non_accept,
+            cost_pct, wacc, current_collection_period
+        )['npv'] for d in discount_rates]
+
+        max_npv = max(npvs)
+        max_index = npvs.index(max_npv)
+        optimal_discount = discount_rates[max_index]
+
+        # Βρίσκουμε το break-even σημείο (όπου το NPV διασχίζει το 0)
+        breakeven_discount = None
+        for i in range(1, len(npvs)):
+            if npvs[i-1] > 0 >= npvs[i]:
+                # Γραμμική παρεμβολή για ακρίβεια
+                x0, x1 = discount_rates[i-1], discount_rates[i]
+                y0, y1 = npvs[i-1], npvs[i]
+                breakeven_discount = x0 - y0 * (x1 - x0) / (y1 - y0)
+                break
+
+        return optimal_discount, breakeven_discount, npvs
 
     st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
@@ -138,14 +157,14 @@ def show_discount_cash_tool():
             results = calculate_discount_npv(
                 sales_now, extra_sales, discount_rate, accept_rate,
                 days_discount, days_accept, days_non_accept,
-                cost_ratio, wacc, 0.0, avg_collection_days
+                cost_ratio, wacc, avg_collection_days
             )
 
             discount_rates = np.arange(0.0, 0.31, 0.01)
             optimal_discount, breakeven_discount, npvs = find_optimal_and_breakeven(
                 discount_rates, sales_now, extra_sales, accept_rate,
                 days_discount, days_accept, days_non_accept,
-                cost_ratio, wacc, 0.0, avg_collection_days
+                cost_ratio, wacc, avg_collection_days
             )
 
             fig = go.Figure()
