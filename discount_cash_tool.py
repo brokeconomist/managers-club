@@ -69,13 +69,12 @@ def show_discount_cash_tool():
         except:
             return str(x)
 
-     st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
+    st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
     with st.form("discount_form"):
         col1, col2 = st.columns(2)
 
         with col1:
-            # Ακέραιοι αριθμοί (int) για τα ποσά:
             sales_now = st.number_input(
                 "Τρέχουσες Πωλήσεις (€)", 
                 value=DEFAULTS["current_sales"], 
@@ -90,7 +89,6 @@ def show_discount_cash_tool():
                 step=50, 
                 format="%d"
             )
-            # Ποσοστά ως float (slider, που δέχεται float από 0 έως 30% με βήμα 0.5%)
             discount_rate = st.slider(
                 "Ποσοστό Έκπτωσης (%)", 0.0, 30.0, 2.0, step=0.5
             ) / 100
@@ -102,7 +100,6 @@ def show_discount_cash_tool():
             ) / 100
 
         with col2:
-            # Ακέραιοι αριθμοί (int) για μέρες
             days_discount = st.number_input(
                 "Μέρες για Πληρωμή με Έκπτωση", 
                 value=DEFAULTS["cash_discount_days"], 
@@ -136,8 +133,8 @@ def show_discount_cash_tool():
             )
 
         submitted = st.form_submit_button("Υπολογισμός")
-    
-if submitted:
+
+    if submitted:
         results = calculate_discount_npv(
             sales_now, extra_sales, discount_rate, accept_rate,
             days_discount, days_accept, days_non_accept,
@@ -151,7 +148,6 @@ if submitted:
             cost_ratio, wacc, 0.0, avg_collection_days
         )
 
-        import plotly.graph_objects as go
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=discount_rates * 100,
@@ -164,7 +160,7 @@ if submitted:
         fig.add_vline(x=optimal_discount * 100, line=dict(color='green', dash='dash'),
                       annotation_text=f"Βέλτιστη: {optimal_discount*100:.2f}%", annotation_position="top left")
 
-        if breakeven_discount:
+        if breakeven_discount is not None:
             fig.add_vline(x=breakeven_discount * 100, line=dict(color='red', dash='dash'),
                           annotation_text=f"Break-even: {breakeven_discount*100:.2f}%", annotation_position="top right")
 
