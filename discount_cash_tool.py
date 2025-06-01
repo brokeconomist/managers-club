@@ -1,153 +1,136 @@
 import streamlit as st
-import numpy as np
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
-def show_discount_cash_tool():
-    DEFAULTS = {
-        "current_sales": 1000,
-        "extra_sales": 250,
-        "cost_pct": 0.80,
-        "wacc": 0.20,
-        "cash_discount_accept_pct": 0.50,
-        "cash_discount_days": 10,
-        "non_discount_accept_days": 120,
-        "cash_discount_accept_days": 60,
-        "current_collection_period": 90
+def cash_discount_analysis(
+    current_sales, extra_sales, discount_rate,
+    accept_rate, days_accept, days_non_accept,
+    current_collection_days, gross_margin, wacc
+):
+    days_per_year = 365
+
+    # --- Stage 1: Only discount effect ---
+    new_sales_stage1 = current_sales
+    pct_new_policy_stage1 = accept_rate
+    pct_old_policy_stage1 = 1 - pct_new_policy_stage1
+    new_avg_days_stage1 = pct_new_policy_stage1 * days_accept + pct_old_policy_stage1 * days_non_accept
+    old_receivables = (current_sales * current_collection_days) / days_per_year
+    new_receivables_stage1 = (new_sales_stage1 * new_avg_days_stage1) / days_per_year
+    capital_released_stage1 = old_receivables - new_receivables_stage1
+    profit_release_stage1 = capital_released_stage1 * wacc
+    discount_cost_stage1 = new_sales_stage1 * pct_new_policy_stage1 * discount_rate
+    profit_extra_stage1 = 0
+    total_profit_stage1 = profit_extra_stage1 + profit_release_stage1 - discount_cost_stage1
+    npv_stage1 = total_profit_stage1 / (1 + wacc)
+
+    # --- Stage 2: Discount + extra sales ---
+    new_sales_stage2 = current_sales + extra_sales
+    pct_new_policy_stage2 = (current_sales * accept_rate + extra_sales) / new_sales_stage2
+    pct_old_policy_stage2 = 1 - pct_new_policy_stage2
+    new_avg_days_stage2 = pct_new_policy_stage2 * days_accept + pct_old_policy_stage2 * days_non_accept
+    new_receivables_stage2 = (new_sales_stage2 * new_avg_days_stage2) / days_per_year
+    capital_released_stage2 = old_receivables - new_receivables_stage2
+    profit_release_stage2 = capital_released_stage2 * wacc
+    profit_extra_stage2 = extra_sales * gross_margin
+    discount_cost_stage2 = new_sales_stage2 * pct_new_policy_stage2 * discount_rate
+    total_profit_stage2 = profit_extra_stage2 + profit_release_stage2 - discount_cost_stage2
+    npv_stage2 = total_profit_stage2 / (1 + wacc)
+
+    return {
+        "stage1": {
+            "new_sales": new_sales_stage1,
+            "pct_new_policy": pct_new_policy_stage1,
+            "pct_old_policy": pct_old_policy_stage1,
+            "new_avg_days": new_avg_days_stage1,
+            "old_receivables": old_receivables,
+            "new_receivables": new_receivables_stage1,
+            "capital_released": capital_released_stage1,
+            "profit_release": profit_release_stage1,
+            "discount_cost": discount_cost_stage1,
+            "profit_extra": profit_extra_stage1,
+            "total_profit": total_profit_stage1,
+            "npv": npv_stage1,
+        },
+        "stage2": {
+            "new_sales": new_sales_stage2,
+            "pct_new_policy": pct_new_policy_stage2,
+            "pct_old_policy": pct_old_policy_stage2,
+            "new_avg_days": new_avg_days_stage2,
+            "old_receivables": old_receivables,
+            "new_receivables": new_receivables_stage2,
+            "capital_released": capital_released_stage2,
+            "profit_release": profit_release_stage2,
+            "discount_cost": discount_cost_stage2,
+            "profit_extra": profit_extra_stage2,
+            "total_profit": total_profit_stage2,
+            "npv": npv_stage2,
+        }
     }
 
-    def calculate_discount_npv(current_sales, extra_sales, discount_rate, accept_rate,
-                               days_discount, days_accept, days_non_accept,
-                               cost_pct, wacc, fixed_discount_pct, current_collection_period):
-        new_avg_collection = (accept_rate * days_accept +
-                              (1 - accept_rate) * days_non_accept)
-        new_receivables = (current_sales * (1 - discount_rate) * new_avg_collection) / 365
-        old_receivables = (current_sales * current_collection_period) / 365
-        capital_release = old_receivables - new_receivables
-        profit_extra_sales = extra_sales * (1 - cost_pct)
-        profit_release = capital_release * wacc
-        cost_discount = current_sales * discount_rate * accept_rate
-        npv = profit_extra_sales + profit_release - cost_discount
-        return {
-            'capital_release': capital_release,
-            'profit_extra_sales': profit_extra_sales,
-            'profit_release': profit_release,
-            'cost_discount': cost_discount,
-            'total_profit': profit_extra_sales + profit_release - cost_discount,
-            'npv': npv
-        }
 
-    def find_optimal_and_breakeven(discount_rates, current_sales, extra_sales, accept_rate,
-                                   days_discount, days_accept, days_non_accept,
-                                   cost_pct, wacc, fixed_discount_pct, current_collection_period):
-        npvs = [calculate_discount_npv(
-            current_sales, extra_sales, d, accept_rate,
-            days_discount, days_accept, days_non_accept,
-            cost_pct, wacc, fixed_discount_pct, current_collection_period
-        )['npv'] for d in discount_rates]
+def plot_results(results):
+    # Βασικά μεγέθη για σύγκριση
+    labels = ['NPV', 'Κέρδος Αποδέσμευσης', 'Κόστος Έκπτωσης', 'Κέρδος Επιπλέον Πωλήσεων']
+    stage1_vals = [
+        results['stage1']['npv'],
+        results['stage1']['profit_release'],
+        results['stage1']['discount_cost'],
+        results['stage1']['profit_extra']
+    ]
+    stage2_vals = [
+        results['stage2']['npv'],
+        results['stage2']['profit_release'],
+        results['stage2']['discount_cost'],
+        results['stage2']['profit_extra']
+    ]
 
-        max_npv = max(npvs)
-        max_index = npvs.index(max_npv)
-        optimal_discount = discount_rates[max_index]
+    x = range(len(labels))
+    width = 0.35
 
-        breakeven_discount = None
-        for i in range(1, len(npvs)):
-            if npvs[i-1] > 0 and npvs[i] < 0:
-                breakeven_discount = discount_rates[i-1] + (discount_rates[i] - discount_rates[i-1])/2
-                break
+    fig, ax = plt.subplots()
+    ax.bar(x, stage1_vals, width, label='Μόνο Έκπτωση')
+    ax.bar([p + width for p in x], stage2_vals, width, label='Έκπτωση + Επιπλέον Πωλήσεις')
 
-        return optimal_discount, breakeven_discount, npvs
+    ax.set_ylabel('€')
+    ax.set_title('Σύγκριση Μεγεθών ανά Στάδιο')
+    ax.set_xticks([p + width/2 for p in x])
+    ax.set_xticklabels(labels)
+    ax.legend()
+    plt.tight_layout()
+    st.pyplot(fig)
 
-    def format_number_gr(x):
-        try:
-            return f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        except:
-            return str(x)
 
-    def format_percentage_gr(x):
-        try:
-            return f"{x*100:,.2f} %".replace(",", "X").replace(".", ",").replace("X", ".")
-        except:
-            return str(x)
-
+def main():
     st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
-    with st.form("discount_form"):
-        col1, col2 = st.columns(2)
+    # Inputs
+    current_sales = st.number_input("Τρέχουσες πωλήσεις (€)", value=1000.0, step=50.0)
+    extra_sales = st.number_input("Επιπλέον πωλήσεις λόγω έκπτωσης (€)", value=250.0, step=10.0)
+    discount_rate = st.number_input("Έκπτωση για πληρωμή τοις μετρητοίς (%)", value=2.0, min_value=0.0, max_value=100.0) / 100
+    accept_rate = st.number_input("% πελατών που αποδέχεται την έκπτωση (%)", value=60.0, min_value=0.0, max_value=100.0) / 100
+    days_accept = st.number_input("% πελατών που αποδέχεται πληρώνει σε (μέρες)", value=60, min_value=0)
+    days_non_accept = st.number_input("% πελατών που δεν αποδέχεται πληρώνει σε (μέρες)", value=120, min_value=0)
+    current_collection_days = st.number_input("Τρέχουσα μέση περίοδος είσπραξης (μέρες)", value=84, min_value=0)
+    gross_margin = st.number_input("Μικτό περιθώριο κέρδους (σε %)", value=20.0, min_value=0.0, max_value=100.0) / 100
+    wacc = st.number_input("Κόστος κεφαλαίου (WACC σε %)", value=20.0, min_value=0.0, max_value=100.0) / 100
 
-        with col1:
-            sales_now = st.number_input("Τρέχουσες Πωλήσεις (€)", value=DEFAULTS["current_sales"], min_value=0.0, step=100.0)
-            extra_sales = st.number_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", value=DEFAULTS["extra_sales"], min_value=0.0, step=50.0)
-            discount_rate = st.slider("Ποσοστό Έκπτωσης (%)", 0.0, 30.0, 2.0, step=0.5) / 100
-            accept_rate = st.slider("% Πελατών που Αποδέχεται την Έκπτωση", 0, 100, int(DEFAULTS["cash_discount_accept_pct"]*100), step=5) / 100
-            cost_ratio = st.slider("Κόστος Πωλήσεων (% επί των Πωλήσεων)", 0, 100, int(DEFAULTS["cost_pct"]*100), step=1) / 100
-
-        with col2:
-            days_discount = st.number_input("Μέρες για Πληρωμή με Έκπτωση", value=DEFAULTS["cash_discount_days"], min_value=0, max_value=180)
-            days_accept = st.number_input("Μέρες Πληρωμής όσων Αποδέχονται την Έκπτωση", value=DEFAULTS["cash_discount_accept_days"], min_value=0, max_value=180)
-            days_non_accept = st.number_input("Μέρες Πληρωμής όσων Δεν Αποδέχονται την Έκπτωση", value=DEFAULTS["non_discount_accept_days"], min_value=0, max_value=180)
-            wacc = st.slider("Κόστος Κεφαλαίου (WACC %)", 0.0, 30.0, int(DEFAULTS["wacc"]*100), step=0.5) / 100
-            avg_collection_days = st.number_input("Τρέχουσα Μέση Περίοδος Είσπραξης (μέρες)", value=DEFAULTS["current_collection_period"], min_value=0, max_value=365)
-
-        submitted = st.form_submit_button("Υπολογισμός")
-
-    if submitted:
-        results = calculate_discount_npv(
-            sales_now, extra_sales, discount_rate, accept_rate,
-            days_discount, days_accept, days_non_accept,
-            cost_ratio, wacc, 0.0, avg_collection_days
+    if st.button("Υπολόγισε"):
+        results = cash_discount_analysis(
+            current_sales, extra_sales, discount_rate,
+            accept_rate, days_accept, days_non_accept,
+            current_collection_days, gross_margin, wacc
         )
 
-        discount_rates = np.arange(0.0, 0.31, 0.01)
-        optimal_discount, breakeven_discount, npvs = find_optimal_and_breakeven(
-            discount_rates, sales_now, extra_sales, accept_rate,
-            days_discount, days_accept, days_non_accept,
-            cost_ratio, wacc, 0.0, avg_collection_days
-        )
+        st.subheader("Αποτελέσματα Σταδίου 1 - Μόνο Έκπτωση")
+        for k, v in results["stage1"].items():
+            st.write(f"{k}: {v:.2f}" if isinstance(v, float) else f"{k}: {v}")
 
-        import plotly.graph_objects as go
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=discount_rates * 100,
-            y=npvs,
-            mode='lines+markers',
-            name='NPV',
-            line=dict(color='royalblue')
-        ))
+        st.subheader("Αποτελέσματα Σταδίου 2 - Έκπτωση + Επιπλέον Πωλήσεις")
+        for k, v in results["stage2"].items():
+            st.write(f"{k}: {v:.2f}" if isinstance(v, float) else f"{k}: {v}")
 
-        fig.add_vline(x=optimal_discount * 100, line=dict(color='green', dash='dash'),
-                      annotation_text=f"Βέλτιστη: {optimal_discount*100:.2f}%", annotation_position="top left")
+        st.subheader("Σύγκριση Μεγεθών")
+        plot_results(results)
 
-        if breakeven_discount:
-            fig.add_vline(x=breakeven_discount * 100, line=dict(color='red', dash='dash'),
-                          annotation_text=f"Break-even: {breakeven_discount*100:.2f}%", annotation_position="top right")
 
-        fig.update_layout(
-            xaxis_title='Ποσοστό Έκπτωσης (%)',
-            yaxis_title='Καθαρή Παρούσα Αξία (NPV)',
-            title='NPV vs Ποσοστό Έκπτωσης για πληρωμή τοις μετρητοίς',
-            hovermode='x unified',
-            template='simple_white'
-        )
-
-        st.subheader("Αποτελέσματα")
-        col1, col2, col3 = st.columns(3)
-
-        col1.metric("Αποδέσμευση Κεφαλαίων (€)", format_number_gr(results['capital_release']))
-        col1.metric("Κέρδος Επιπλέον Πωλήσεων (€)", format_number_gr(results['profit_extra_sales']))
-        col1.metric("Κόστος Έκπτωσης (€)", format_number_gr(results['cost_discount']))
-
-        col2.metric("Κέρδος από Αποδέσμευση (€)", format_number_gr(results['profit_release']))
-        col2.metric("Συνολικό Κέρδος (€)", format_number_gr(results['total_profit']))
-        col2.metric("NPV (€)", format_number_gr(results['npv']))
-
-        col3.metric("Οριακή Έκπτωση για NPV = 0", format_percentage_gr(breakeven_discount if breakeven_discount else 0))
-        col3.metric("Βέλτιστη Έκπτωση", format_percentage_gr(optimal_discount))
-
-        st.subheader("📈 Διάγραμμα NPV σε σχέση με την Έκπτωση")
-        st.plotly_chart(fig, use_container_width=True)
-        
-        st.markdown("""
-        - ✅ Η **πράσινη διακεκομμένη γραμμή** δείχνει τη βέλτιστη έκπτωση που μεγιστοποιεί το NPV.
-        - ❌ Η **κόκκινη διακεκομμένη γραμμή** δείχνει το break-even σημείο (όπου το NPV = 0).
-        - 📉 Πέρα από το βέλτιστο σημείο, το κόστος της έκπτωσης υπερκαλύπτει τα οφέλη.
-        """)
+if __name__ == "__main__":
+    main()
