@@ -23,8 +23,8 @@ def calculate_cash_discount(
     new_collection_days = accept_rate * days_accept + decline_rate * days_non_accept
 
     # Υπολογισμός απαιτήσεων
-    old_receivables = (current_collection_days / 360) * current_sales
-    new_receivables = (new_collection_days / 360) * new_sales
+    old_receivables = (current_collection_days / 365) * current_sales
+    new_receivables = (new_collection_days / 365) * new_sales
     capital_release = old_receivables - new_receivables
 
     # Κέρδος από νέες πωλήσεις
