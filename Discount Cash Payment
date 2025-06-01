@@ -1,61 +1,76 @@
 import streamlit as st
-from discount_logic import calculate_discount_policy
-from utils import format_number_gr, format_percentage_gr
-import locale
+import numpy as np
+import plotly.graph_objects as go
 
-locale.setlocale(locale.LC_ALL, 'el_GR.utf8')
+# --------- Σταθερές από Excel -----------
+current_sales = 1000
+extra_sales = 250
+cost_pct = 0.80
+wacc = 0.20
+cash_discount_accept_pct = 0.50
+cash_discount_days = 10
+non_discount_accept_days = 120
+cash_discount_accept_days = 60
+current_collection_period = 90
 
-st.set_page_config(page_title="Πολιτική Έκπτωσης για Πληρωμή Τοις Μετρητοίς")
-st.title("Ανάλυση Πολιτικής Έκπτωσης για Πληρωμή Τοις Μετρητοίς")
+# --------- Υπολογισμός NPV ανά ποσοστό έκπτωσης -----------
+def calculate_npv(discount_pct):
+    new_avg_collection = (cash_discount_accept_pct * cash_discount_days +
+                          (1 - cash_discount_accept_pct) * non_discount_accept_days)
+    new_receivables = (current_sales * (1 - discount_pct) * new_avg_collection) / 365
+    old_receivables = (current_sales * current_collection_period) / 365
+    capital_release = old_receivables - new_receivables
+    extra_profit = extra_sales * (1 - cost_pct)
+    release_profit = capital_release * wacc
+    discount_cost = current_sales * discount_pct * cash_discount_accept_pct
+    npv = extra_profit + release_profit - discount_cost
+    return npv
 
-st.header("📥 Εισαγωγή Δεδομένων")
+# --------- Υπολογισμοί για γραφικό -----------
+discount_rates = np.arange(0.0, 0.11, 0.01)
+npvs = [calculate_npv(d) for d in discount_rates]
 
-col1, col2 = st.columns(2)
+max_npv = max(npvs)
+max_index = npvs.index(max_npv)
+optimal_discount = discount_rates[max_index]
 
-with col1:
-    current_sales = st.number_input("Τρέχουσες Πωλήσεις (€)", value=1000.0, step=100.0, help="Οι συνολικές πωλήσεις πριν την εφαρμογή της έκπτωσης.")
-    extra_sales = st.number_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", value=250.0, step=50.0, help="Εκτιμώμενες επιπλέον πωλήσεις λόγω της παροχής έκπτωσης.")
-    discount_rate = st.number_input("Έκπτωση για Πληρωμή Τοις Μετρητοίς (%)", value=2.0, step=0.1, help="Το ποσοστό έκπτωσης που προσφέρεται για πληρωμή τοις μετρητοίς.") / 100
-    pct_accepts_discount = st.number_input("% Πελατών που Αποδέχεται την Έκπτωση", value=50.0, help="Ποσοστό πελατών που αναμένεται να αποδεχθεί την έκπτωση.") / 100
-    days_accept_discount = st.number_input("Πελάτες που Δέχονται: Ημέρες Πληρωμής", value=10.0, help="Ημέρες που απαιτούνται για πληρωμή από τους πελάτες που αποδέχονται την έκπτωση.")
-    cost_pct = st.number_input("Κόστος Πωλήσεων (%)", value=80.0, help="Το ποσοστό του κόστους επί των πωλήσεων.") / 100
+break_even_discount = None
+for i in range(1, len(npvs)):
+    if npvs[i-1] > 0 and npvs[i] < 0:
+        break_even_discount = discount_rates[i-1] + 0.01
+        break
 
-with col2:
-    pct_rejects_discount = st.number_input("% Πελατών που Δεν Αποδέχεται", value=50.0, help="Ποσοστό πελατών που δεν αποδέχεται την έκπτωση.") / 100
-    days_reject_discount = st.number_input("Πελάτες που Δεν Δέχονται: Ημέρες Πληρωμής", value=120.0, help="Ημέρες πληρωμής από τους πελάτες που δεν δέχονται την έκπτωση.")
-    cash_payment_days = st.number_input("Μέρες για Τοις Μετρητοίς Πληρωμή", value=10.0, help="Οι ημέρες εντός των οποίων ισχύει η έκπτωση για πληρωμή τοις μετρητοίς.")
-    capital_cost = st.number_input("Κόστος Κεφαλαίου (WACC %)", value=20.0, help="Το κόστος κεφαλαίου της επιχείρησης.") / 100
-    current_collection_days = st.number_input("Τρέχουσα Μέση Περίοδος Είσπραξης (ημέρες)", value=90.0, help="Η σημερινή μέση περίοδος είσπραξης από τους πελάτες.")
-    supplier_payment_days = st.number_input("Μέση Περίοδος Αποπληρωμής Προμηθευτών", value=0.0, help="Ο χρόνος αποπληρωμής των προμηθευτών.")
+# --------- Streamlit UI -----------
+st.subheader("📈 Διάγραμμα NPV σε σχέση με την Έκπτωση")
 
-if st.button("🔍 Υπολογισμός"):
-    results = calculate_discount_policy(
-        current_sales,
-        extra_sales,
-        discount_rate,
-        pct_accepts_discount,
-        days_accept_discount,
-        pct_rejects_discount,
-        days_reject_discount,
-        cash_payment_days,
-        cost_pct,
-        capital_cost,
-        current_collection_days,
-        supplier_payment_days
-    )
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=discount_rates * 100,
+    y=npvs,
+    mode='lines+markers',
+    name='NPV',
+    line=dict(color='royalblue')
+))
 
-    st.subheader("📊 Αποτελέσματα")
-    st.metric("Τρέχουσες Απαιτήσεις", format_number_gr(results['current_receivables']) + " €")
-    st.metric("Νέα Μέση Περίοδος Είσπραξης", f"{results['new_avg_collection']} ημέρες")
-    st.metric("Απαιτήσεις μετά την Έκπτωση", format_number_gr(results['receivables_after_discount']) + " €")
-    st.metric("Αποδέσμευση Κεφαλαίων (Έκπτωση)", format_number_gr(results['capital_released_discount']) + " €")
-    st.metric("Νέα Μέση Περίοδος μετά Αύξηση Πωλήσεων", f"{results['new_avg_collection_incl_sales']} ημέρες")
-    st.metric("Απαιτήσεις μετά την Αύξηση Πωλήσεων", format_number_gr(results['receivables_after_sales']) + " €")
-    st.metric("Συνολική Αποδέσμευση Κεφαλαίων", format_number_gr(results['capital_released_total']) + " €")
-    st.metric("Κέρδος από Επιπλέον Πωλήσεις", format_number_gr(results['profit_extra_sales']) + " €")
-    st.metric("Κέρδος από Αποδέσμευση Κεφαλαίου", format_number_gr(results['capital_profit']) + " €")
-    st.metric("Κόστος Έκπτωσης", format_number_gr(results['discount_cost']) + " €")
+fig.add_vline(x=optimal_discount * 100, line=dict(color='green', dash='dash'),
+              annotation_text=f"Βέλτιστη: {optimal_discount*100:.2f}%", annotation_position="top left")
 
-    st.success(f"💰 Συνολικό Κέρδος από την Πρόταση (NPV): {format_number_gr(results['total_profit'])} €")
-    st.info(f"📉 Μέγιστη Επιτρεπτή Έκπτωση (Break-even): {format_percentage_gr(results['max_discount_rate'])}")
-    st.info(f"✅ Προτεινόμενη Έκπτωση: {format_percentage_gr(results['optimal_discount_rate'])}")
+if break_even_discount:
+    fig.add_vline(x=break_even_discount * 100, line=dict(color='red', dash='dash'),
+                  annotation_text=f"Break-even: {break_even_discount*100:.2f}%", annotation_position="top right")
+
+fig.update_layout(
+    xaxis_title='Ποσοστό Έκπτωσης (%)',
+    yaxis_title='Καθαρή Παρούσα Αξία (NPV)',
+    title='NPV vs Ποσοστό Έκπτωσης για πληρωμή τοις μετρητοίς',
+    hovermode='x unified',
+    template='simple_white'
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+st.markdown("""
+- ✅ Η **πράσινη διακεκομμένη γραμμή** δείχνει τη βέλτιστη έκπτωση που μεγιστοποιεί το NPV.
+- ❌ Η **κόκκινη γραμμή** δείχνει το break-even σημείο (όπου το NPV = 0).
+- 📉 Πέρα από το βέλτιστο σημείο, το κόστος της έκπτωσης αρχίζει να υπερκαλύπτει τα οφέλη.
+""")
