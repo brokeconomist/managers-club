@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.optimize import brentq
 
-# Υπολογισμός καθαρής παρούσας αξίας (NPV) από την έκπτωση
 def npv_discount_cash(
     discount_rate,
     current_sales,
@@ -14,36 +13,29 @@ def npv_discount_cash(
     current_collection_period,
     discount_acceptance_ratio,
 ):
-    # Νέες πωλήσεις με έκπτωση
     discount_sales = discount_acceptance_ratio * additional_sales
-    # Νέες πωλήσεις χωρίς έκπτωση
     full_price_sales = (1 - discount_acceptance_ratio) * additional_sales
 
-    # Υπολογισμός ημερών αποδέσμευσης κεφαλαίου
-    new_collection_days = (discount_acceptance_ratio * days_discount_payment +
-                           (1 - discount_acceptance_ratio) * days_full_payment)
+    new_collection_days = (
+        discount_acceptance_ratio * days_discount_payment +
+        (1 - discount_acceptance_ratio) * days_full_payment
+    )
 
-    capital_released = (
+    capital_released_days = (
         (current_collection_period * current_sales + new_collection_days * additional_sales)
         / (current_sales + additional_sales)
         - supplier_payment_days
     )
 
-    # Αποδέσμευση κεφαλαίου σε €
-    capital_freed_value = capital_released * (current_sales + additional_sales) * cost_ratio / 360
+    capital_freed_value = capital_released_days * (current_sales + additional_sales) * cost_ratio / 360
 
-    # Κέρδος από τις νέες πωλήσεις
     profit_new_sales = additional_sales * (1 - cost_ratio)
-
-    # Κόστος της έκπτωσης
     discount_cost = discount_sales * discount_rate
 
-    # NPV = Κέρδος - Έκπτωση + Αποδέσμευση κεφαλαίου αποπληρωμένη στην αρχή
     npv = profit_new_sales - discount_cost + capital_freed_value / (1 + annual_cost_of_capital)
 
     return npv
 
-# Συνάρτηση για εύρεση μέγιστης έκπτωσης (NPV = 0)
 def find_break_even_discount(params):
     def objective(discount_rate):
         return npv_discount_cash(discount_rate=discount_rate, **params)
@@ -53,7 +45,7 @@ def find_break_even_discount(params):
     except ValueError:
         return None
 
-# Εισαγωγή δεδομένων
+# Δεδομένα εισόδου (τα ίδια με αυτά που έβαλες στην εικόνα)
 params = dict(
     current_sales=1000.00,
     additional_sales=250.00,
@@ -66,14 +58,19 @@ params = dict(
     discount_acceptance_ratio=0.5
 )
 
-# Υπολογισμός NPV με έκπτωση 2.14%
+# Υπολογισμός για έκπτωση 2.14%
 optimal_discount = 0.0214
 npv_optimal = npv_discount_cash(discount_rate=optimal_discount, **params)
 
-# Εύρεση μέγιστης έκπτωσης για NPV=0
+# Υπολογισμός break-even έκπτωσης (NPV = 0)
 break_even_discount = find_break_even_discount(params)
 
-# Εμφάνιση αποτελεσμάτων
+# Εκτύπωση αποτελεσμάτων με έλεγχο
 print(f"NPV για έκπτωση 2.14%: {npv_optimal:.2f} €")
-print(f"Μέγιστη έκπτωση για NPV=0 (Break-Even): {break_even_discount:.2%}")
-print(f"Βέλτιστη έκπτωση (δοσμένη): {optimal_discount:.2%}")
+
+if break_even_discount is not None:
+    print(f"Μέγιστη έκπτωση που μηδενίζει το NPV (Break-Even): {break_even_discount:.2%}")
+else:
+    print("Δεν βρέθηκε έκπτωση που μηδενίζει το NPV.")
+
+print(f"Βέλτιστη έκπτωση που πρέπει να δοθεί: {optimal_discount:.2%}")
