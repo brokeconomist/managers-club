@@ -12,23 +12,23 @@ def show_discount_cash_app():
     days_reject = st.number_input("Μέρες Πληρωμής χωρίς Έκπτωση", value=120)
     cost_of_sales_pct = st.number_input("Κόστος Πωλήσεων (% επί των Πωλήσεων)", value=80.0) / 100
     cost_of_capital_annual = st.number_input("Κόστος Κεφαλαίου (% Ετησίως)", value=20.0) / 100
-    avg_supplier_pay_days = st.number_input("Μέση Περίοδος Αποπληρωμής Προμηθευτών (ημέρες)", value=0)
+    avg_supplier_pay_days = st.number_input("Μέση Περίοδος Αποπληρωμής Προμηθευτών (ημέρες)", value=30)
     current_collection_days = st.number_input("Τρέχουσα Μέση Περίοδος Είσπραξης (ημέρες)", value=90)
 
     if st.button("Υπολογισμός"):
-    results = calculate_discount_cash_fixed_pct(
-        current_sales=current_sales,
-        extra_sales=extra_sales,
-        cash_discount_rate=cash_discount_rate,
-        pct_customers_accept=pct_customers_accept,
-        days_cash=days_cash,
-        days_reject=days_reject,
-        cost_of_sales_pct=cost_of_sales_pct,
-        cost_of_capital_annual=cost_of_capital_annual,
-        avg_supplier_pay_days=avg_supplier_pay_days,
-        current_collection_days=current_collection_days
-    )
+        results = calculate_discount_cash_fixed_pct(
+            current_sales=current_sales,
+            extra_sales=extra_sales,
+            cash_discount_rate=cash_discount_rate,
+            pct_customers_accept=pct_customers_accept,
+            days_cash=days_cash,
+            days_reject=days_reject,
+            cost_of_sales_pct=cost_of_sales_pct,
+            cost_of_capital_annual=cost_of_capital_annual,
+            avg_supplier_pay_days=avg_supplier_pay_days,
+            current_collection_days=current_collection_days
+        )
 
-    st.write(f"**NPV (€):** {results['NPV']}")
-    st.write(f"**Break-even Έκπτωση (NPV = 0):** ✅ {results['Break-even Discount %']}%")
-    st.write(f"**Βέλτιστη Έκπτωση (%):** {results['Optimal Discount %']}%")
+        st.write(f"**NPV (€):** {results['NPV']}")
+        st.write(f"**Break-even Έκπτωση (NPV = 0):** ✅ {results['Break-even Discount %']}%")
+        st.write(f"**Βέλτιστη Έκπτωση (%):** {results['Optimal Discount %']}%")
