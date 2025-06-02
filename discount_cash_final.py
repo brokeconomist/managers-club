@@ -14,9 +14,10 @@ def calculate_discount_cash_fixed_pct(
     current_collection_days
 ):
     total_sales = current_sales + extra_sales
+    r = cost_of_capital_annual / 365
 
     def discount_factor(days):
-        return 1 / pow(1 + cost_of_capital_annual / 365, days)
+        return 1 / pow(1 + r, days)
 
     weighted_pct_discounted_total = (
         (current_sales * pct_customers_accept) + extra_sales
@@ -46,44 +47,33 @@ def calculate_discount_cash_fixed_pct(
 
     npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
 
-    # Θεωρητική max και conservative
-    r = cost_of_capital_annual
-    P3 = current_sales
-    P4 = extra_sales
-    P5 = cash_discount_rate
-    P9 = days_reject
-    P10 = days_cash
-    P11 = cost_of_sales_pct
-    P12 = r
-    P13 = avg_supplier_pay_days
-    P15 = current_collection_days
-    P20 = pct_customers_accept
+    # Υπολογισμός Break-even έκπτωσης (όπου NPV=0)
+    def npv_for_discount(discount_pct):
+        pv_discount_cust = (
+            total_sales
+            * weighted_pct_discounted_total
+            * (1 - discount_pct)
+            * discount_factor(days_cash)
+        )
+        return (
+            pv_discount_cust
+            + pv_other_customers
+            - pv_cost_extra_sales
+            - pv_current_sales
+        )
 
-    denom_inner = (
-        (1 - (1 / P20))
-        + (
-            pow(1 + P12 / 365, P9 - P15)
-            + P11 * (P4 / P3) * pow(1 + P12 / 365, P9 - P13)
-        ) / (P20 * (1 + (P4 / P3)))
+    res = minimize_scalar(
+        lambda x: abs(npv_for_discount(x)),
+        bounds=(0, 0.5),  # 0% έως 50% έκπτωση λογικά
+        method='bounded'
     )
+    break_even_discount = res.x if res.success else 0
 
-    max_discount_model = 1 - pow(1 + P12 / 365, P10 - P9) * denom_inner
-    optimal_discount = (1 - pow(1 + P12 / 365, P10 - P15)) / 2
-
-    # ✅ Break-even έκπτωση (NPV ≈ 0)
-    def npv_for_discount(d):
-        wp = ((P3 * P20) + P4) / (P3 + P4)
-        pv_discount = (P3 + P4) * wp * (1 - d) * discount_factor(P10)
-        pv_others = (P3 + P4) * (1 - wp) * discount_factor(P9)
-        pv_costs = (P3 + P4 * P11) * discount_factor(P13)
-        return abs(pv_discount + pv_others - pv_costs - pv_current_sales)
-
-    result = minimize_scalar(npv_for_discount, bounds=(0.0, 0.2), method='bounded')
-    break_even_discount = result.x
+    # Βέλτιστη έκπτωση (συντηρητική προσέγγιση)
+    optimal_discount = break_even_discount / 4  # πχ 1/4 της μέγιστης
 
     return {
         "NPV": round(npv, 2),
-        "Max Discount %": round(max_discount_model * 100, 2),
-        "Optimal Discount %": round(optimal_discount * 100, 2),
-        "Break-even Discount %": round(break_even_discount * 100, 2)
+        "Break-even Discount %": round(break_even_discount * 100, 2),
+        "Optimal Discount %": round(optimal_discount * 100, 2)
     }
