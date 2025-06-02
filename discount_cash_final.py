@@ -66,8 +66,15 @@ def calculate_discount_cash_fixed_pct(
         ) / (P20 * (1 + (P4 / P3)))
     )
 
-    max_discount = 1 - pow(1 + P12 / 365, P10 - P9) * denom_inner
-    optimal_discount = (1 - pow(1 + P12 / 365, P10 - P15)) / 2
+    r = P12 / 365
+ratio_extra_sales = P4 / P3
+
+term1 = 1 - (1 / P20)
+term2 = pow(1 + r, P9 - P15)
+term3 = P11 * ratio_extra_sales * pow(1 + r, P9 - P13)
+denom = P20 * (1 + ratio_extra_sales)
+
+max_discount = 1 - pow(1 + r, P10 - P9) * (term1 + (term2 + term3) / denom)
 
     return {
         "NPV": round(npv, 2),
