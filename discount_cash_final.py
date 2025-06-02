@@ -1,76 +1,79 @@
-from math import pow
+import numpy as np
+from scipy.optimize import brentq
 
-def calculate_discount_cash_fixed_pct(
+# Υπολογισμός καθαρής παρούσας αξίας (NPV) από την έκπτωση
+def npv_discount_cash(
+    discount_rate,
     current_sales,
-    extra_sales,
-    cash_discount_rate,
-    pct_customers_accept,
-    days_cash,
-    days_reject,
-    cost_of_sales_pct,
-    cost_of_capital_annual,
-    avg_supplier_pay_days,
-    current_collection_days
+    additional_sales,
+    days_full_payment,
+    days_discount_payment,
+    cost_ratio,
+    annual_cost_of_capital,
+    supplier_payment_days,
+    current_collection_period,
+    discount_acceptance_ratio,
 ):
-    total_sales = current_sales + extra_sales
+    # Νέες πωλήσεις με έκπτωση
+    discount_sales = discount_acceptance_ratio * additional_sales
+    # Νέες πωλήσεις χωρίς έκπτωση
+    full_price_sales = (1 - discount_acceptance_ratio) * additional_sales
 
-    def discount_factor(days):
-        return 1 / pow(1 + cost_of_capital_annual / 365, days)
+    # Υπολογισμός ημερών αποδέσμευσης κεφαλαίου
+    new_collection_days = (discount_acceptance_ratio * days_discount_payment +
+                           (1 - discount_acceptance_ratio) * days_full_payment)
 
-    weighted_pct_discounted_total = (
-        (current_sales * pct_customers_accept) + extra_sales
-    ) / (current_sales + extra_sales)
-
-    pv_discount_customers = (
-        total_sales
-        * weighted_pct_discounted_total
-        * (1 - cash_discount_rate)
-        * discount_factor(days_cash)
+    capital_released = (
+        (current_collection_period * current_sales + new_collection_days * additional_sales)
+        / (current_sales + additional_sales)
+        - supplier_payment_days
     )
 
-    pv_other_customers = (
-        total_sales
-        * (1 - weighted_pct_discounted_total)
-        * discount_factor(days_reject)
-    )
+    # Αποδέσμευση κεφαλαίου σε €
+    capital_freed_value = capital_released * (current_sales + additional_sales) * cost_ratio / 360
 
-    pv_cost_extra_sales = (
-        cost_of_sales_pct
-        * (extra_sales / current_sales)
-        * current_sales
-        * discount_factor(avg_supplier_pay_days)
-    )
+    # Κέρδος από τις νέες πωλήσεις
+    profit_new_sales = additional_sales * (1 - cost_ratio)
 
-    pv_current_sales = current_sales * discount_factor(current_collection_days)
+    # Κόστος της έκπτωσης
+    discount_cost = discount_sales * discount_rate
 
-    npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
+    # NPV = Κέρδος - Έκπτωση + Αποδέσμευση κεφαλαίου αποπληρωμένη στην αρχή
+    npv = profit_new_sales - discount_cost + capital_freed_value / (1 + annual_cost_of_capital)
 
-    # Μέγιστη Έκπτωση - ΝΕΟΣ τύπος από Excel
-    r = cost_of_capital_annual
-    P3 = current_sales
-    P4 = extra_sales
-    P5 = cash_discount_rate
-    P9 = days_reject
-    P10 = days_cash
-    P11 = cost_of_sales_pct
-    P12 = r
-    P13 = avg_supplier_pay_days
-    P15 = current_collection_days
-    P20 = pct_customers_accept
+    return npv
 
-    denom_inner = (
-        (1 - (1 / P20))
-        + (
-            pow(1 + P12 / 365, P9 - P15)
-            + P11 * (P4 / P3) * pow(1 + P12 / 365, P9 - P13)
-        ) / (P20 * (1 + (P4 / P3)))
-    )
+# Συνάρτηση για εύρεση μέγιστης έκπτωσης (NPV = 0)
+def find_break_even_discount(params):
+    def objective(discount_rate):
+        return npv_discount_cash(discount_rate=discount_rate, **params)
 
-    max_discount = 1 - pow(1 + P12 / 365, P10 - P9) * denom_inner
-    optimal_discount = (1 - pow(1 + P12 / 365, P10 - P15)) / 2
+    try:
+        return brentq(objective, 0.0001, 0.5)
+    except ValueError:
+        return None
 
-    return {
-        "NPV": round(npv, 2),
-        "Max Discount %": round(max_discount * 100, 2),
-        "Optimal Discount %": round(optimal_discount * 100, 2)
-    }
+# Εισαγωγή δεδομένων
+params = dict(
+    current_sales=1000.00,
+    additional_sales=250.00,
+    days_full_payment=120,
+    days_discount_payment=10,
+    cost_ratio=0.8,
+    annual_cost_of_capital=0.20,
+    supplier_payment_days=30,
+    current_collection_period=90,
+    discount_acceptance_ratio=0.5
+)
+
+# Υπολογισμός NPV με έκπτωση 2.14%
+optimal_discount = 0.0214
+npv_optimal = npv_discount_cash(discount_rate=optimal_discount, **params)
+
+# Εύρεση μέγιστης έκπτωσης για NPV=0
+break_even_discount = find_break_even_discount(params)
+
+# Εμφάνιση αποτελεσμάτων
+print(f"NPV για έκπτωση 2.14%: {npv_optimal:.2f} €")
+print(f"Μέγιστη έκπτωση για NPV=0 (Break-Even): {break_even_discount:.2%}")
+print(f"Βέλτιστη έκπτωση (δοσμένη): {optimal_discount:.2%}")
