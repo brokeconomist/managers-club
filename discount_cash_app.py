@@ -30,7 +30,5 @@ def show_discount_cash_app():
     )
 
     st.write(f"**NPV (€):** {results['NPV']}")
-    st.write(f"**Μέγιστη Δυνητική Έκπτωση (Break-even, NPV = 0):** {results['Break-even Discount %']}%")
-    st.write(f"**Θεωρητική Μέγιστη Έκπτωση (Μοντέλο):** {results['Max Discount %']}%")
+    st.write(f"**Break-even Έκπτωση (NPV = 0):** ✅ {results['Break-even Discount %']}%")
     st.write(f"**Βέλτιστη Έκπτωση (%):** {results['Optimal Discount %']}%")
-
