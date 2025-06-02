@@ -74,3 +74,30 @@ else:
     print("Δεν βρέθηκε έκπτωση που μηδενίζει το NPV.")
 
 print(f"Βέλτιστη έκπτωση που πρέπει να δοθεί: {optimal_discount:.2%}")
+
+def calculate_discount_cash_fixed_pct(
+    discount_rate,
+    current_sales,
+    additional_sales,
+    days_full_payment,
+    days_discount_payment,
+    cost_ratio,
+    annual_cost_of_capital,
+    supplier_payment_days,
+    current_collection_period,
+    discount_acceptance_ratio
+):
+    # (Κάλεσε την npv_discount_cash εδώ)
+    return npv_discount_cash(
+        discount_rate,
+        current_sales,
+        additional_sales,
+        days_full_payment,
+        days_discount_payment,
+        cost_ratio,
+        annual_cost_of_capital,
+        supplier_payment_days,
+        current_collection_period,
+        discount_acceptance_ratio
+    )
+
