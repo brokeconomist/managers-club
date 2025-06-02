@@ -1,72 +1,56 @@
 def calculate_discount_cash_fixed_pct(
     current_sales,
     additional_sales,
-    discount_percentage,
+    discount_pct,
     acceptance_rate,
-    days_discount,
-    days_no_discount,
-    cost_percentage,
-    wacc,
-    supplier_days,
-    current_collection_days
+    discount_days,
+    no_discount_days,
+    cost_pct,
+    capital_cost_rate,
+    supplier_payment_days,
+    current_collection_days_old
 ):
-    # Μετατροπή ποσοστών σε δεκαδικούς
-    discount_pct = discount_percentage / 100
-    acceptance_pct = acceptance_rate / 100
-    cost_pct = cost_percentage / 100
-    wacc_daily = wacc / 100 / 365
+    # 1. Υπολογισμός νέας μέσης περιόδου είσπραξης μετά την πολιτική
+    new_collection_days = (
+        acceptance_rate / 100 * discount_days +
+        (1 - acceptance_rate / 100) * no_discount_days
+    )
 
-    # Μεσοσταθμική παλιά περίοδος είσπραξης
-    old_dso_weighted = acceptance_pct * days_discount + (1 - acceptance_pct) * days_no_discount
+    # 2. Υπολογισμός παλιάς μέσης περιόδου είσπραξης (μεσοσταθμικά)
+    current_collection_days = current_collection_days_old
 
-    # Cash flows
+    # 3. Καθαρές ταμειακές ροές με βάση το Excel
     total_sales = current_sales + additional_sales
-    cost_of_goods = total_sales * cost_pct
+    acceptance_ratio = acceptance_rate / 100
+    cost_ratio = cost_pct / 100
+    capital_daily = capital_cost_rate / 100 / 365
 
-    # Εισπράξεις από πελάτες με έκπτωση
-    inflow_discount = (
-        total_sales * acceptance_pct * (1 - discount_pct)
-        / (1 + wacc_daily) ** days_discount
+    npv = (
+        total_sales * acceptance_ratio * (1 - discount_pct / 100) * (1 / (1 + capital_daily) ** discount_days) +
+        total_sales * (1 - acceptance_ratio) * (1 / (1 + capital_daily) ** no_discount_days) -
+        cost_ratio * (additional_sales / current_sales) * current_sales * (1 / (1 + capital_daily) ** supplier_payment_days) -
+        current_sales * (1 / (1 + capital_daily) ** current_collection_days)
     )
 
-    # Εισπράξεις από πελάτες χωρίς έκπτωση
-    inflow_no_discount = (
-        total_sales * (1 - acceptance_pct)
-        / (1 + wacc_daily) ** days_no_discount
-    )
-
-    # Εξερχόμενες πληρωμές σε προμηθευτές
-    outflow_suppliers = cost_of_goods / (1 + wacc_daily) ** supplier_days
-
-    # NPV
-    npv = inflow_discount + inflow_no_discount - outflow_suppliers
-
-    # Μέγιστη δυνητική έκπτωση (NPV Break Even)
+    # 4. Μέγιστη έκπτωση (break-even)
     try:
-        d_max = 1 - (
-            (1 + wacc_daily) ** (days_discount - days_no_discount)
-            * (
-                (1 - (1 / acceptance_pct))
-                + (
-                    (1 + wacc_daily) ** (days_no_discount - supplier_days)
-                    + cost_pct * (1 + wacc_daily) ** (days_no_discount - supplier_days)
-                )
-                / (acceptance_pct * (1 + cost_pct))
-            )
+        max_discount = 1 - (1 + capital_daily) ** (current_collection_days - discount_days) * (
+            (1 - (1 / acceptance_ratio)) +
+            (
+                (1 + capital_daily) ** (discount_days - no_discount_days) +
+                cost_ratio * (additional_sales / current_sales) * (1 + capital_daily) ** (discount_days - supplier_payment_days)
+            ) / (acceptance_ratio * (1 + additional_sales / current_sales))
         )
-        d_max_pct = d_max * 100
-    except Exception:
-        d_max_pct = 0.0
+    except ZeroDivisionError:
+        max_discount = 0
 
-    # Βέλτιστη έκπτωση
-    try:
-        d_opt = (1 - (1 + wacc_daily) ** (days_discount - supplier_days)) / 2
-        d_opt_pct = d_opt * 100
-    except Exception:
-        d_opt_pct = 0.0
+    # 5. Βέλτιστη έκπτωση
+    optimal_discount = (1 - ((1 + capital_daily) ** (current_collection_days - discount_days))) / 2
 
     return {
-        "NPV": round(npv, 2),
-        "max_discount_pct": round(d_max_pct, 2),
-        "optimal_discount_pct": round(d_opt_pct, 2)
+        "npv": round(npv, 2),
+        "max_discount": round(max_discount * 100, 2),
+        "optimal_discount": round(optimal_discount * 100, 2),
+        "new_collection_days": round(new_collection_days, 2),
+        "old_collection_days": round(current_collection_days, 2),
     }
