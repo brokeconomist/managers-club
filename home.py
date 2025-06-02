@@ -48,7 +48,7 @@ def show_home():
     ## 📬 Επικοινώνησε μαζί μας
 
     Αν έχεις ερωτήσεις, ιδέες ή θέλεις να συνεργαστούμε, στείλε email στο:  
-    ✉️ [managersclub@gmail.com](mailto:managersclub@gmail.com)
+    ✉️ [managersclub2025@gmail.com](mailto:managersclub@gmail.com)
 
     ---
     
