@@ -46,28 +46,16 @@ def calculate_discount_cash_fixed_pct(
     npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
 
     # Μέγιστη Έκπτωση - ΝΕΟΣ τύπος από Excel
-    r = cost_of_capital_annual
-    P3 = current_sales
-    P4 = extra_sales
-    P5 = cash_discount_rate
-    P9 = days_reject
-    P10 = days_cash
-    P11 = cost_of_sales_pct
-    P12 = r
-    P13 = avg_supplier_pay_days
-    P15 = current_collection_days
-    P20 = pct_customers_accept
+    r = cost_of_capital_annual / 365
+    ratio_extra_sales = extra_sales / current_sales
 
-    denom_inner = (
-        (1 - (1 / P20))
-        + (
-            pow(1 + P12 / 365, P9 - P15)
-            + P11 * (P4 / P3) * pow(1 + P12 / 365, P9 - P13)
-        ) / (P20 * (1 + (P4 / P3)))
-    )
+    term1 = 1 - (1 / pct_customers_accept)
+    term2 = pow(1 + r, days_reject - current_collection_days)
+    term3 = cost_of_sales_pct * ratio_extra_sales * pow(1 + r, days_reject - avg_supplier_pay_days)
+    denom = pct_customers_accept * (1 + ratio_extra_sales)
 
-    max_discount = 1 - pow(1 + P12 / 365, P10 - P9) * denom_inner
-    optimal_discount = (1 - pow(1 + P12 / 365, P10 - P15)) / 2
+    max_discount = 1 - pow(1 + r, days_cash - days_reject) * (term1 + (term2 + term3) / denom)
+    optimal_discount = (1 - pow(1 + r, days_cash - current_collection_days)) / 2
 
     return {
         "NPV": round(npv, 2),
