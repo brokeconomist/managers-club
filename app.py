@@ -38,5 +38,7 @@ elif tool == "➕ Ανάλυση Συμπληρωματικών Προϊόντω
     show_complementary_analysis()
 elif tool == "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών":
     show_loss_threshold_before_price_cut()
-elif tool == "Αποδοτικότητα Έκπτωσης & Πληρωμής τοις Μετρητοίς":
-    show_discount_cash_app()  # ✅ Χρήση της νέας συνάρτησης
+elif selected_menu == "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς":
+    render_discount_cash_efficiency()
+"elif tool == "Αποδοτικότητα Έκπτωσης & Πληρωμής τοις Μετρητοίς":
+    show_discount_cash_app()  # ✅ Χρήση της νέας συνάρτησης"
