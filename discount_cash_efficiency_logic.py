@@ -1,76 +1,45 @@
-from math import pow
-from scipy.optimize import minimize_scalar
+from utils import format_number_gr
 
 def calculate_discount_cash_efficiency(
     current_sales,
     extra_sales,
-    cash_discount_rate,
-    pct_customers_accept,
-    days_cash,
-    days_reject,
-    cost_of_sales_pct,
-    cost_of_capital_annual,
-    avg_supplier_pay_days,
-    current_collection_days
+    discount_rate,
+    pct_accepts_discount,
+    pct_accepts_pays_in_days,
+    pct_declines_discount,
+    pct_declines_pays_in_days,
+    cash_days,
+    cost_pct,
+    wacc,
+    supplier_payment_days,
+    current_collection_days,
+    current_receivables,
+    new_collection_days_discount,
+    receivables_after_discount,
+    release_discount,
+    pct_follows_new_policy,
+    pct_old_policy,
+    new_collection_days_total,
+    receivables_after_increase,
+    release_total,
+    profit_extra_sales,
+    profit_release,
+    discount_cost
 ):
-    total_sales = current_sales + extra_sales
-    r = cost_of_capital_annual / 365
+    npv = profit_extra_sales + profit_release - discount_cost
 
-    def discount_factor(days):
-        return 1 / pow(1 + r, days)
-
-    weighted_pct_discounted_total = (
-        (current_sales * pct_customers_accept) + extra_sales
-    ) / total_sales
-
-    pv_discount_customers = (
-        total_sales
-        * weighted_pct_discounted_total
-        * (1 - cash_discount_rate)
-        * discount_factor(days_cash)
+    max_discount_pct = (
+        (profit_extra_sales + profit_release) / (current_sales + extra_sales)
+        if current_sales + extra_sales != 0 else 0
     )
 
-    pv_other_customers = (
-        total_sales
-        * (1 - weighted_pct_discounted_total)
-        * discount_factor(days_reject)
+    best_discount_pct = (
+        discount_cost / (current_sales + extra_sales)
+        if current_sales + extra_sales != 0 else 0
     )
-
-    pv_cost_extra_sales = (
-        cost_of_sales_pct
-        * (extra_sales / current_sales)
-        * current_sales
-        * discount_factor(avg_supplier_pay_days)
-    )
-
-    pv_current_sales = current_sales * discount_factor(current_collection_days)
-
-    npv = pv_discount_customers + pv_other_customers - pv_cost_extra_sales - pv_current_sales
-
-    def npv_for_discount(discount_pct):
-        pv_discount_cust = (
-            total_sales
-            * weighted_pct_discounted_total
-            * (1 - discount_pct)
-            * discount_factor(days_cash)
-        )
-        return (
-            pv_discount_cust
-            + pv_other_customers
-            - pv_cost_extra_sales
-            - pv_current_sales
-        )
-
-    res = minimize_scalar(
-        lambda x: abs(npv_for_discount(x)),
-        bounds=(0, 0.5),
-        method='bounded'
-    )
-    break_even_discount = res.x if res.success else 0
-    optimal_discount = break_even_discount / 4
 
     return {
-        "NPV": npv,
-        "BreakEvenDiscount": break_even_discount,
-        "OptimalDiscount": optimal_discount
+        "NPV (€)": format_number_gr(npv),
+        "Μέγιστη έκπτωση (%)": format_number_gr(max_discount_pct * 100),
+        "Βέλτιστη έκπτωση (%)": format_number_gr(best_discount_pct * 100),
     }
