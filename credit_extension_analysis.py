@@ -1,7 +1,7 @@
 import streamlit as st
-import locale
 
-locale.setlocale(locale.LC_ALL, 'el_GR.UTF-8')
+def format_number(value):
+    return f"{value:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def calculate_credit_extension_simple(unit_price, variable_cost, sales_increase_pct,
                                       current_sales, new_credit_days, cost_of_capital_pct,
@@ -50,4 +50,4 @@ def show_credit_extension_analysis():
 
         st.subheader("📈 Αποτελέσματα")
         for label, value in results.items():
-            st.metric(label, locale.format_string('%.0f', value, grouping=True))
+            st.metric(label, format_number(value))
