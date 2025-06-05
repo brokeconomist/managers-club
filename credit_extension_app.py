@@ -1,38 +1,40 @@
 import streamlit as st
-from credit_extension_analysis import calculate_credit_extension_impact
+from credit_extension_analysis import calculate_credit_extension_simple
 
-def show_credit_extension_analysis():
-    st.title("📅 Ανάλυση Αύξησης Πίστωσης")
+st.set_page_config(page_title="Ανάλυση Επέκτασης Πίστωσης", layout="centered")
 
-    with st.form("credit_extension_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            old_credit_days = st.number_input("Τρέχουσες Μέρες Πίστωσης", value=60)
-            new_credit_days = st.number_input("Νέες Μέρες Πίστωσης", value=90)
-            sales_increase_pct = st.number_input("Αύξηση Πωλήσεων (%)", value=20.0)
-            current_sales = st.number_input("Τρέχουσες Πωλήσεις (€)", value=200000.0)
-            unit_price = st.number_input("Τιμή Προϊόντος (€)", value=20.0)
-        with col2:
-            total_cost_per_unit = st.number_input("Συνολικό Κόστος ανά Μονάδα (€)", value=18.0)
-            variable_cost_per_unit = st.number_input("Μεταβλητό Κόστος ανά Μονάδα (€)", value=14.0)
-            bad_debt_rate = st.number_input("Επισφαλείς Απαιτήσεις (% επί των επιπλέον πωλήσεων)", value=2.0)
-            cost_of_capital = st.number_input("Κόστος Κεφαλαίου (%)", value=10.0)
+st.title("📊 Ανάλυση Επέκτασης Χρόνου Πίστωσης")
 
-        submitted = st.form_submit_button("Υπολογισμός")
+st.header("📌 Τρέχουσα Κατάσταση")
+current_credit_days = st.number_input("Μέρες Πίστωσης", value=60, min_value=1)
 
-    if submitted:
-        results = calculate_credit_extension_impact(
-            old_credit_days,
-            new_credit_days,
-            sales_increase_pct,
-            current_sales,
-            unit_price,
-            total_cost_per_unit,
-            variable_cost_per_unit,
-            bad_debt_rate,
-            cost_of_capital
-        )
+st.header("📈 Νέα Πρόταση")
+new_credit_days = st.number_input("Νέες Μέρες Πίστωσης", value=90, min_value=1)
+sales_increase_pct = st.number_input("Ποσοστό Αύξησης Πωλήσεων (%)", value=20.0, step=1.0) / 100
 
-        st.subheader("📊 Αποτελέσματα Ανάλυσης")
-        for label, value in results.items():
-            st.write(f"**{label}**: € {value:,.2f}")
+st.header("💼 Οικονομικά Δεδομένα")
+current_sales = st.number_input("Τρέχουσες Πωλήσεις (€)", value=20_000_000, step=100_000)
+unit_price = st.number_input("Τιμή Μονάδας (€)", value=20.0)
+total_unit_cost = st.number_input("Συνολικό Κόστος ανά Μονάδα (€)", value=18.0)
+variable_unit_cost = st.number_input("Μεταβλητό Κόστος ανά Μονάδα (€)", value=14.0)
+bad_debt_pct = st.number_input("Ποσοστό Επισφαλειών (%)", value=2.0) / 100
+capital_cost_pct = st.number_input("Κόστος Κεφαλαίου (%)", value=10.0) / 100
+
+if st.button("Υπολογισμός"):
+    results = calculate_credit_extension_simple(
+        current_credit_days,
+        new_credit_days,
+        sales_increase_pct,
+        current_sales,
+        unit_price,
+        total_unit_cost,
+        variable_unit_cost,
+        bad_debt_pct,
+        capital_cost_pct,
+    )
+
+    st.header("📊 Αποτελέσματα")
+    st.metric("Καθαρό Κέρδος (€)", f"{results['Net Profit']:,.2f}")
+    st.metric("Συνολικό Κόστος (€)", f"{results['Total Cost from Increase']:,.2f}")
+    st.metric("Εκτιμώμενο Κέρδος (€)", f"{results['Anticipated Gain']:,.2f}")
+    st.success(f"Πρόταση: {results['Suggestion']}")
