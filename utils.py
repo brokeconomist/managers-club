@@ -1,19 +1,21 @@
-# utils.py
-def format_number_gr(value):
-    # π.χ. μετατροπή σε ελληνικό format: κόμμα για δεκαδικά, τελεία για χιλιάδες
-    if value is None:
-        return ""
-    return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-
-def parse_gr_number(text):
+def format_number_gr(x):
     try:
-        # Αντικατάσταση ελληνικού format σε float
-        return float(text.replace(".", "").replace(",", "."))
-    except Exception:
-        return None
-        
-def format_percentage_gr(value):
-    try:
-        return f"{value:.2f}".replace('.', ',') + '%'
+        s = f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return s
     except:
-        return "-"
+        return str(x)
+
+def parse_gr_number(x):
+    try:
+        # Αν είναι ήδη float ή int το επιστρέφει
+        if isinstance(x, (float, int)):
+            return x
+        return float(x.replace(".", "").replace(",", "."))
+    except:
+        return 0.0
+
+def format_percentage_gr(x):
+    try:
+        return format_number_gr(x) + " %"
+    except:
+        return str(x)
