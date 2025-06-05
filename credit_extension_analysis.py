@@ -41,7 +41,7 @@ def calculate_credit_extension_impact(
             "Total Cost from Increase": total_cost,
             "Net Profit": net_profit,
             "Anticipated Gain": gross_profit - total_cost,
-            "Suggestion": "Αύξησε την Πίστωση" if net_profit > 0 else "Μην Αυξήσεις την Πίστωση"
+            "Suggestion": "Increase Credit" if net_profit > 0 else "Do Not Increase"
         }
     except Exception as e:
         return {"error": str(e)}
@@ -86,7 +86,7 @@ def show_credit_extension_analysis():
         st.metric("Συνολικό Κόστος (€)", format_number_gr(results["Total Cost from Increase"]))
         st.metric("Εκτιμώμενο Κέρδος (€)", format_number_gr(results["Anticipated Gain"]))
 
-        if results["Suggestion"] == "Αύξησε την Πίστωση":
-            st.success(f"📌 Πρόταση: ✅ {results['Suggestion']}")
+        if results["Suggestion"] == "Increase Credit":
+            st.success("📌 Πρόταση: ✅ Αύξησε την Πίστωση")
         else:
-            st.warning(f"📌 Πρόταση: ⛔️ {results['Suggestion']}")
+            st.warning("📌 Πρόταση: ⛔️ Μην Αυξήσεις την Πίστωση")
