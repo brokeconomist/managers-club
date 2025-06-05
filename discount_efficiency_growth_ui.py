@@ -12,16 +12,31 @@ with st.form("discount_form"):
         extra_sales = parse_gr_number(st.text_input("Επιπλέον πωλήσεις λόγω έκπτωσης", "250"))
         discount_rate = st.number_input("Έκπτωση (%)", 0.0, 100.0, 2.0)
         discount_acceptance = st.number_input("% πελατών που αποδέχονται την έκπτωση", 0.0, 100.0, 60.0)
-        payment_days_accept = st.number_input("Μέρες πληρωμής αν αποδεχθούν την έκπτωση", 0, 365, 60)
+        discount_days = st.number_input("Μέρες πληρωμής αν αποδεχθούν την έκπτωση", 0, 365, 60)
         cost_percent = st.number_input("Κόστος πωλήσεων (%)", 0.0, 100.0, 80.0)
 
     with col2:
         non_acceptance = st.number_input("% πελατών που δεν αποδέχονται", 0.0, 100.0, 40.0)
         non_discount_days = st.number_input("Μέρες πληρωμής αν δεν αποδεχθούν", 0, 365, 120)
-        discount_days = st.number_input("Μέρες για πληρωμή τοις μετρητοίς", 0, 365, 10)
+        cash_days = st.number_input("Μέρες για πληρωμή τοις μετρητοίς", 0, 365, 10)
         wacc = st.number_input("Κόστος κεφαλαίου (WACC %)", 0.0, 100.0, 20.0)
         suppliers_days = st.number_input("Μέση περίοδος αποπληρωμής προμηθευτών", 0, 365, 30)
         current_collection_days = st.number_input("Τρέχουσα μέση περίοδος είσπραξης", 0, 365, 84)
+
+    # Έλεγχος αθροίσματος ποσοστών πελατών
+    if discount_acceptance + non_acceptance != 100:
+        st.warning("Το άθροισμα % πελατών που αποδέχονται και δεν αποδέχονται την έκπτωση πρέπει να είναι 100%.")
+
+    # Έλεγχος λογικής στις μέρες πληρωμής πελατών
+    if discount_days >= non_discount_days:
+        st.warning("Προσοχή: Οι μέρες πληρωμής πελατών που αποδέχονται την έκπτωση είναι μεγαλύτερες ή ίσες από αυτές που δεν αποδέχονται, που μπορεί να είναι ασυνήθιστο.")
+
+    # Υπολογισμός μέσης περιόδου είσπραξης weighted
+    weighted_collection_days = (discount_acceptance * discount_days + non_acceptance * non_discount_days) / 100
+
+    # Έλεγχος λογικής μέσης περιόδου
+    if not (min(discount_days, non_discount_days) <= weighted_collection_days <= max(discount_days, non_discount_days)):
+        st.warning("Η μέση περίοδος είσπραξης φαίνεται ασυνήθιστη σε σχέση με τις μέρες πληρωμής πελατών.")
 
     submitted = st.form_submit_button("Υπολογισμός")
 
@@ -31,10 +46,10 @@ if submitted:
         extra_sales,
         discount_rate,
         discount_acceptance,
-        payment_days_accept,     # Χρήση ξεχωριστής μεταβλητής εδώ
+        discount_days,
         non_acceptance,
         non_discount_days,
-        discount_days,           # Μέρες για πληρωμή τοις μετρητοίς (ξεχωριστό)
+        cash_days,
         cost_percent,
         wacc,
         suppliers_days,
