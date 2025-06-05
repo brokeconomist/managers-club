@@ -6,7 +6,6 @@ from clv_calculator import show_clv_calculator
 from substitution_analysis import show_substitution_analysis
 from complementary_analysis import show_complementary_analysis
 from loss_threshold import show_loss_threshold_before_price_cut
-from discount_cash_analysis import show_discount_cash_analysis
 from credit_extension_analysis import show_credit_extension_analysis  # ΝΕΟ
 
 # Ρυθμίσεις σελίδας
@@ -21,7 +20,6 @@ tools = {
     "🔄 Ανάλυση Υποκατάστασης Προϊόντων": show_substitution_analysis,
     "➕ Ανάλυση Συμπληρωματικών Προϊόντων": show_complementary_analysis,
     "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": show_loss_threshold_before_price_cut,
-    "🧾 Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς": show_discount_cash_analysis,
     "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis  # ΝΕΟ
 }
 
