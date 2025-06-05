@@ -36,7 +36,7 @@ def calculate_credit_extension_simple(
         "Net Profit": round(net_profit, 2),
         "Total Cost from Increase": round(total_cost, 2),
         "Anticipated Gain": round(anticipated_gain, 2),
-        "Suggestion": "Increase Credit" if anticipated_gain > 0 else "Do Not Increase Credit"
+        "Suggestion": "Αύξηση Ημερών Πίστωσης" if anticipated_gain > 0 else "Διατήρηση Ημερών Πίστωσης"
     }
 
 # ✅ Αυτή η συνάρτηση καλείται από το κεντρικό dashboard
