@@ -1,6 +1,6 @@
 import streamlit as st
-from credit_extension_analysis import calculate_credit_extension_simple
-
+from credit_extension_analysis import show_credit_extension_analysis
+show_credit_extension_analysis()
 st.set_page_config(page_title="Ανάλυση Επέκτασης Πίστωσης", layout="centered")
 
 st.title("📊 Ανάλυση Επέκτασης Χρόνου Πίστωσης")
