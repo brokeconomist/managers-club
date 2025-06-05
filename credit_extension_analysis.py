@@ -1,4 +1,18 @@
 import streamlit as st
+import locale
+
+# Ορισμός ελληνικής μορφοποίησης (αν υποστηρίζεται στο περιβάλλον)
+try:
+    locale.setlocale(locale.LC_ALL, 'el_GR.UTF-8')
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, '')  # fallback για να μην κρασάρει
+
+def format_currency(value):
+    try:
+        return locale.currency(value, symbol=False, grouping=True).replace('.', '#').replace(',', '.').replace('#', ',') + ' €'
+    except:
+        # Fallback αν locale δεν υποστηρίζεται
+        return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") + " €"
 
 def calculate_credit_extension_simple(
     current_credit_days: int,
@@ -38,10 +52,10 @@ def calculate_credit_extension_simple(
     anticipated_gain = net_profit - total_cost
 
     return {
-        "Net Profit": round(net_profit, 2),
-        "Total Cost from Increase": round(total_cost, 2),
-        "Anticipated Gain": round(anticipated_gain, 2),
-        "Suggestion": "Increase Credit" if anticipated_gain > 0 else "Do Not Increase Credit"
+        "Net Profit": net_profit,
+        "Total Cost from Increase": total_cost,
+        "Anticipated Gain": anticipated_gain,
+        "Suggestion": "Αύξησε την Πίστωση" if anticipated_gain > 0 else "Μην Αλλάξεις την Πίστωση"
     }
 
 def show_credit_extension_analysis():
@@ -76,7 +90,7 @@ def show_credit_extension_analysis():
         )
 
         st.header("📊 Αποτελέσματα")
-        st.metric("Καθαρό Κέρδος (€)", f"{results['Net Profit']:,.2f}")
-        st.metric("Συνολικό Κόστος (€)", f"{results['Total Cost from Increase']:,.2f}")
-        st.metric("Εκτιμώμενο Κέρδος (€)", f"{results['Anticipated Gain']:,.2f}")
+        st.metric("Καθαρό Κέρδος", format_currency(results['Net Profit']))
+        st.metric("Συνολικό Κόστος", format_currency(results['Total Cost from Increase']))
+        st.metric("Εκτιμώμενο Κέρδος", format_currency(results['Anticipated Gain']))
         st.success(f"Πρόταση: {results['Suggestion']}")
