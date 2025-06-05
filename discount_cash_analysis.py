@@ -14,7 +14,6 @@ def show_discount_cash_analysis():
     wacc = st.number_input("Κόστος Κεφαλαίου (% Ετησίως)", value=20.0) / 100
     old_dso = st.number_input("Παλιά Μέση Περίοδος Είσπραξης (μέρες)", value=84.0)
 
-    # Ενδιάμεσοι Υπολογισμοί
     new_clients_pct = acceptance_rate
     old_clients_pct = 1 - acceptance_rate
     new_dso = payment_days_discount * new_clients_pct + old_dso * old_clients_pct
@@ -23,7 +22,6 @@ def show_discount_cash_analysis():
     gross_profit_extra = extra_sales * (1 - cogs_pct)
     discount_cost = total_sales * discount_pct * acceptance_rate
 
-    # Υπολογισμός NPV
     npv = (
         total_sales * acceptance_rate / ((1 + wacc / 365) ** payment_days_discount)
         + total_sales * (1 - acceptance_rate) / ((1 + wacc / 365) ** old_dso)
@@ -43,7 +41,6 @@ def show_discount_cash_analysis():
         max_discount = 0
         optimal_discount = 0
 
-    # Εμφάνιση Αποτελεσμάτων
     st.subheader("2. Αποτελέσματα")
     st.metric("Νέα Σταθμισμένη Μέση Περίοδος Είσπραξης (μέρες)", round(new_dso, 2))
     st.metric("NPV (€)", round(npv, 2))
