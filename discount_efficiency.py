@@ -1,4 +1,4 @@
-def calculate_discount_efficiency(
+def discount_efficiency_ui(
     current_sales, extra_sales, discount_rate, pct_accepting, days_accepting,
     pct_rejecting, days_rejecting, cash_days, cost_pct, wacc, supplier_days,
     current_collection_days=None
