@@ -1,70 +1,61 @@
-
 import streamlit as st
 from utils import parse_gr_number, format_number_gr, format_percentage_gr
-from discount_efficiency_growth_chart import calculate_discount_efficiency
+
+def calculate_discount_efficiency(current_sales, projected_sales, price_per_unit, unit_cost, receivables_before, receivables_after, wacc):
+    cash_flow_before = (current_sales * (price_per_unit - unit_cost)) - receivables_before
+    cash_flow_after = (projected_sales * (price_per_unit - unit_cost)) - receivables_after
+    capital_release = receivables_before - receivables_after
+    capital_productivity = (cash_flow_after - cash_flow_before) / capital_release if capital_release != 0 else 0
+    decision = "Συμφέρει" if capital_productivity > wacc else "Δεν συμφέρει"
+
+    return {
+        "Απελευθέρωση Κεφαλαίου": capital_release,
+        "Απόδοση Κεφαλαίου": capital_productivity,
+        "Απόφαση": decision
+    }
 
 def discount_efficiency_ui():
-    st.subheader("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
+    st.header("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς λόγω Ανάπτυξης")
 
     default_values = {
-        "current_sales": "120.000",
-        "extra_sales": "15.000",
-        "discount_rate": "3,5",
-        "discount_acceptance": "70",
-        "discount_days": "10",
-        "non_discount_days": "40",
-        "cash_days": "5",
-        "cost_percent": "60",
-        "wacc": "12",
-        "suppliers_days": "30",
-        "current_collection_days": "50"
+        "current_sales": "100.000",
+        "projected_sales": "120.000",
+        "price_per_unit": "15,00",
+        "unit_cost": "9,00",
+        "receivables_before": "30.000",
+        "receivables_after": "24.000",
+        "wacc": "8,00"
     }
 
     col1, col2 = st.columns(2)
 
     with col1:
-        current_sales_input = st.text_input("Τρέχουσες Πωλήσεις (€)", default_values["current_sales"])
-        extra_sales_input = st.text_input("Επιπλέον Πωλήσεις (€)", default_values["extra_sales"])
-        discount_rate_input = st.text_input("Ποσοστό Έκπτωσης (%)", default_values["discount_rate"])
-        discount_acceptance_input = st.text_input("Ποσοστό Αποδοχής (%)", default_values["discount_acceptance"])
-        discount_days_input = st.text_input("Ημέρες με Έκπτωση", default_values["discount_days"])
-        non_discount_days_input = st.text_input("Ημέρες χωρίς Έκπτωση", default_values["non_discount_days"])
+        current_sales = st.text_input("Τρέχουσες Πωλήσεις (€)", value=default_values["current_sales"])
+        projected_sales = st.text_input("Αναμενόμενες Πωλήσεις (€)", value=default_values["projected_sales"])
+        price_per_unit = st.text_input("Τιμή Μονάδας (€)", value=default_values["price_per_unit"])
+        unit_cost = st.text_input("Μοναδιαίο Κόστος (€)", value=default_values["unit_cost"])
 
     with col2:
-        cash_days_input = st.text_input("Ημέρες Πληρωμής Τοις Μετρητοίς", default_values["cash_days"])
-        cost_percent_input = st.text_input("Μέσο Κόστος (%)", default_values["cost_percent"])
-        wacc_input = st.text_input("WACC (%)", default_values["wacc"])
-        suppliers_days_input = st.text_input("Ημέρες Πληρωμής Προμηθευτών", default_values["suppliers_days"])
-        current_collection_days_input = st.text_input("Τρέχουσα Περίοδος Είσπραξης", default_values["current_collection_days"])
-
-    current_sales = parse_gr_number(current_sales_input)
-    extra_sales = parse_gr_number(extra_sales_input)
-    discount_rate = parse_gr_number(discount_rate_input)
-    discount_acceptance = parse_gr_number(discount_acceptance_input)
-    discount_days = parse_gr_number(discount_days_input)
-    non_discount_days = parse_gr_number(non_discount_days_input)
-
-    cash_days = parse_gr_number(cash_days_input)
-    cost_percent = parse_gr_number(cost_percent_input)
-    wacc = parse_gr_number(wacc_input)
-    suppliers_days = parse_gr_number(suppliers_days_input)
-    current_collection_days = parse_gr_number(current_collection_days_input)
+        receivables_before = st.text_input("Απαιτήσεις Πριν (€)", value=default_values["receivables_before"])
+        receivables_after = st.text_input("Απαιτήσεις Μετά (€)", value=default_values["receivables_after"])
+        wacc = st.text_input("Κόστος Κεφαλαίου WACC (%)", value=default_values["wacc"])
 
     if st.button("Υπολογισμός"):
-        result = calculate_discount_efficiency(
-            current_sales,
-            extra_sales,
-            discount_rate,
-            discount_acceptance,
-            discount_days,
-            non_discount_days,
-            cash_days,
-            cost_percent,
-            wacc,
-            suppliers_days,
-            current_collection_days
-        )
+        try:
+            results = calculate_discount_efficiency(
+                parse_gr_number(current_sales),
+                parse_gr_number(projected_sales),
+                parse_gr_number(price_per_unit),
+                parse_gr_number(unit_cost),
+                parse_gr_number(receivables_before),
+                parse_gr_number(receivables_after),
+                parse_gr_number(wacc) / 100
+            )
 
-        st.success(f"Αξία Προσαύξησης: {format_number_gr(result['value_of_growth'])} €")
-        st.info(f"Καθαρό Όφελος: {format_number_gr(result['net_benefit'])} €")
-        st.metric("Απόδοση (%)", format_percentage_gr(result["efficiency_percent"]))
+            st.subheader("Αποτελέσματα")
+            st.write(f"**Απελευθέρωση Κεφαλαίου:** {format_number_gr(results['Απελευθέρωση Κεφαλαίου'])} €")
+            st.write(f"**Απόδοση Κεφαλαίου:** {format_percentage_gr(results['Απόδοση Κεφαλαίου'])}")
+            st.write(f"**Απόφαση:** {results['Απόφαση']}")
+
+        except Exception as e:
+            st.error(f"Παρουσιάστηκε σφάλμα: {e}")
