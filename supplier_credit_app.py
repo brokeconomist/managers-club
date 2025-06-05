@@ -1,42 +1,56 @@
 import streamlit as st
 
-def format_currency(value):
-    return f"{value:,.0f} €".replace(",", ".").replace(".", ",", 1)
+def calculate_supplier_credit_gain(SupplierCreditDays, Discount, Clients, CurrentSales, UnitPrice, TotalUnitCost, InterestRateOnDebt):
+    # Μετατροπή ποσοστών σε δεκαδικούς
+    Discount = Discount / 100
+    Clients = Clients / 100
+    InterestRateOnDebt = InterestRateOnDebt / 100
+
+    # Κέρδος από την έκπτωση επί των πωλήσεων σε πελάτες που πληρώνουν άμεσα
+    discount_gain = CurrentSales * Discount * Clients
+
+    # Κόστος ευκαιρίας από απώλεια πίστωσης
+    average_cost = TotalUnitCost / UnitPrice
+    credit_benefit = ((CurrentSales / (360 / SupplierCreditDays)) * average_cost
+                     - ((CurrentSales * (1 - Clients)) / (360 / SupplierCreditDays)) * average_cost) * InterestRateOnDebt
+
+    net_gain = discount_gain - credit_benefit
+    return discount_gain, credit_benefit, net_gain
+
+def format_currency(amount):
+    return f"{amount:,.0f} €".replace(",", ".")
 
 def show_supplier_credit_analysis():
-    st.title("💰 Ανάλυση Έκπτωσης Προμηθευτή (Προπληρωμή)")
+    st.title("🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)")
+    st.markdown("Αξιολόγηση απόδοσης από την **πληρωμή μετρητοίς με έκπτωση** σε σχέση με πίστωση από τον προμηθευτή.")
 
     with st.form("supplier_credit_form"):
-        st.subheader("📋 Εισαγωγή Δεδομένων")
+        col1, col2 = st.columns(2)
+        with col1:
+            SupplierCreditDays = st.number_input("📆 Ημέρες Πίστωσης από Προμηθευτή", min_value=0, value=60)
+            Discount = st.number_input("💸 Ποσοστό Έκπτωσης για Πληρωμή Μετρητοίς (%)", min_value=0.0, value=2.0)
+            Clients = st.number_input("👥 Ποσοστό Πελατών που Πληρώνουν Μετρητοίς (%)", min_value=0.0, max_value=100.0, value=50.0)
 
-        supplier_credit_days = st.number_input("Ημέρες Πίστωσης από Προμηθευτή", min_value=0, value=60)
-        discount = st.number_input("Έκπτωση για Προπληρωμή (%)", min_value=0.0, max_value=100.0, value=3.0) / 100
-        clients_accept_discount = st.number_input("Ποσοστό Προμηθευτών που Δέχονται (%)", min_value=0.0, max_value=100.0, value=80.0) / 100
+        with col2:
+            CurrentSales = st.number_input("💰 Τρέχουσες Πωλήσεις (€)", min_value=0, value=2_000_000)
+            UnitPrice = st.number_input("📦 Τιμή Μονάδας (€)", min_value=0.01, value=20.0)
+            TotalUnitCost = st.number_input("🧾 Συνολικό Κόστος Μονάδας (€)", min_value=0.01, value=18.0)
+            InterestRateOnDebt = st.number_input("🏦 Κόστος Κεφαλαίου (%)", min_value=0.0, value=10.0)
 
-        current_sales = st.number_input("Ετήσιες Αγορές (€)", min_value=0.0, value=5_000_000.0)
-        unit_price = st.number_input("Τιμή Μονάδας (€)", min_value=0.01, value=10.0)
-        total_unit_cost = st.number_input("Συνολικό Κόστος Μονάδας (€)", min_value=0.01, value=8.0)
-
-        interest_rate = st.number_input("Κόστος Κεφαλαίου (% ετησίως)", min_value=0.0, max_value=100.0, value=10.0) / 100
-
-        submitted = st.form_submit_button("Υπολογισμός")
+        submitted = st.form_submit_button("🔍 Υπολογισμός")
 
     if submitted:
-        base_discount_gain = current_sales * discount * clients_accept_discount
-
-        financing_savings = (
-            (current_sales / (360 / supplier_credit_days)) * (total_unit_cost / unit_price)
-            - ((current_sales * (1 - clients_accept_discount)) / (360 / supplier_credit_days)) * (total_unit_cost / unit_price)
-        ) * interest_rate
-
-        total_gain = base_discount_gain - financing_savings
+        discount_gain, credit_cost, net_gain = calculate_supplier_credit_gain(
+            SupplierCreditDays, Discount, Clients,
+            CurrentSales, UnitPrice, TotalUnitCost, InterestRateOnDebt
+        )
 
         st.subheader("📊 Αποτελέσματα")
-        st.metric("Κέρδος από Έκπτωση Προπληρωμής", format_currency(base_discount_gain))
-        st.metric("Εξοικονόμηση από Χρηματοοικονομικό Κόστος", format_currency(financing_savings))
-        st.metric("Καθαρό Όφελος από Πολιτική", format_currency(total_gain))
+        st.metric("✅ Κέρδος από Έκπτωση", format_currency(discount_gain))
+        st.metric("💸 Κόστος Απώλειας Πίστωσης", format_currency(credit_cost))
+        st.metric("🏁 Καθαρό Όφελος", format_currency(net_gain), delta_color="normal" if net_gain >= 0 else "inverse")
 
-        if total_gain > 0:
-            st.success("✅ Συμφέρει η προπληρωμή στους προμηθευτές με έκπτωση.")
+        if net_gain > 0:
+            st.success("👉 Συμφέρει να πληρώνετε με μετρητά με την προτεινόμενη έκπτωση.")
         else:
-            st.error("❌ Δεν συμφέρει η πολιτική προπληρωμής με βάση τα δεδομένα.")
+            st.error("⚠️ Δεν συμφέρει η πληρωμή με μετρητά με την έκπτωση αυτή.")
