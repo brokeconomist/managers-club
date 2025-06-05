@@ -1,9 +1,52 @@
 import streamlit as st
-from cash_discount_efficiency_chart import calculate_discount_cash_efficiency
 from utils import parse_gr_number, format_number_gr
 
+def calculate_discount_cash_efficiency(
+    current_sales,
+    extra_sales,
+    discount_rate,
+    pct_accepts_discount,
+    pct_accepts_pays_in_days,
+    pct_declines_discount,
+    pct_declines_pays_in_days,
+    cash_days,
+    cost_pct,
+    wacc,
+    supplier_payment_days,
+    current_collection_days,
+    current_receivables,
+    new_collection_days_discount,
+    receivables_after_discount,
+    release_discount,
+    pct_follows_new_policy,
+    pct_old_policy,
+    new_collection_days_total,
+    receivables_after_increase,
+    release_total,
+    profit_extra_sales,
+    profit_release,
+    discount_cost
+):
+    npv = profit_extra_sales + profit_release - discount_cost
+
+    max_discount_pct = (
+        (profit_extra_sales + profit_release) / (current_sales + extra_sales)
+        if current_sales + extra_sales != 0 else 0
+    )
+
+    best_discount_pct = (
+        discount_cost / (current_sales + extra_sales)
+        if current_sales + extra_sales != 0 else 0
+    )
+
+    return {
+        "NPV (€)": format_number_gr(npv),
+        "Μέγιστη έκπτωση (%)": format_number_gr(max_discount_pct * 100),
+        "Βέλτιστη έκπτωση (%)": format_number_gr(best_discount_pct * 100),
+    }
+
 def cash_discount_efficiency():
-    st.header("💶 Αποδοτικότητα Έκπτωσης & Πληρωμής τοις Μετρητοίς")
+    st.header("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
     with st.form("cash_discount_form"):
         col1, col2 = st.columns(2)
@@ -66,16 +109,6 @@ def cash_discount_efficiency():
             discount_cost
         )
 
-        # Προσθέτουμε αναλυτικά τα αποτελέσματα
-        st.success("📊 Αποτελέσματα:")
-
-        st.write(f"**Κόστος Έκπτωσης:** {format_number_gr(discount_cost)} €")
-        st.write(f"**Κέρδος από Επιπλέον Πωλήσεις:** {format_number_gr(profit_extra_sales)} €")
-        st.write(f"**Κέρδος από Αποδέσμευση Κεφαλαίων:** {format_number_gr(profit_release)} €")
-
-        total_benefit = profit_extra_sales + profit_release - discount_cost
-        label = "Συνολικό Όφελος"
-        if total_benefit >= 0:
-            st.success(f"**{label}: {format_number_gr(total_benefit)} €** ✅")
-        else:
-            st.error(f"**{label}: {format_number_gr(total_benefit)} €** ❌")
+        st.success("Αποτελέσματα:")
+        for label, value in results.items():
+            st.write(f"**{label}**: {value}")
