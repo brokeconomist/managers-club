@@ -50,3 +50,4 @@ if submitted:
         st.write("**Μέγιστη έκπτωση**: Δεν μπορεί να υπολογιστεί (πιθανό μηδενισμός).")
 
     st.write(f"**Βέλτιστη έκπτωση (προσέγγιση)**: {format_percentage_gr(results['optimal_discount'])}")
+    
