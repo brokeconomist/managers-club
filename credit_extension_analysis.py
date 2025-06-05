@@ -1,3 +1,5 @@
+from utils import format_number_gr
+
 def calculate_credit_extension_simple(
     current_credit_days: int,
     new_credit_days: int,
@@ -36,8 +38,13 @@ def calculate_credit_extension_simple(
     anticipated_gain = net_profit - total_cost
 
     return {
-        "Net Profit": round(net_profit, 2),
-        "Total Cost from Increase": round(total_cost, 2),
-        "Anticipated Gain": round(anticipated_gain, 2),
-        "Suggestion": "Increase Credit" if anticipated_gain > 0 else "Do Not Increase Credit"
+        "Net Profit": net_profit,
+        "Total Cost from Increase": total_cost,
+        "Anticipated Gain": anticipated_gain,
+        "Formatted": {
+            "Net Profit": format_number_gr(net_profit),
+            "Total Cost from Increase": format_number_gr(total_cost),
+            "Anticipated Gain": format_number_gr(anticipated_gain)
+        },
+        "Suggestion": "✅ Αύξησε την Πίστωση" if anticipated_gain > 0 else "⛔ Μην Αυξήσεις την Πίστωση"
     }
