@@ -12,12 +12,13 @@ with st.form("discount_form"):
         extra_sales = parse_gr_number(st.text_input("Επιπλέον πωλήσεις λόγω έκπτωσης", "250"))
         discount_rate = st.number_input("Έκπτωση (%)", 0.0, 100.0, 2.0)
         discount_acceptance = st.number_input("% πελατών που αποδέχονται την έκπτωση", 0.0, 100.0, 60.0)
-        discount_days = st.number_input("Μέρες για πληρωμή τοις μετρητοίς", 0, 365, 10)
+        payment_days_accept = st.number_input("Μέρες πληρωμής αν αποδεχθούν την έκπτωση", 0, 365, 60)
         cost_percent = st.number_input("Κόστος πωλήσεων (%)", 0.0, 100.0, 80.0)
 
     with col2:
         non_acceptance = st.number_input("% πελατών που δεν αποδέχονται", 0.0, 100.0, 40.0)
         non_discount_days = st.number_input("Μέρες πληρωμής αν δεν αποδεχθούν", 0, 365, 120)
+        discount_days = st.number_input("Μέρες για πληρωμή τοις μετρητοίς", 0, 365, 10)
         wacc = st.number_input("Κόστος κεφαλαίου (WACC %)", 0.0, 100.0, 20.0)
         suppliers_days = st.number_input("Μέση περίοδος αποπληρωμής προμηθευτών", 0, 365, 30)
         current_collection_days = st.number_input("Τρέχουσα μέση περίοδος είσπραξης", 0, 365, 84)
@@ -30,10 +31,10 @@ if submitted:
         extra_sales,
         discount_rate,
         discount_acceptance,
-        discount_days,
+        payment_days_accept,     # Χρήση ξεχωριστής μεταβλητής εδώ
         non_acceptance,
         non_discount_days,
-        discount_days,
+        discount_days,           # Μέρες για πληρωμή τοις μετρητοίς (ξεχωριστό)
         cost_percent,
         wacc,
         suppliers_days,
@@ -50,4 +51,3 @@ if submitted:
         st.write("**Μέγιστη έκπτωση**: Δεν μπορεί να υπολογιστεί (πιθανό μηδενισμός).")
 
     st.write(f"**Βέλτιστη έκπτωση (προσέγγιση)**: {format_percentage_gr(results['optimal_discount'])}")
-    
