@@ -1,114 +1,61 @@
 import streamlit as st
-from utils import parse_gr_number, format_number_gr
-
-def calculate_discount_cash_efficiency(
-    current_sales,
-    extra_sales,
-    discount_rate,
-    pct_accepts_discount,
-    pct_accepts_pays_in_days,
-    pct_declines_discount,
-    pct_declines_pays_in_days,
-    cash_days,
-    cost_pct,
-    wacc,
-    supplier_payment_days,
-    current_collection_days,
-    current_receivables,
-    new_collection_days_discount,
-    receivables_after_discount,
-    release_discount,
-    pct_follows_new_policy,
-    pct_old_policy,
-    new_collection_days_total,
-    receivables_after_increase,
-    release_total,
-    profit_extra_sales,
-    profit_release,
-    discount_cost
-):
-    npv = profit_extra_sales + profit_release - discount_cost
-
-    max_discount_pct = (
-        (profit_extra_sales + profit_release) / (current_sales + extra_sales)
-        if current_sales + extra_sales != 0 else 0
-    )
-
-    best_discount_pct = (
-        discount_cost / (current_sales + extra_sales)
-        if current_sales + extra_sales != 0 else 0
-    )
-
-    return {
-        "NPV (€)": format_number_gr(npv),
-        "Μέγιστη έκπτωση (%)": format_number_gr(max_discount_pct * 100),
-        "Βέλτιστη έκπτωση (%)": format_number_gr(best_discount_pct * 100),
-    }
+from utils import format_number_gr, parse_gr_number, format_percentage_gr
+import math
 
 def cash_discount_efficiency():
-    st.header("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
+    st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
-    with st.form("cash_discount_form"):
-        col1, col2 = st.columns(2)
+    st.markdown("""
+    #### Εισροές
+    Συμπλήρωσε τα βασικά στοιχεία για να αξιολογήσεις την απόδοση μιας προτεινόμενης έκπτωσης για πληρωμή τοις μετρητοίς.
+    """)
 
-        with col1:
-            current_sales = parse_gr_number(st.text_input("Τρέχουσες πωλήσεις", "1.000"))
-            extra_sales = parse_gr_number(st.text_input("Επιπλέον πωλήσεις λόγω έκπτωσης", "250"))
-            discount_rate = parse_gr_number(st.text_input("Έκπτωση (%)", "2")) / 100
-            pct_accepts_discount = parse_gr_number(st.text_input("% πελατών που αποδέχονται την έκπτωση", "60")) / 100
-            pct_accepts_pays_in_days = parse_gr_number(st.text_input("Πληρωμή σε (μέρες) αν αποδεχθούν", "60"))
-            pct_declines_discount = parse_gr_number(st.text_input("% πελατών που δεν αποδέχονται", "40")) / 100
-            pct_declines_pays_in_days = parse_gr_number(st.text_input("Πληρωμή σε (μέρες) αν δεν αποδεχθούν", "120"))
-            cash_days = parse_gr_number(st.text_input("Μέρες για πληρωμή τοις μετρητοίς", "10"))
-            cost_pct = parse_gr_number(st.text_input("Κόστος πωλήσεων (%)", "80")) / 100
-            wacc = parse_gr_number(st.text_input("Κόστος κεφαλαίου (%)", "20")) / 100
-            supplier_payment_days = parse_gr_number(st.text_input("Μέση περίοδος αποπληρωμής προμηθευτών", "30"))
+    col1, col2 = st.columns(2)
 
-        with col2:
-            current_collection_days = parse_gr_number(st.text_input("Τρέχουσα μέση περίοδος είσπραξης", "84"))
-            current_receivables = parse_gr_number(st.text_input("Τρέχουσες απαιτήσεις", "230,14"))
-            new_collection_days_discount = parse_gr_number(st.text_input("Νέα μέση περίοδος είσπραξης (με έκπτωση)", "54"))
-            receivables_after_discount = parse_gr_number(st.text_input("Νέες απαιτήσεις (με έκπτωση)", "147,90"))
-            release_discount = parse_gr_number(st.text_input("Αποδέσμευση κεφαλαίων (με έκπτωση)", "82,20"))
-            pct_follows_new_policy = parse_gr_number(st.text_input("% πελατών με νέα πολιτική", "68")) / 100
-            pct_old_policy = parse_gr_number(st.text_input("% πελατών με παλαιά πολιτική", "32")) / 100
-            new_collection_days_total = parse_gr_number(st.text_input("Νέα μέση περίοδος είσπραξης (σύνολο)", "45"))
-            receivables_after_increase = parse_gr_number(st.text_input("Απαιτήσεις μετά την αύξηση πωλήσεων", "155"))
-            release_total = parse_gr_number(st.text_input("Αποδέσμευση κεφαλαίων (τελική)", "75,34"))
-            profit_extra_sales = parse_gr_number(st.text_input("Κέρδος από επιπλέον πωλήσεις", "50"))
-            profit_release = parse_gr_number(st.text_input("Κέρδος από αποδέσμευση κεφαλαίων", "15,07"))
-            discount_cost = parse_gr_number(st.text_input("Κόστος έκπτωσης", "17"))
+    with col1:
+        sales = parse_gr_number(st.text_input("Ετήσιες Πωλήσεις (€)", "500.000"))
+        current_collection_days = parse_gr_number(st.text_input("Τρέχουσες Ημέρες Είσπραξης", "60"))
+        new_collection_days = parse_gr_number(st.text_input("Νέες Ημέρες Είσπραξης (με Έκπτωση)", "15"))
+        discount_rate = parse_gr_number(st.text_input("Ποσοστό Έκπτωσης (%)", "2")) / 100
 
-        submitted = st.form_submit_button("Υπολογισμός")
+    with col2:
+        gross_margin = parse_gr_number(st.text_input("Μικτό Περιθώριο (%)", "30")) / 100
+        expected_sales_increase = parse_gr_number(st.text_input("Προσδοκώμενη Αύξηση Πωλήσεων (%)", "5")) / 100
+        wacc = parse_gr_number(st.text_input("WACC / Επιτόκιο Αναφοράς (%)", "12")) / 100
+        years = parse_gr_number(st.text_input("Ορίζοντας Χρόνου Ανάλυσης (έτη)", "1"))
 
-    if submitted:
-        results = calculate_discount_cash_efficiency(
-            current_sales,
-            extra_sales,
-            discount_rate,
-            pct_accepts_discount,
-            pct_accepts_pays_in_days,
-            pct_declines_discount,
-            pct_declines_pays_in_days,
-            cash_days,
-            cost_pct,
-            wacc,
-            supplier_payment_days,
-            current_collection_days,
-            current_receivables,
-            new_collection_days_discount,
-            receivables_after_discount,
-            release_discount,
-            pct_follows_new_policy,
-            pct_old_policy,
-            new_collection_days_total,
-            receivables_after_increase,
-            release_total,
-            profit_extra_sales,
-            profit_release,
-            discount_cost
-        )
+    # Υπολογισμοί
+    avg_daily_sales = sales / 365
+    current_receivables = avg_daily_sales * current_collection_days
+    new_sales = sales * (1 + expected_sales_increase)
+    new_avg_daily_sales = new_sales / 365
+    new_receivables = new_avg_daily_sales * new_collection_days
+    capital_released = current_receivables - new_receivables
 
-        st.success("Αποτελέσματα:")
-        for label, value in results.items():
-            st.write(f"**{label}**: {value}")
+    sales_diff = new_sales - sales
+    gross_profit_from_extra_sales = sales_diff * gross_margin
+    discount_cost = new_sales * discount_rate
+    net_annual_benefit = gross_profit_from_extra_sales - discount_cost
+
+    if wacc > 0:
+        npv = net_annual_benefit * (1 - (1 + wacc) ** (-years)) / wacc
+    else:
+        npv = net_annual_benefit * years
+
+    breakeven_increase = discount_cost / gross_margin / sales
+    optimal_discount = gross_margin * expected_sales_increase
+
+    # Αποτελέσματα
+    st.markdown("""
+    #### Αποτελέσματα
+    """)
+
+    st.success(f"**Αποδέσμευση Κεφαλαίου:** {format_number_gr(capital_released)} €")
+    st.success(f"**Καθαρό Ετήσιο Όφελος:** {format_number_gr(net_annual_benefit)} €")
+    st.success(f"**Καθαρή Παρούσα Αξία (NPV):** {format_number_gr(npv)} €")
+
+    st.info(f"**Ελάχιστη Απαραίτητη Αύξηση Πωλήσεων για Break-even:** {format_percentage_gr(breakeven_increase)}")
+    st.info(f"**Βέλτιστο Ποσοστό Έκπτωσης:** {format_percentage_gr(optimal_discount)}")
+
+    st.markdown("---")
+    st.caption("Υπολογισμοί βασισμένοι σε cash flow εξοικονόμησης, όφελος μικτού κέρδους από αύξηση πωλήσεων και κόστος της έκπτωσης.")
