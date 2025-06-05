@@ -1,85 +1,65 @@
 import streamlit as st
 
-def calculate_credit_policy_analysis(
-    CurrentCash, CurrentCreditPercentage, CurrentCreditDays,
-    NewCash, NewCreditPercentage, NewCreditDays,
-    SalesIncrease, CurrentSales, UnitPrice,
-    TotalUnitCost, VariableUnitCost,
-    ExpectedBadDebts, InterstRateOnDebt
-):
-    current_units = CurrentSales / UnitPrice
-    new_sales = CurrentSales * (1 + SalesIncrease)
-    new_units = new_sales / UnitPrice
-
-    # Καθαρό Κέρδος από Αύξηση Πωλήσεων
-    net_profit = current_units * SalesIncrease * (UnitPrice - VariableUnitCost)
-
-    # Κόστος Παρούσας Δέσμευσης Κεφαλαίου
-    current_credit_sales = CurrentSales * CurrentCreditPercentage
-    current_capital_cost = (current_credit_sales * TotalUnitCost / UnitPrice) * (CurrentCreditDays / 360)
-
-    # Κόστος Προτεινόμενης Δέσμευσης Κεφαλαίου
-    new_credit_sales = new_sales * NewCreditPercentage
-    weighted_unit_cost = (
-        (current_units * TotalUnitCost + (new_units - current_units) * VariableUnitCost)
-        / new_units
-    )
-    new_capital_cost = (new_credit_sales * weighted_unit_cost) * (NewCreditDays / 360)
-
-    # Επισφάλειες
-    bad_debts = (new_sales * ExpectedBadDebts)
-
-    # Τελικό Κόστος
-    capital_cost_diff = (new_capital_cost - current_capital_cost) * InterstRateOnDebt
-    total_cost = capital_cost_diff + bad_debts
-
-    # Καθαρό Όφελος
-    anticipated_gain = net_profit - total_cost
-
-    return net_profit, total_cost, anticipated_gain
+def format_currency(value):
+    return f"{value:,.0f} €".replace(",", ".").replace(".", ",", 1)
 
 def show_credit_policy_analysis():
-    st.header("🏦 Ανάλυση Πολιτικής Πίστωσης")
+    st.title("🕵️‍♂️ Αξιολόγηση Πολιτικής Πίστωσης")
 
     with st.form("credit_policy_form"):
-        st.subheader("Παρούσα Κατάσταση")
-        col1, col2, col3 = st.columns(3)
-        CurrentCash = col1.number_input("Ποσοστό Πωλήσεων Μετρητοίς (%)", value=50.0) / 100
-        CurrentCreditPercentage = col2.number_input("Ποσοστό Πωλήσεων με Πίστωση (%)", value=50.0) / 100
-        CurrentCreditDays = col3.number_input("Ημέρες Πίστωσης", value=60)
+        st.subheader("📌 Παρούσα Κατάσταση")
+        current_cash = st.number_input("Ποσοστό Πωλήσεων Μετρητοίς (%)", min_value=0.0, max_value=100.0, value=50.0) / 100
+        current_credit_pct = st.number_input("Ποσοστό Πωλήσεων με Πίστωση (%)", min_value=0.0, max_value=100.0, value=50.0) / 100
+        current_credit_days = st.number_input("Ημέρες Πίστωσης (Παρούσα)", min_value=0, value=60)
 
-        st.subheader("Προτεινόμενη Κατάσταση")
-        col4, col5, col6 = st.columns(3)
-        NewCash = col4.number_input("Νέο Ποσοστό Μετρητοίς (%)", value=20.0) / 100
-        NewCreditPercentage = col5.number_input("Νέο Ποσοστό Πίστωσης (%)", value=80.0) / 100
-        NewCreditDays = col6.number_input("Νέες Ημέρες Πίστωσης", value=90)
+        st.subheader("📌 Νέα Κατάσταση")
+        new_cash = st.number_input("Νέο Ποσοστό Πωλήσεων Μετρητοίς (%)", min_value=0.0, max_value=100.0, value=20.0) / 100
+        new_credit_pct = st.number_input("Νέο Ποσοστό Πωλήσεων με Πίστωση (%)", min_value=0.0, max_value=100.0, value=80.0) / 100
+        new_credit_days = st.number_input("Ημέρες Πίστωσης (Νέα)", min_value=0, value=90)
 
-        st.subheader("Δεδομένα Πωλήσεων & Κόστους")
-        SalesIncrease = st.number_input("Αναμενόμενη Αύξηση Πωλήσεων (%)", value=20.0) / 100
-        CurrentSales = st.number_input("Τρέχουσες Πωλήσεις (€)", value=20_000_000)
-        UnitPrice = st.number_input("Τιμή Μονάδας (€)", value=20.0)
-        TotalUnitCost = st.number_input("Συνολικό Κόστος Μονάδας (€)", value=18.0)
-        VariableUnitCost = st.number_input("Μεταβλητό Κόστος Μονάδας (€)", value=14.0)
-        ExpectedBadDebts = st.number_input("Επισφάλειες (%)", value=2.0) / 100
-        InterstRateOnDebt = st.number_input("Κόστος Κεφαλαίου (%)", value=10.0) / 100
+        st.subheader("📈 Στοιχεία Πωλήσεων")
+        sales_increase = st.number_input("Αναμενόμενη Αύξηση Πωλήσεων (%)", min_value=0.0, value=20.0) / 100
+        current_sales = st.number_input("Τρέχουσες Πωλήσεις (€)", min_value=0.0, value=20_000_000.0)
+        unit_price = st.number_input("Τιμή Μονάδας (€)", min_value=0.01, value=20.0)
+        total_unit_cost = st.number_input("Συνολικό Κόστος Μονάδας (€)", min_value=0.01, value=18.0)
+        variable_unit_cost = st.number_input("Μεταβλητό Κόστος Μονάδας (€)", min_value=0.01, value=14.0)
+        expected_bad_debts = st.number_input("Ποσοστό Επισφαλών Απαιτήσεων (%)", min_value=0.0, max_value=100.0, value=2.0) / 100
+        interest_rate = st.number_input("Κόστος Κεφαλαίου (% ετησίως)", min_value=0.0, max_value=100.0, value=10.0) / 100
 
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted:
-        net_profit, total_cost, gain = calculate_credit_policy_analysis(
-            CurrentCash, CurrentCreditPercentage, CurrentCreditDays,
-            NewCash, NewCreditPercentage, NewCreditDays,
-            SalesIncrease, CurrentSales, UnitPrice,
-            TotalUnitCost, VariableUnitCost,
-            ExpectedBadDebts, InterstRateOnDebt
+        # Μονάδες και κέρδος από αύξηση
+        base_units = current_sales / unit_price
+        increased_units = base_units * sales_increase
+        profit_increase = increased_units * (unit_price - variable_unit_cost)
+
+        # Κόστος αύξησης κεφαλαίου (διορθωμένος τύπος)
+        avg_cost_per_unit = (
+            ((base_units * total_unit_cost) + (increased_units * variable_unit_cost)) /
+            (base_units + increased_units)
         )
+        new_credit_sales = (current_sales * (1 + new_cash)) * new_credit_pct
+        current_credit_sales = current_sales * current_cash
 
-        st.success("✅ Αποτελέσματα:")
-        st.metric("Καθαρό Κέρδος από Αύξηση Πωλήσεων (€)", f"{net_profit:,.0f}")
-        st.metric("Συνολικό Κόστος (€)", f"{total_cost:,.0f}")
-        st.metric("Καθαρό Όφελος (€)", f"{gain:,.0f}")
+        capital_cost_new = (new_credit_sales / (360 / new_credit_days)) * (avg_cost_per_unit / unit_price)
+        capital_cost_current = (current_credit_sales / (360 / current_credit_days)) * (total_unit_cost / unit_price)
+        capital_cost_difference = capital_cost_new - capital_cost_current
+        financial_cost = capital_cost_difference * interest_rate
 
-        if gain > 0:
-            st.info("💡 Πρόταση: **Αξίζει** να εφαρμοστεί η νέα πολιτική πίστωσης.")
-        else:
-            st.warning("⚠️ Πρόταση: **Δεν αξίζει** να εφαρμοστεί η νέα πολιτική πίστωσης.")
+        # Επισφάλειες
+        bad_debts_cost = current_sales * expected_bad_debts + current_sales * expected_bad_debts * sales_increase
+
+        # Σύνολο κόστους
+        total_cost = financial_cost + bad_debts_cost
+
+        # Τελική αξιολόγηση
+        anticipated_gain = profit_increase - total_cost
+        suggestion = "✅ Αύξηση Πίστωσης" if anticipated_gain > 0 else "❌ ΜΗ Αύξηση Πίστωσης"
+
+        # Αποτελέσματα
+        st.subheader("📊 Αποτελέσματα")
+        st.metric("Καθαρό Κέρδος από Επιπλέον Πωλήσεις", format_currency(profit_increase))
+        st.metric("Συνολικό Κόστος από την Αύξηση", format_currency(total_cost))
+        st.metric("Καθαρό Όφελος", format_currency(anticipated_gain))
+        st.success(f"Πρόταση: {suggestion}")
