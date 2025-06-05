@@ -1,5 +1,4 @@
 import streamlit as st
-
 from home import show_home
 from break_even_calculator import show_break_even_calculator
 from break_even_shift_calculator import show_break_even_shift_calculator
@@ -7,7 +6,7 @@ from clv_calculator import show_clv_calculator
 from substitution_analysis import show_substitution_analysis
 from complementary_analysis import show_complementary_analysis
 from loss_threshold import show_loss_threshold_before_price_cut
-from discount_efficiency import discount_efficiency_ui  # <-- προσθήκη εδώ
+from discount_efficiency import discount_efficiency_ui  # <-- η νέα UI συνάρτηση
 
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
@@ -39,4 +38,4 @@ elif tool == "➕ Ανάλυση Συμπληρωματικών Προϊόντω
 elif tool == "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών":
     show_loss_threshold_before_price_cut()
 elif tool == "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς":
-    discount_efficiency_ui()  # <-- κλήση της νέας UI συνάρτησης
+    discount_efficiency_ui()
