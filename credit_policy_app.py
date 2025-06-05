@@ -39,7 +39,7 @@ def calculate_credit_policy_analysis(
     return net_profit, total_cost, anticipated_gain
 
 def show_credit_policy_analysis():
-    st.header("📈 Ανάλυση Πολιτικής Πίστωσης")
+    st.header("🏦 Ανάλυση Πολιτικής Πίστωσης")
 
     with st.form("credit_policy_form"):
         st.subheader("Παρούσα Κατάσταση")
