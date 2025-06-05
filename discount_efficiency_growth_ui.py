@@ -12,7 +12,7 @@ with st.form("discount_form"):
         extra_sales = parse_gr_number(st.text_input("Επιπλέον πωλήσεις λόγω έκπτωσης", "250"))
         discount_rate = st.number_input("Έκπτωση (%)", 0.0, 100.0, 2.0)
         discount_acceptance = st.number_input("% πελατών που αποδέχονται την έκπτωση", 0.0, 100.0, 60.0)
-        payment_days_accept = st.number_input("Μέρες πληρωμής αν αποδεχθούν την έκπτωση", 0, 365, 60)
+        payment_days_accept = st.number_input("Μέρες πληρωμής αν αποδεχθούν την έκπτωση", 0, 365, 10)
         cost_percent = st.number_input("Κόστος πωλήσεων (%)", 0.0, 100.0, 80.0)
 
     with col2:
