@@ -22,7 +22,7 @@ tools = {
     "➕ Ανάλυση Συμπληρωματικών Προϊόντων": show_complementary_analysis,
     "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": show_loss_threshold_before_price_cut,
     "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
-    "💶 Ανάλυση Πολιτικής Πίστωσης (Μετρητοίς/Πίστωση)": show_credit_policy_analysis  # ✅ ΝΕΟ
+    "🏦 Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis  # ✅ ΝΕΟ
 }
 
 # Sidebar με επιλογή εργαλείου
