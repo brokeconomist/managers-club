@@ -7,7 +7,7 @@ from clv_calculator import show_clv_calculator
 from substitution_analysis import show_substitution_analysis
 from complementary_analysis import show_complementary_analysis
 from loss_threshold import show_loss_threshold_before_price_cut
-from discount_cash_efficiency_calculator import cash_discount_efficiency
+from discount_efficiency_growth import discount_efficiency_ui  # <--- updated import
 
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
@@ -39,4 +39,4 @@ elif tool == "➕ Ανάλυση Συμπληρωματικών Προϊόντω
 elif tool == "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών":
     show_loss_threshold_before_price_cut()
 elif tool == "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς":
-    cash_discount_efficiency()
+    discount_efficiency_ui()  # <--- updated call
