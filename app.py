@@ -41,5 +41,5 @@ elif tool == "📉 Όριο Απώλειας Πωλήσεων πριν τη Με
     show_loss_threshold_before_price_cut()
 elif selected_menu == "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς":
     render_discount_cash_efficiency()
-"elif tool == "Αποδοτικότητα Έκπτωσης & Πληρωμής τοις Μετρητοίς":
+elif tool == "Αποδοτικότητα Έκπτωσης & Πληρωμής τοις Μετρητοίς":
     show_discount_cash_app()  # ✅ Χρήση της νέας συνάρτησης"
