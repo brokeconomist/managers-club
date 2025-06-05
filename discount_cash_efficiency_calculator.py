@@ -1,9 +1,9 @@
 import streamlit as st
 from cash_discount_efficiency_chart import calculate_discount_cash_efficiency
-from utils import parse_gr_number
+from utils import parse_gr_number, format_number_gr
 
 def cash_discount_efficiency():
-    st.header("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
+    st.header("💶 Αποδοτικότητα Έκπτωσης & Πληρωμής τοις Μετρητοίς")
 
     with st.form("cash_discount_form"):
         col1, col2 = st.columns(2)
@@ -66,6 +66,16 @@ def cash_discount_efficiency():
             discount_cost
         )
 
-        st.success("Αποτελέσματα:")
-        for label, value in results.items():
-            st.write(f"**{label}**: {value}")
+        # Προσθέτουμε αναλυτικά τα αποτελέσματα
+        st.success("📊 Αποτελέσματα:")
+
+        st.write(f"**Κόστος Έκπτωσης:** {format_number_gr(discount_cost)} €")
+        st.write(f"**Κέρδος από Επιπλέον Πωλήσεις:** {format_number_gr(profit_extra_sales)} €")
+        st.write(f"**Κέρδος από Αποδέσμευση Κεφαλαίων:** {format_number_gr(profit_release)} €")
+
+        total_benefit = profit_extra_sales + profit_release - discount_cost
+        label = "Συνολικό Όφελος"
+        if total_benefit >= 0:
+            st.success(f"**{label}: {format_number_gr(total_benefit)} €** ✅")
+        else:
+            st.error(f"**{label}: {format_number_gr(total_benefit)} €** ❌")
