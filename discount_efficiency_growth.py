@@ -58,21 +58,21 @@ def discount_efficiency_ui():
         st.markdown("### Εισαγωγή Δεδομένων")
         col1, col2 = st.columns(2)
 
-        with col1:
-            current_sales = parse_gr_number(st.text_input("Τρέχουσες Πωλήσεις (€)", default_values["current_sales"]))
-            extra_sales = parse_gr_number(st.text_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", default_values["extra_sales"]))
-            discount_rate = parse_gr_number(st.text_input("Ποσοστό Έκπτωσης (%)", default_values["discount_rate"]))
-            discount_acceptance = parse_gr_number(st.text_input("Ποσοστό Πελατών που Δέχεται την Έκπτωση (%)", default_values["discount_acceptance"]))
-            discount_days = parse_gr_number(st.text_input("Ημέρες Είσπραξης με Έκπτωση", default_values["discount_days"]))
-            non_discount_days = parse_gr_number(st.text_input("Ημέρες Είσπραξης χωρίς Έκπτωση", default_values["non_discount_days"]))
+      with col1:
+    current_sales_input = st.text_input("Τρέχουσες Πωλήσεις (€)", default_values["current_sales"])
+    extra_sales_input = st.text_input("Επιπλέον Πωλήσεις (€)", default_values["extra_sales"])
+    discount_rate_input = st.text_input("Ποσοστό Έκπτωσης (%)", default_values["discount_rate"])
+    discount_acceptance_input = st.text_input("Ποσοστό Αποδοχής (%)", default_values["discount_acceptance"])
+    discount_days_input = st.text_input("Ημέρες με Έκπτωση", default_values["discount_days"])
+    non_discount_days_input = st.text_input("Ημέρες χωρίς Έκπτωση", default_values["non_discount_days"])
 
-        with col2:
-            cash_days = parse_gr_number(st.text_input("Ημέρες Πληρωμής Τοις Μετρητοίς", default_values["cash_days"]))
-            cost_percent = parse_gr_number(st.text_input("Μέσο Κόστος επί των Πωλήσεων (%)", default_values["cost_percent"]))
-            wacc = parse_gr_number(st.text_input("Κόστος Κεφαλαίου (WACC %) ετησίως", default_values["wacc"]))
-            suppliers_days = parse_gr_number(st.text_input("Μέση Περίοδος Πληρωμής Προμηθευτών", default_values["suppliers_days"]))
-            current_collection_days = parse_gr_number(st.text_input("Τρέχουσα Μέση Περίοδος Είσπραξης", default_values["current_collection_days"]))
-
+    with col2:
+            cash_days_input = st.text_input("Ημέρες Πληρωμής Τοις Μετρητοίς", default_values["cash_days"])
+            cost_percent_input = st.text_input("Μέσο Κόστος (%)", default_values["cost_percent"])
+            wacc_input = st.text_input("WACC (%)", default_values["wacc"])
+            suppliers_days_input = st.text_input("Ημέρες Πληρωμής Προμηθευτών", default_values["suppliers_days"])
+            current_collection_days_input = st.text_input("Τρέχουσα Περίοδος Είσπραξης", default_values["current_collection_days"])
+  
         submitted = st.form_submit_button("Υπολογισμός")
 
     if submitted or "discount_submitted" not in st.session_state:
