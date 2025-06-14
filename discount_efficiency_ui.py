@@ -24,38 +24,30 @@ def show_discount_efficiency_ui():
 
     st.markdown("---")
 
-    # Μέση περίοδος είσπραξης πριν την αλλαγή
     current_avg_collection = days_accept_discount * pct_accept_discount + days_reject_discount * pct_reject_discount
     current_receivables = current_sales * current_avg_collection / 365
 
-    # Υποθετική αποδέσμευση χωρίς αύξηση πωλήσεων
     new_avg_collection_discount = current_avg_collection
     new_receivables_discount = current_sales * new_avg_collection_discount / 365
     released_capital_discount = current_receivables - new_receivables_discount
 
-    # Ποσοστό πελατών που ακολουθούν τη νέα πολιτική (μόνο επί των νέων πωλήσεων)
     pct_follow_new_policy = ((current_sales * pct_accept_discount) + extra_sales) / (current_sales + extra_sales)
     pct_remain_old = 1 - pct_follow_new_policy
 
-    # Νέα μέση περίοδος είσπραξης μετά αύξηση πωλήσεων
     new_avg_collection_after_increase = pct_follow_new_policy * days_cash_payment + pct_remain_old * days_reject_discount
     receivables_after_increase = ((current_sales + extra_sales) * new_avg_collection_after_increase) / 365
     released_capital_after_increase = current_receivables - receivables_after_increase
 
-    # Κέρδος από επιπλέον πωλήσεις (χωρίς έκπτωση)
     profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
 
-    # Κέρδος από αποδεσμευμένο κεφάλαιο
     profit_released_capital = released_capital_after_increase * wacc
 
-    # Κόστος έκπτωσης ΜΟΝΟ επί των νέων πωλήσεων
     discount_cost = extra_sales * pct_follow_new_policy * cash_discount_pct
 
     total_profit = profit_extra_sales + profit_released_capital - discount_cost
 
     discount_rate_daily = wacc / 365
 
-    # Υπολογισμός NPV
     npv = (
         (current_sales + extra_sales) * pct_follow_new_policy * (1 - cash_discount_pct)
         * (1 / (1 + discount_rate_daily) ** days_cash_payment)
@@ -66,7 +58,6 @@ def show_discount_efficiency_ui():
     )
 
     try:
-        # Μέγιστη έκπτωση (NPV Break Even) ΜΟΝΟ επί των νέων πωλήσεων
         max_discount_break_even = 1 - (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount) * (
             ((1 - (1 / pct_follow_new_policy)) +
              ((1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection) + (extra_sales / current_sales) * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days))) /
