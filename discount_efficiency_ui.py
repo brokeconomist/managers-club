@@ -46,6 +46,7 @@ def show_discount_efficiency_ui():
     total_profit = profit_extra_sales + profit_released_capital - discount_cost
 
     discount_rate_daily = wacc / 365
+
     npv = (
         (current_sales + extra_sales) * pct_follow_new_policy * (1 - cash_discount_pct) * (1 / (1 + discount_rate_daily) ** days_cash_payment)
         + (current_sales + extra_sales) * (1 - pct_follow_new_policy) * (1 / (1 + discount_rate_daily) ** days_reject_discount)
