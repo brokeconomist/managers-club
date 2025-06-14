@@ -16,6 +16,11 @@ def parse_gr_number(x):
 
 def format_percentage_gr(x):
     try:
-        return format_number_gr(x) + " %"
+        val = x * 100
+        if val.is_integer():
+            s = f"{int(val):,}".replace(",", "X").replace(".", ",").replace("X", ".")
+            return s + " %"
+        else:
+            return format_number_gr(val) + " %"
     except:
         return str(x)
