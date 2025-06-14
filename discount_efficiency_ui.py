@@ -3,7 +3,6 @@ import streamlit as st
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
 
-    # Είσοδοι από χρήστη
     col1, col2 = st.columns(2)
     with col1:
         current_sales = st.number_input("Τρέχουσες πωλήσεις", value=1000, step=1, format="%d")
@@ -23,51 +22,27 @@ def show_discount_efficiency_ui():
     st.markdown("---")
 
     # Υπολογισμοί
-    # Μέση περίοδος είσπραξης πριν τη νέα πολιτική
     current_avg_collection = days_accept_discount * pct_accept_discount + days_reject_discount * pct_reject_discount
-
-    # Τρέχουσες απαιτήσεις
     current_receivables = current_sales * current_avg_collection / 365
 
-    # Νέα μέση περίοδος είσπραξης μετά την έκπτωση
-    new_avg_collection_discount = days_accept_discount * pct_accept_discount + days_reject_discount * pct_reject_discount
-
-    # Νέες απαιτήσεις μετά την έκπτωση (χωρίς επιπλέον πωλήσεις)
+    # Για το απλό μοντέλο (χωρίς αλλαγές πολιτικής είσπραξης)
+    new_avg_collection_discount = current_avg_collection
     new_receivables_discount = current_sales * new_avg_collection_discount / 365
-
-    # Αποδέσμευση κεφαλαίων (χωρίς επιπλέον πωλήσεις)
     released_capital_discount = current_receivables - new_receivables_discount
 
-    # % πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου
     pct_follow_new_policy = ((current_sales * pct_accept_discount) + extra_sales) / (current_sales + extra_sales)
-
-    # % πελατών που παραμένει με την παλιά κατάσταση
     pct_remain_old = 1 - pct_follow_new_policy
 
-    # Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων
     new_avg_collection_after_increase = pct_follow_new_policy * days_cash_payment + pct_remain_old * days_reject_discount
-
-    # Απαιτήσεις μετά την αύξηση πωλήσεων
     receivables_after_increase = ((current_sales + extra_sales) * new_avg_collection_after_increase) / 365
-
-    # Αποδέσμευση κεφαλαίων μετά την αύξηση πωλήσεων
     released_capital_after_increase = current_receivables - receivables_after_increase
 
-    # Κέρδος από επιπλέον πωλήσεις
     profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
-
-    # Κέρδος αποδέσμευσης κεφαλαίων
     profit_released_capital = released_capital_after_increase * wacc
-
-    # Κόστος έκπτωσης
     discount_cost = (current_sales + extra_sales) * pct_follow_new_policy * cash_discount_pct
-
-    # Συνολικό κέρδος από την πρόταση
     total_profit = profit_extra_sales + profit_released_capital - discount_cost
 
-    # NPV (παραγωγή προεξοφλημένων ταμειακών ροών)
     discount_rate_daily = wacc / 365
-
     npv = (
         (current_sales + extra_sales) * pct_follow_new_policy * (1 - cash_discount_pct) * (1 / (1 + discount_rate_daily) ** days_cash_payment)
         + (current_sales + extra_sales) * (1 - pct_follow_new_policy) * (1 / (1 + discount_rate_daily) ** days_reject_discount)
@@ -75,7 +50,7 @@ def show_discount_efficiency_ui():
         - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
     )
 
-    # Μέγιστη έκπτωση που μπορεί να δοθεί (NPV break even)
+    # Μέγιστη έκπτωση break-even - προσεγγιστικός υπολογισμός
     try:
         max_discount_break_even = 1 - (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount) * (
             ((1 - (1 / pct_follow_new_policy)) + 
@@ -86,17 +61,13 @@ def show_discount_efficiency_ui():
     except ZeroDivisionError:
         max_discount_break_even = None
 
-    # Βέλτιστη έκπτωση
     optimal_discount = (1 - ((1 + discount_rate_daily) ** (days_cash_payment - current_avg_collection))) / 2
 
-    # Εμφάνιση αποτελεσμάτων
     st.header("Αποτελέσματα")
 
     st.write(f"**Μέση περίοδος είσπραξης πριν τη νέα πολιτική:** {current_avg_collection:.2f} μέρες")
     st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {current_receivables:.2f} μονάδες")
 
-    st.write(f"**Νέα μέση περίοδος είσπραξης μετά την έκπτωση:** {new_avg_collection_discount:.2f} μέρες")
-    st.write(f"**Νέες απαιτήσεις μετά την έκπτωση:** {new_receivables_discount:.2f} μονάδες")
     st.write(f"**Αποδέσμευση κεφαλαίων (χωρίς επιπλέον πωλήσεις):** {released_capital_discount:.2f} μονάδες")
 
     st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {pct_follow_new_policy:.2%}")
