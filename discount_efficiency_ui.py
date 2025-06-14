@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import format_number_gr, format_percentage_gr
+from utils import format_number_gr, format_percentage_gr  # Υποθέτουμε ότι υπάρχουν αυτές οι συναρτήσεις
 
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
@@ -24,9 +24,11 @@ def show_discount_efficiency_ui():
 
     st.markdown("---")
 
+    # Υπολογισμοί
     current_avg_collection = days_accept_discount * pct_accept_discount + days_reject_discount * pct_reject_discount
     current_receivables = current_sales * current_avg_collection / 365
 
+    # Υποθετική αποδέσμευση χωρίς αύξηση πωλήσεων
     new_avg_collection_discount = current_avg_collection
     new_receivables_discount = current_sales * new_avg_collection_discount / 365
     released_capital_discount = current_receivables - new_receivables_discount
@@ -40,7 +42,7 @@ def show_discount_efficiency_ui():
 
     profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
     profit_released_capital = released_capital_after_increase * wacc
-    discount_cost = extra_sales * cash_discount_pct  # ✅ Η διόρθωση
+    discount_cost = (current_sales + extra_sales) * pct_follow_new_policy * cash_discount_pct
     total_profit = profit_extra_sales + profit_released_capital - discount_cost
 
     discount_rate_daily = wacc / 365
@@ -69,6 +71,7 @@ def show_discount_efficiency_ui():
 
     st.write(f"**Μέση περίοδος είσπραξης πριν τη νέα πολιτική:** {format_number_gr(current_avg_collection)} μέρες")
     st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {format_number_gr(current_receivables)} €")
+
 
     st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {format_percentage_gr(pct_follow_new_policy)}")
     st.write(f"**% πελατών που παραμένει με την παλιά κατάσταση:** {format_percentage_gr(pct_remain_old)}")
