@@ -47,10 +47,15 @@ def show_discount_efficiency_ui():
 
     discount_rate_daily = wacc / 365
 
+    discount_rate_daily = wacc / 365
+
     npv = (
-        (current_sales + extra_sales) * pct_follow_new_policy * (1 - cash_discount_pct) * (1 / (1 + discount_rate_daily) ** days_cash_payment)
-        + (current_sales + extra_sales) * (1 - pct_follow_new_policy) * (1 / (1 + discount_rate_daily) ** days_reject_discount)
-        - current_sales * (extra_sales / current_sales) * (1 / (1 + discount_rate_daily) ** supplier_payment_days)
+        (current_sales + extra_sales) * pct_follow_new_policy * (1 - cash_discount_pct)
+        * (1 / (1 + discount_rate_daily) ** days_cash_payment)
+        + (current_sales + extra_sales) * (1 - pct_follow_new_policy)
+        * (1 / (1 + discount_rate_daily) ** days_reject_discount)
+        - cost_of_supplies * (extra_sales / current_sales) * current_sales
+        * (1 / (1 + discount_rate_daily) ** supplier_payment_days)
         - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
     )
 
