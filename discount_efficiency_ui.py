@@ -1,6 +1,5 @@
-
 import streamlit as st
-from utils import format_number_gr, format_percentage_gr
+from utils import format_number_gr, format_percentage_gr  # Υποθέτουμε ότι υπάρχουν αυτές οι συναρτήσεις
 
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
@@ -25,8 +24,14 @@ def show_discount_efficiency_ui():
 
     st.markdown("---")
 
+    # Υπολογισμοί
     current_avg_collection = days_accept_discount * pct_accept_discount + days_reject_discount * pct_reject_discount
     current_receivables = current_sales * current_avg_collection / 365
+
+    # Υποθετική αποδέσμευση χωρίς αύξηση πωλήσεων
+    new_avg_collection_discount = current_avg_collection
+    new_receivables_discount = current_sales * new_avg_collection_discount / 365
+    released_capital_discount = current_receivables - new_receivables_discount
 
     pct_follow_new_policy = ((current_sales * pct_accept_discount) + extra_sales) / (current_sales + extra_sales)
     pct_remain_old = 1 - pct_follow_new_policy
@@ -37,7 +42,7 @@ def show_discount_efficiency_ui():
 
     profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
     profit_released_capital = released_capital_after_increase * wacc
-    discount_cost = extra_sales * pct_follow_new_policy * cash_discount_pct
+    discount_cost = (current_sales + extra_sales) * pct_follow_new_policy * cash_discount_pct
     total_profit = profit_extra_sales + profit_released_capital - discount_cost
 
     discount_rate_daily = wacc / 365
@@ -52,29 +57,35 @@ def show_discount_efficiency_ui():
     )
 
     try:
-        x = (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount)
-        y = ((1 - (1 / pct_follow_new_policy)) +
-             ((1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection) +
-              (extra_sales / current_sales) * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days))) /             (pct_follow_new_policy * (1 + (extra_sales / current_sales)))
-        max_discount_break_even = 1 - x * y
+        max_discount_break_even = 1 - (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount) * (
+            ((1 - (1 / pct_follow_new_policy)) +
+             ((1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection) + (extra_sales / current_sales) * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days))) /
+            (pct_follow_new_policy * (1 + (extra_sales / current_sales)))
+        )
     except ZeroDivisionError:
         max_discount_break_even = None
 
     optimal_discount = (1 - ((1 + discount_rate_daily) ** (days_cash_payment - current_avg_collection))) / 2
 
     st.header("Αποτελέσματα")
+
     st.write(f"**Μέση περίοδος είσπραξης πριν τη νέα πολιτική:** {format_number_gr(current_avg_collection)} μέρες")
     st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {format_number_gr(current_receivables)} €")
+
+
     st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {format_percentage_gr(pct_follow_new_policy)}")
     st.write(f"**% πελατών που παραμένει με την παλιά κατάσταση:** {format_percentage_gr(pct_remain_old)}")
+
     st.write(f"**Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων:** {format_number_gr(new_avg_collection_after_increase)} μέρες")
     st.write(f"**Απαιτήσεις μετά την αύξηση πωλήσεων:** {format_number_gr(receivables_after_increase)} €")
+
     st.write(f"**Κέρδος από επιπλέον πωλήσεις:** {format_number_gr(profit_extra_sales)} €")
-    st.write(f"**Κόστος έκπτωσης (μόνο επί των νέων πωλήσεων):** {format_number_gr(discount_cost)} €")
+    st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} €")
+
     st.write(f"**NPV:** {format_number_gr(npv)} €")
 
     if max_discount_break_even is not None:
-        st.write(f"**Μέγιστη έκπτωση (NPV Break Even) επί των νέων πωλήσεων:** {format_percentage_gr(max_discount_break_even)}")
+        st.write(f"**Μέγιστη έκπτωση (NPV Break Even):** {format_percentage_gr(max_discount_break_even)}")
     else:
         st.write("**Μέγιστη έκπτωση (NPV Break Even):** Δεν υπολογίζεται (διαίρεση με μηδέν)")
 
