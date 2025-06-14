@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import format_number_gr, format_percentage_gr  # Υποθέτω ότι έχεις αυτές τις συναρτήσεις
+from utils import format_number_gr, format_percentage_gr  # Υποθέτουμε ότι υπάρχουν αυτές οι συναρτήσεις
 
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
@@ -17,7 +17,7 @@ def show_discount_efficiency_ui():
     with col2:
         pct_reject_discount = st.number_input("% πελατών που δεν αποδέχεται την έκπτωση", value=40.0, min_value=0.0, max_value=100.0, step=0.1) / 100
         days_reject_discount = st.number_input("Μέρες που πληρώνουν όσοι δεν αποδέχονται την έκπτωση", value=120, step=1)
-        days_cash_payment = st.number_input("Μέρες για πληρωμή τοις μετρητοίς (π.χ. 10)", value=10, step=1)
+        days_cash_payment = st.number_input("Μέρες για πληρωμή τοις μετρητοίς", value=10, step=1)
         cost_of_sales_pct = st.number_input("Κόστος πωλήσεων σε %", value=80.0, min_value=0.0, max_value=100.0, step=0.1) / 100
         wacc = st.number_input("Κόστος κεφαλαίου (WACC) σε %", value=20.0, min_value=0.0, max_value=100.0, step=0.1) / 100
         supplier_payment_days = st.number_input("Μέση περίοδος αποπληρωμής προμηθευτών (σε μέρες)", value=30, step=1)
@@ -28,7 +28,7 @@ def show_discount_efficiency_ui():
     current_avg_collection = days_accept_discount * pct_accept_discount + days_reject_discount * pct_reject_discount
     current_receivables = current_sales * current_avg_collection / 365
 
-    # Απλό μοντέλο χωρίς αλλαγή είσπραξης
+    # Υποθετική αποδέσμευση χωρίς αύξηση πωλήσεων
     new_avg_collection_discount = current_avg_collection
     new_receivables_discount = current_sales * new_avg_collection_discount / 365
     released_capital_discount = current_receivables - new_receivables_discount
@@ -47,15 +47,12 @@ def show_discount_efficiency_ui():
 
     discount_rate_daily = wacc / 365
 
-    discount_rate_daily = wacc / 365
-
     npv = (
         (current_sales + extra_sales) * pct_follow_new_policy * (1 - cash_discount_pct)
         * (1 / (1 + discount_rate_daily) ** days_cash_payment)
         + (current_sales + extra_sales) * (1 - pct_follow_new_policy)
         * (1 / (1 + discount_rate_daily) ** days_reject_discount)
-        - cost_of_supplies * (extra_sales / current_sales) * current_sales
-        * (1 / (1 + discount_rate_daily) ** supplier_payment_days)
+        - cost_of_sales_pct * extra_sales * (1 / (1 + discount_rate_daily) ** supplier_payment_days)
         - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
     )
 
