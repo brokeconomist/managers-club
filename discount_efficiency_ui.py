@@ -82,7 +82,6 @@ def show_discount_efficiency_ui():
     st.write(f"**Κέρδος αποδέσμευσης κεφαλαίων:** {format_number_gr(profit_released_capital)} €")
     st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} €")
 
-    st.write(f"**Συνολικό κέρδος από την πρόταση:** {format_number_gr(total_profit)} €")
     st.write(f"**NPV:** {format_number_gr(npv)} €")
 
     if max_discount_break_even is not None:
