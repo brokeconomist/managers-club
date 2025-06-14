@@ -28,8 +28,8 @@ tools = {
     "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
     "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,  # ✅ Νέο
-    "📊 Ταμειακός Κύκλος": run_cash_cycle_app  # ✅ Νέο
-    "💸 Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_app
+    "📊 Ταμειακός Κύκλος": run_cash_cycle_app,  # ✅ Νέο
+    "💸 Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_app,
 }
 
 # Πλευρικό μενού
