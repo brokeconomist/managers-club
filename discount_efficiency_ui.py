@@ -1,19 +1,22 @@
 import streamlit as st
+from utils import format_number_gr, format_percentage_gr  # Υποθέτω ότι είναι εκεί οι συναρτήσεις σου
 
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
 
+    st.markdown("### Εισαγωγή Δεδομένων")
     col1, col2 = st.columns(2)
+
     with col1:
         current_sales = st.number_input("Τρέχουσες πωλήσεις", value=1000, step=1, format="%d")
         extra_sales = st.number_input("Επιπλέον πωλήσεις λόγω έκπτωσης", value=250, step=1, format="%d")
         cash_discount_pct = st.number_input("Έκπτωση για πληρωμή τοις μετρητοίς (%)", value=2.0, min_value=0.0, max_value=100.0, step=0.1) / 100
         pct_accept_discount = st.number_input("% πελατών που αποδέχεται την έκπτωση", value=60.0, min_value=0.0, max_value=100.0, step=0.1) / 100
         days_accept_discount = st.number_input("Μέρες που πληρώνουν όσοι αποδέχονται την έκπτωση", value=60, step=1)
-        pct_reject_discount = st.number_input("% πελατών που δεν αποδέχεται την έκπτωση", value=40.0, min_value=0.0, max_value=100.0, step=0.1) / 100
-        days_reject_discount = st.number_input("Μέρες που πληρώνουν όσοι δεν αποδέχονται την έκπτωση", value=120, step=1)
 
     with col2:
+        pct_reject_discount = st.number_input("% πελατών που δεν αποδέχεται την έκπτωση", value=40.0, min_value=0.0, max_value=100.0, step=0.1) / 100
+        days_reject_discount = st.number_input("Μέρες που πληρώνουν όσοι δεν αποδέχονται την έκπτωση", value=120, step=1)
         days_cash_payment = st.number_input("Μέρες για πληρωμή τοις μετρητοίς (π.χ. 10)", value=10, step=1)
         cost_of_sales_pct = st.number_input("Κόστος πωλήσεων σε %", value=80.0, min_value=0.0, max_value=100.0, step=0.1) / 100
         wacc = st.number_input("Κόστος κεφαλαίου (WACC) σε %", value=20.0, min_value=0.0, max_value=100.0, step=0.1) / 100
@@ -25,7 +28,7 @@ def show_discount_efficiency_ui():
     current_avg_collection = days_accept_discount * pct_accept_discount + days_reject_discount * pct_reject_discount
     current_receivables = current_sales * current_avg_collection / 365
 
-    # Για το απλό μοντέλο (χωρίς αλλαγές πολιτικής είσπραξης)
+    # Απλό μοντέλο χωρίς αλλαγή είσπραξης
     new_avg_collection_discount = current_avg_collection
     new_receivables_discount = current_sales * new_avg_collection_discount / 365
     released_capital_discount = current_receivables - new_receivables_discount
@@ -50,13 +53,11 @@ def show_discount_efficiency_ui():
         - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
     )
 
-    # Μέγιστη έκπτωση break-even - προσεγγιστικός υπολογισμός
     try:
         max_discount_break_even = 1 - (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount) * (
-            ((1 - (1 / pct_follow_new_policy)) + 
-            ((1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection) + (extra_sales / current_sales) * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days))) /
+            ((1 - (1 / pct_follow_new_policy)) +
+             ((1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection) + (extra_sales / current_sales) * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days))) /
             (pct_follow_new_policy * (1 + (extra_sales / current_sales)))
-            )
         )
     except ZeroDivisionError:
         max_discount_break_even = None
@@ -65,28 +66,28 @@ def show_discount_efficiency_ui():
 
     st.header("Αποτελέσματα")
 
-    st.write(f"**Μέση περίοδος είσπραξης πριν τη νέα πολιτική:** {current_avg_collection:.2f} μέρες")
-    st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {current_receivables:.2f} μονάδες")
+    st.write(f"**Μέση περίοδος είσπραξης πριν τη νέα πολιτική:** {format_number_gr(current_avg_collection)} μέρες")
+    st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {format_number_gr(current_receivables)} μονάδες")
 
-    st.write(f"**Αποδέσμευση κεφαλαίων (χωρίς επιπλέον πωλήσεις):** {released_capital_discount:.2f} μονάδες")
+    st.write(f"**Αποδέσμευση κεφαλαίων (χωρίς επιπλέον πωλήσεις):** {format_number_gr(released_capital_discount)} μονάδες")
 
-    st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {pct_follow_new_policy:.2%}")
-    st.write(f"**% πελατών που παραμένει με την παλιά κατάσταση:** {pct_remain_old:.2%}")
+    st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {format_percentage_gr(pct_follow_new_policy)}")
+    st.write(f"**% πελατών που παραμένει με την παλιά κατάσταση:** {format_percentage_gr(pct_remain_old)}")
 
-    st.write(f"**Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων:** {new_avg_collection_after_increase:.2f} μέρες")
-    st.write(f"**Απαιτήσεις μετά την αύξηση πωλήσεων:** {receivables_after_increase:.2f} μονάδες")
-    st.write(f"**Αποδέσμευση κεφαλαίων μετά την αύξηση πωλήσεων:** {released_capital_after_increase:.2f} μονάδες")
+    st.write(f"**Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων:** {format_number_gr(new_avg_collection_after_increase)} μέρες")
+    st.write(f"**Απαιτήσεις μετά την αύξηση πωλήσεων:** {format_number_gr(receivables_after_increase)} μονάδες")
+    st.write(f"**Αποδέσμευση κεφαλαίων μετά την αύξηση πωλήσεων:** {format_number_gr(released_capital_after_increase)} μονάδες")
 
-    st.write(f"**Κέρδος από επιπλέον πωλήσεις:** {profit_extra_sales:.2f} μονάδες")
-    st.write(f"**Κέρδος αποδέσμευσης κεφαλαίων:** {profit_released_capital:.2f} μονάδες")
-    st.write(f"**Κόστος έκπτωσης:** {discount_cost:.2f} μονάδες")
+    st.write(f"**Κέρδος από επιπλέον πωλήσεις:** {format_number_gr(profit_extra_sales)} μονάδες")
+    st.write(f"**Κέρδος αποδέσμευσης κεφαλαίων:** {format_number_gr(profit_released_capital)} μονάδες")
+    st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} μονάδες")
 
-    st.write(f"**Συνολικό κέρδος από την πρόταση:** {total_profit:.2f} μονάδες")
-    st.write(f"**NPV:** {npv:.2f} μονάδες")
+    st.write(f"**Συνολικό κέρδος από την πρόταση:** {format_number_gr(total_profit)} μονάδες")
+    st.write(f"**NPV:** {format_number_gr(npv)} μονάδες")
 
     if max_discount_break_even is not None:
-        st.write(f"**Μέγιστη έκπτωση (NPV Break Even):** {max_discount_break_even:.2%}")
+        st.write(f"**Μέγιστη έκπτωση (NPV Break Even):** {format_percentage_gr(max_discount_break_even)}")
     else:
         st.write("**Μέγιστη έκπτωση (NPV Break Even):** Δεν υπολογίζεται (διαίρεση με μηδέν)")
 
-    st.write(f"**Βέλτιστη έκπτωση:** {optimal_discount:.2%}")
+    st.write(f"**Βέλτιστη έκπτωση:** {format_percentage_gr(optimal_discount)}")
