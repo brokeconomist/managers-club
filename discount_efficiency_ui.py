@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import format_number_gr, format_percentage_gr  # Υποθέτω ότι είναι εκεί οι συναρτήσεις σου
+from utils import format_number_gr, format_percentage_gr  # Υποθέτω ότι έχεις αυτές τις συναρτήσεις
 
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
@@ -67,23 +67,23 @@ def show_discount_efficiency_ui():
     st.header("Αποτελέσματα")
 
     st.write(f"**Μέση περίοδος είσπραξης πριν τη νέα πολιτική:** {format_number_gr(current_avg_collection)} μέρες")
-    st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {format_number_gr(current_receivables)} μονάδες")
+    st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {format_number_gr(current_receivables)} €")
 
-    st.write(f"**Αποδέσμευση κεφαλαίων (χωρίς επιπλέον πωλήσεις):** {format_number_gr(released_capital_discount)} μονάδες")
+    st.write(f"**Αποδέσμευση κεφαλαίων (χωρίς επιπλέον πωλήσεις):** {format_number_gr(released_capital_discount)} €")
 
     st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {format_percentage_gr(pct_follow_new_policy)}")
     st.write(f"**% πελατών που παραμένει με την παλιά κατάσταση:** {format_percentage_gr(pct_remain_old)}")
 
     st.write(f"**Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων:** {format_number_gr(new_avg_collection_after_increase)} μέρες")
-    st.write(f"**Απαιτήσεις μετά την αύξηση πωλήσεων:** {format_number_gr(receivables_after_increase)} μονάδες")
-    st.write(f"**Αποδέσμευση κεφαλαίων μετά την αύξηση πωλήσεων:** {format_number_gr(released_capital_after_increase)} μονάδες")
+    st.write(f"**Απαιτήσεις μετά την αύξηση πωλήσεων:** {format_number_gr(receivables_after_increase)} €")
+    st.write(f"**Αποδέσμευση κεφαλαίων μετά την αύξηση πωλήσεων:** {format_number_gr(released_capital_after_increase)} €")
 
-    st.write(f"**Κέρδος από επιπλέον πωλήσεις:** {format_number_gr(profit_extra_sales)} μονάδες")
-    st.write(f"**Κέρδος αποδέσμευσης κεφαλαίων:** {format_number_gr(profit_released_capital)} μονάδες")
-    st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} μονάδες")
+    st.write(f"**Κέρδος από επιπλέον πωλήσεις:** {format_number_gr(profit_extra_sales)} €")
+    st.write(f"**Κέρδος αποδέσμευσης κεφαλαίων:** {format_number_gr(profit_released_capital)} €")
+    st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} €")
 
-    st.write(f"**Συνολικό κέρδος από την πρόταση:** {format_number_gr(total_profit)} μονάδες")
-    st.write(f"**NPV:** {format_number_gr(npv)} μονάδες")
+    st.write(f"**Συνολικό κέρδος από την πρόταση:** {format_number_gr(total_profit)} €")
+    st.write(f"**NPV:** {format_number_gr(npv)} €")
 
     if max_discount_break_even is not None:
         st.write(f"**Μέγιστη έκπτωση (NPV Break Even):** {format_percentage_gr(max_discount_break_even)}")
