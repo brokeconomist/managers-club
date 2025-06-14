@@ -57,12 +57,21 @@ def show_discount_efficiency_ui():
         - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
     )
 
-    try:
-        max_discount_break_even = 1 - (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount) * (
-            ((1 - (1 / pct_follow_new_policy)) +
-             ((1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection) + (extra_sales / current_sales) * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days))) /
-            (pct_follow_new_policy * (1 + (extra_sales / current_sales)))
+        # Μέγιστη έκπτωση (NPV Break Even) μέσω επαναληπτικού υπολογισμού
+    max_discount_break_even = None
+    for test_discount_pct in [i / 10000 for i in range(1, 1000)]:
+        test_npv = (
+            (current_sales + extra_sales) * pct_follow_new_policy * (1 - test_discount_pct)
+            * (1 / (1 + discount_rate_daily) ** days_cash_payment)
+            + (current_sales + extra_sales) * (1 - pct_follow_new_policy)
+            * (1 / (1 + discount_rate_daily) ** days_reject_discount)
+            - cost_of_sales_pct * extra_sales * (1 / (1 + discount_rate_daily) ** supplier_payment_days)
+            - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
         )
+        if test_npv <= 0:
+            max_discount_break_even = test_discount_pct
+            break
+
     except ZeroDivisionError:
         max_discount_break_even = None
 
