@@ -99,7 +99,6 @@ def show_discount_efficiency_ui():
     st.write(f"**Αποδέσμευση κεφαλαίων:** {format_number_gr(released_capital)} €")
 
     st.write(f"**Κέρδος από επιπλέον πωλήσεις:** {format_number_gr(profit_extra_sales)} €")
-    st.write(f"**Κέρδος από αποδέσμευση κεφαλαίων:** {format_number_gr(profit_released_capital)} €")
     st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} €")
     st.write(f"**Συνολικό όφελος:** {format_number_gr(total_profit)} €")
 
