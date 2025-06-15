@@ -24,58 +24,37 @@ def show_discount_efficiency_ui():
 
     st.markdown("---")
 
-    # Μέση περίοδος είσπραξης πριν την αλλαγή (παλιά πολιτική)
+    # Υπολογισμοί
     current_avg_collection = days_accept_discount * pct_accept_discount + days_reject_discount * pct_reject_discount
     current_receivables = current_sales * current_avg_collection / 365
 
-    # Οι παλιές πωλήσεις δεν αλλάζουν πολιτική - δεν έχουν έκπτωση, παραμένουν με παλιά μέση περίοδο είσπραξης
-    # Οι νέες πωλήσεις ακολουθούν τη νέα πολιτική (με έκπτωση)
-    
-    total_sales = current_sales + extra_sales
+    # Υποθετική αποδέσμευση χωρίς αύξηση πωλήσεων
+    new_avg_collection_discount = current_avg_collection
+    new_receivables_discount = current_sales * new_avg_collection_discount / 365
+    released_capital_discount = current_receivables - new_receivables_discount
 
-    # Ποσοστό επί του συνολικού όγκου πωλήσεων που ακολουθούν τη νέα πολιτική
-    pct_follow_new_policy = (extra_sales + current_sales * pct_accept_discount) / total_sales
-    pct_remain_old_policy = 1 - pct_follow_new_policy
+    pct_follow_new_policy = ((current_sales * pct_accept_discount) + extra_sales) / (current_sales + extra_sales)
+    pct_remain_old = 1 - pct_follow_new_policy
 
-    # Νέα μέση περίοδος είσπραξης μετά την αλλαγή για όλο το σύνολο πωλήσεων
-    new_avg_collection = pct_follow_new_policy * days_cash_payment + pct_remain_old_policy * days_reject_discount
+    new_avg_collection_after_increase = pct_follow_new_policy * days_cash_payment + pct_remain_old * days_reject_discount
+    receivables_after_increase = ((current_sales + extra_sales) * new_avg_collection_after_increase) / 365
+    released_capital_after_increase = current_receivables - receivables_after_increase
 
-    # Απαιτήσεις μετά την αλλαγή (σε €)
-    receivables_after = total_sales * new_avg_collection / 365
-
-    # Αποδέσμευση κεφαλαίου = παλιές απαιτήσεις - νέες απαιτήσεις
-    released_capital = current_receivables - receivables_after
-
-    # Κέρδος από επιπλέον πωλήσεις (χωρίς κόστος έκπτωσης)
     profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
-
-    # Κέρδος από αποδέσμευση κεφαλαίου (χρησιμοποιώντας WACC)
-    profit_released_capital = released_capital * wacc
-
-    # Κόστος έκπτωσης εφαρμόζεται μόνο στις πωλήσεις που ακολουθούν τη νέα πολιτική (μόνο σε πρόσθετες πωλήσεις + ποσοστό παλιών πελατών που αποδέχονται έκπτωση)
-    discount_cost = (extra_sales + current_sales * pct_accept_discount) * cash_discount_pct
-
-    # Συνολικό καθαρό κέρδος
+    profit_released_capital = released_capital_after_increase * wacc
+    discount_cost = (current_sales + extra_sales) * pct_follow_new_policy * cash_discount_pct
     total_profit = profit_extra_sales + profit_released_capital - discount_cost
 
     discount_rate_daily = wacc / 365
 
-    # Υπολογισμός NPV: Προεξόφληση ταμειακών ροών παλαιών και νέων πωλήσεων ξεχωριστά
-
-    # Παλιές πωλήσεις που πληρώνουν χωρίς έκπτωση (ποσοστό που δεν αποδέχεται έκπτωση)
-    npv_old_no_discount = current_sales * pct_reject_discount * (1 / (1 + discount_rate_daily) ** days_reject_discount)
-
-    # Παλαιές πωλήσεις που πληρώνουν με έκπτωση
-    npv_old_with_discount = current_sales * pct_accept_discount * (1 - cash_discount_pct) * (1 / (1 + discount_rate_daily) ** days_cash_payment)
-
-    # Νέες πωλήσεις με έκπτωση (όλες)
-    npv_new_sales = extra_sales * (1 - cash_discount_pct) * (1 / (1 + discount_rate_daily) ** days_cash_payment)
-
-    # Κόστος πωλήσεων παλιών + νέων (χρησιμοποιούμε supplier_payment_days για προεξόφληση)
-    cost_sales_discounted = (current_sales + extra_sales) * cost_of_sales_pct * (1 / (1 + discount_rate_daily) ** supplier_payment_days)
-
-    # Συνολικό NPV
-    npv = npv_old_no_discount + npv_old_with_discount + npv_new_sales - cost_sales_discounted
+    npv = (
+        (current_sales + extra_sales) * pct_follow_new_policy * (1 - cash_discount_pct)
+        * (1 / (1 + discount_rate_daily) ** days_cash_payment)
+        + (current_sales + extra_sales) * (1 - pct_follow_new_policy)
+        * (1 / (1 + discount_rate_daily) ** days_reject_discount)
+        - cost_of_sales_pct * extra_sales * (1 / (1 + discount_rate_daily) ** supplier_payment_days)
+        - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
+    )
 
     try:
         max_discount_break_even = 1 - (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount) * (
@@ -93,17 +72,16 @@ def show_discount_efficiency_ui():
     st.write(f"**Μέση περίοδος είσπραξης πριν τη νέα πολιτική:** {format_number_gr(current_avg_collection)} μέρες")
     st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {format_number_gr(current_receivables)} €")
 
-    st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του συνολικού συνόλου πωλήσεων:** {format_percentage_gr(pct_follow_new_policy)}")
-    st.write(f"**% πελατών που παραμένει με την παλιά πολιτική:** {format_percentage_gr(pct_remain_old_policy)}")
 
-    st.write(f"**Νέα μέση περίοδος είσπραξης μετά την αλλαγή:** {format_number_gr(new_avg_collection)} μέρες")
-    st.write(f"**Απαιτήσεις μετά την αλλαγή πωλήσεων:** {format_number_gr(receivables_after)} €")
+    st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {format_percentage_gr(pct_follow_new_policy)}")
+    st.write(f"**% πελατών που παραμένει με την παλιά κατάσταση:** {format_percentage_gr(pct_remain_old)}")
+
+    st.write(f"**Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων:** {format_number_gr(new_avg_collection_after_increase)} μέρες")
+    st.write(f"**Απαιτήσεις μετά την αύξηση πωλήσεων:** {format_number_gr(receivables_after_increase)} €")
 
     st.write(f"**Κέρδος από επιπλέον πωλήσεις:** {format_number_gr(profit_extra_sales)} €")
     st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} €")
-    st.write(f"**Κέρδος από αποδέσμευση κεφαλαίου:** {format_number_gr(profit_released_capital)} €")
 
-    st.write(f"**Συνολικό καθαρό κέρδος:** {format_number_gr(total_profit)} €")
     st.write(f"**NPV:** {format_number_gr(npv)} €")
 
     if max_discount_break_even is not None:
