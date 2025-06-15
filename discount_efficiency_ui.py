@@ -56,7 +56,7 @@ def show_discount_efficiency_ui():
         - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
     )
 
-        try:
+    try:
         g = extra_sales / current_sales if current_sales > 0 else 0
         r = discount_rate_daily
         p = pct_accept_discount
@@ -74,11 +74,11 @@ def show_discount_efficiency_ui():
 
     optimal_discount = (1 - ((1 + discount_rate_daily) ** (days_cash_payment - current_avg_collection))) / 2
 
+    # Αποτελέσματα
     st.header("Αποτελέσματα")
 
     st.write(f"**Μέση περίοδος είσπραξης πριν τη νέα πολιτική:** {format_number_gr(current_avg_collection)} μέρες")
     st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {format_number_gr(current_receivables)} €")
-
 
     st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {format_percentage_gr(pct_follow_new_policy)}")
     st.write(f"**% πελατών που παραμένει με την παλιά κατάσταση:** {format_percentage_gr(pct_remain_old)}")
@@ -97,4 +97,3 @@ def show_discount_efficiency_ui():
         st.write("**Μέγιστη έκπτωση (NPV Break Even):** Δεν υπολογίζεται (διαίρεση με μηδέν)")
 
     st.write(f"**Βέλτιστη έκπτωση:** {format_percentage_gr(optimal_discount)}")
-
