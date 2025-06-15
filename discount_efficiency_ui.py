@@ -87,7 +87,7 @@ def show_discount_efficiency_ui():
 
     st.write(f"**NPV:** {format_number_gr(npv)} €")
     if max_discount_break_even is not None:
-        st.write(f"**Μέγιστη έκπτωση (NPV Break-Even):** {format_percentage_gr(max_discount_break_even)}")
+        
     else:
         st.write("**Μέγιστη έκπτωση (NPV Break-Even):** Δεν υπολογίζεται (διαίρεση με μηδέν)")
 
