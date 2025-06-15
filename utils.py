@@ -14,9 +14,7 @@ def parse_gr_number(x):
     except:
         return 0.0
 
-def format_percentage_gr(x):
-    try:
-        return format_number_gr(x) + " %"
-    except:
-        return str(x)
-
+def format_percentage_gr(value, decimals=2):
+    if value is None:
+        return "-"
+    return f"{value * 100:,.{decimals}f}%".replace(",", "#").replace(".", ",").replace("#", ".")
