@@ -41,16 +41,18 @@ def show_discount_efficiency_ui():
 
     discount_rate_daily = wacc / 365
 
-    npv = (
-        (current_sales + extra_sales) * pct_follow_new_policy * (1 - cash_discount_pct)
-        * (1 / (1 + discount_rate_daily) ** days_cash_payment)
-        + (current_sales + extra_sales) * (1 - pct_follow_new_policy)
-        * (1 / (1 + discount_rate_daily) ** days_reject_discount)
-        - cost_of_sales_pct * extra_sales * (1 / (1 + discount_rate_daily) ** supplier_payment_days)
-        - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
+    # Νέος υπολογισμός μέγιστης έκπτωσης break-even σύμφωνα με τον τύπο που συμφωνήσαμε
+    term1 = (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount)
+
+    numerator = (
+        (1 - (1 / pct_follow_new_policy))
+        + (1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection)
+        + cost_of_sales_pct * (extra_sales / current_sales) * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days)
     )
 
-    optimal_discount = (1 - ((1 + discount_rate_daily) ** (days_cash_payment - current_avg_collection))) / 2
+    denominator = pct_follow_new_policy * (1 + (extra_sales / current_sales))
+
+    max_discount = 1 - term1 * (numerator / denominator)
 
     st.header("Αποτελέσματα")
 
@@ -66,5 +68,4 @@ def show_discount_efficiency_ui():
     st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} €")
     st.write("---")
 
-    st.write(f"**NPV:** {format_number_gr(npv)} €")
-    st.write(f"**Βέλτιστη έκπτωση:** {format_percentage_gr(optimal_discount)}")
+    st.write(f"**Μέγιστη έκπτωση break-even:** {format_percentage_gr(max_discount)}")
