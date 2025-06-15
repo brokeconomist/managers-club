@@ -1,6 +1,5 @@
 import streamlit as st
 
-# Εισαγωγή UI modules
 from home import show_home
 from break_even_calculator import show_break_even_calculator
 from break_even_shift_calculator import show_break_even_shift_calculator
@@ -10,11 +9,10 @@ from complementary_analysis import show_complementary_analysis
 from loss_threshold import show_loss_threshold_before_price_cut
 from credit_extension_analysis import show_credit_extension_analysis
 from credit_policy_app import show_credit_policy_analysis
-from supplier_credit_app import show_supplier_credit_analysis
-from cash_cycle import run_cash_cycle_app
-from discount_efficiency_ui import show_discount_efficiency_ui
+from supplier_credit_app import show_supplier_credit_analysis  # ✅ Νέο
+from cash_cycle import run_cash_cycle_app  # ✅ Νέο
 
-# Ρυθμίσεις εφαρμογής
+# Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
 # Λεξικό εργαλείων
@@ -28,14 +26,13 @@ tools = {
     "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": show_loss_threshold_before_price_cut,
     "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
-    "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
-    "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
-    "💸 Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,
+    "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,  # ✅ Νέο
+    "📊 Ταμειακός Κύκλος": run_cash_cycle_app  # ✅ Νέο
 }
 
-# Sidebar μενού
+# Πλευρικό μενού
 st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
 selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-# Εμφάνιση του αντίστοιχου εργαλείου
+# Εκτέλεση της επιλεγμένης λειτουργίας
 tools[selected_tool]()
