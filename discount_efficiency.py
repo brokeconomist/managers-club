@@ -46,13 +46,23 @@ def show_dmax_calculator():
     col1, col2 = st.columns(2)
 
     with col1:
-        total_sales = st.number_input("Επιπλέον Πωλήσεις που Αναμένονται (€)", min_value=0.0, format="%.2f")
-        discount_rate = st.number_input("Ποσοστό Έκπτωσης (%)", min_value=0.0, max_value=100.0, format="%.2f") / 100
-        acceptance_rate = st.number_input("Ποσοστό Πελατών που Αποδέχονται την Έκπτωση (%)", min_value=0.0, max_value=100.0, format="%.2f") / 100
+        total_sales = st.number_input(
+            "Επιπλέον Πωλήσεις που Αναμένονται (€)", min_value=0.0, value=10000.0, format="%.2f"
+        )
+        discount_rate = st.number_input(
+            "Ποσοστό Έκπτωσης (%)", min_value=0.0, max_value=100.0, value=2.0, format="%.2f"
+        ) / 100
+        acceptance_rate = st.number_input(
+            "Ποσοστό Πελατών που Αποδέχονται την Έκπτωση (%)", min_value=0.0, max_value=100.0, value=50.0, format="%.2f"
+        ) / 100
 
     with col2:
-        days_reduction = st.number_input("Μείωση Ημερών Είσπραξης", min_value=0.0, format="%.1f")
-        annual_discount_rate = st.number_input("Ετήσιο Κόστος Κεφαλαίου (%)", min_value=0.0, max_value=100.0, format="%.2f") / 100
+        days_reduction = st.number_input(
+            "Μείωση Ημερών Είσπραξης", min_value=0.0, value=15.0, format="%.1f"
+        )
+        annual_discount_rate = st.number_input(
+            "Ετήσιο Κόστος Κεφαλαίου (%)", min_value=0.0, max_value=100.0, value=10.0, format="%.2f"
+        ) / 100
 
     if st.button("Υπολογισμός Απόδοσης"):
         dmax, npv_gain = calculate_discount_efficiency(
@@ -67,6 +77,5 @@ def show_dmax_calculator():
         st.metric("📈 Μέγιστο Ποσοστό Έκπτωσης που Συμφέρει (Dmax)", format_percentage_gr(dmax))
         st.metric("💰 Καθαρό Όφελος (NPV) από την Έκπτωση", format_number_gr(npv_gain) + " €")
 
-# ---- Για μεμονωμένη εκτέλεση ----
 if __name__ == "__main__":
     show_dmax_calculator()
