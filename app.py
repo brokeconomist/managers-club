@@ -14,10 +14,6 @@ from supplier_credit_app import show_supplier_credit_analysis
 from cash_cycle import run_cash_cycle_app
 from discount_efficiency_ui import show_discount_efficiency_ui
 
-# (προαιρετικά - μόνο αν χρησιμοποιείς απευθείας συναρτήσεις από αυτά)
-# from modules.discount_logic import calculate_discount_analysis
-# from modules.discount_optimizer import optimize_discount
-
 # Ρυθμίσεις εφαρμογής
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
