@@ -53,7 +53,7 @@ def show_discount_efficiency_ui():
     )
 
         
-    try:
+try:
     max_discount_break_even = 1 - (
         (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount)
         * (
