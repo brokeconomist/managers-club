@@ -60,7 +60,7 @@ def show_discount_efficiency_ui():
                 + (1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection)
                 + (extra_sales / current_sales)
                 * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days)
-                - (cost_of_sales_pct * extra_sales / current_sales)
+                + (cost_of_sales_pct * extra_sales / current_sales)
                 * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days)
             )
             / (pct_follow_new_policy * (1 + (extra_sales / current_sales)))
