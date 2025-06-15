@@ -11,7 +11,6 @@ from credit_extension_analysis import show_credit_extension_analysis
 from credit_policy_app import show_credit_policy_analysis
 from supplier_credit_app import show_supplier_credit_analysis
 from cash_cycle import run_cash_cycle_app
-
 from discount_efficiency import show_discount_efficiency_ui  # Νέο εργαλείο
 
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
