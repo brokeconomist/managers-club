@@ -36,10 +36,8 @@ def show_discount_efficiency_ui():
     released_capital = current_receivables - new_receivables
 
     gross_profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
-    return_on_extra_sales = gross_profit_extra_sales / (new_receivables - current_receivables) if (new_receivables - current_receivables) != 0 else 0
     value_of_released_capital = released_capital * wacc
     discount_cost = (current_sales + extra_sales) * pct_follow_new_policy * cash_discount_pct
-    total_economic_gain = gross_profit_extra_sales + value_of_released_capital - discount_cost
 
     discount_rate_daily = wacc / 365
 
@@ -52,25 +50,8 @@ def show_discount_efficiency_ui():
         - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
     )
 
-    try:
-        max_discount_break_even = 1 - (
-            (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount)
-            * (
-                (1 - (1 / pct_follow_new_policy))
-                + (1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection)
-                + (extra_sales / current_sales)
-                * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days)
-                - (cost_of_sales_pct * extra_sales / current_sales)
-                * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days)
-            )
-            / (pct_follow_new_policy * (1 + (extra_sales / current_sales)))
-        )
-    except ZeroDivisionError:
-        max_discount_break_even = None
-
     optimal_discount = (1 - ((1 + discount_rate_daily) ** (days_cash_payment - current_avg_collection))) / 2
 
-    # Εμφάνιση Αποτελεσμάτων
     st.header("Αποτελέσματα")
 
     st.write(f"**Μέση περίοδος είσπραξης πριν:** {format_number_gr(current_avg_collection)} μέρες")
@@ -86,9 +67,4 @@ def show_discount_efficiency_ui():
     st.write("---")
 
     st.write(f"**NPV:** {format_number_gr(npv)} €")
-    if max_discount_break_even is not None:
-        
-    else:
-        st.write("**Μέγιστη έκπτωση (NPV Break-Even):** Δεν υπολογίζεται (διαίρεση με μηδέν)")
-
     st.write(f"**Βέλτιστη έκπτωση:** {format_percentage_gr(optimal_discount)}")
