@@ -1,7 +1,3 @@
-# Δημιουργούμε πλήρες αρχείο Python με όλα τα αποτελέσματα (NPV, όφελος, κόστος, αποδέσμευση) και max έκπτωση
-file_path = "/mnt/data/discount_efficiency_ui.py"
-
-full_final_code = '''\
 import streamlit as st
 
 def format_number_gr(x):
@@ -10,7 +6,7 @@ def format_number_gr(x):
 def format_percentage_gr(x):
     return f"{x * 100:.2f}%".replace(".", ",")
 
-def calculate_discount_metrics(
+def calculate_max_discount_only_extra_sales(
     current_sales,
     extra_sales,
     variable_cost_pct,
@@ -30,31 +26,6 @@ def calculate_discount_metrics(
     N = current_avg_collection
     C = supplier_payment_days
 
-    # Έκπτωση επί των επιπλέον πωλήσεων μόνο
-    discount_cost = extra_sales * p * 0.01  # προσωρινή τιμή για έκπτωση 1% (θα μεταβληθεί από UI)
-
-    # Υπολογισμοί για NPV και κέρδος
-    total_sales = current_sales + extra_sales
-    discount_sales = current_sales * p + extra_sales
-    pct_follow_policy_total = discount_sales / total_sales if total_sales > 0 else 0
-
-    new_avg_collection = M * pct_follow_policy_total + Q * (1 - pct_follow_policy_total)
-    current_receivables = current_sales * N / 365
-    new_receivables = total_sales * new_avg_collection / 365
-    released_capital = current_receivables - new_receivables
-
-    profit_extra = extra_sales * (1 - y)
-    profit_released_capital = released_capital * wacc
-
-    # NPV πλήρες (προσέγγιση όπως στο Excel)
-    npv = (
-        total_sales * pct_follow_policy_total * (1 / (1 + r) ** M)
-        + total_sales * (1 - pct_follow_policy_total) * (1 / (1 + r) ** Q)
-        - y * extra_sales * (1 / (1 + r) ** C)
-        - current_sales * (1 / (1 + r) ** N)
-    )
-
-    # Μέγιστη έκπτωση με τύπο Bhattacharya επί των extra_sales
     try:
         numerator = 1 - (1 / p) + (1 + r) ** (Q - N) + y * g * (1 + r) ** (Q - C)
         denominator = p * (1 + g)
@@ -63,15 +34,7 @@ def calculate_discount_metrics(
     except ZeroDivisionError:
         max_discount = None
 
-    return {
-        "released_capital": released_capital,
-        "profit_extra_sales": profit_extra,
-        "profit_released_capital": profit_released_capital,
-        "discount_cost": discount_cost,
-        "net_benefit": profit_extra + profit_released_capital - discount_cost,
-        "npv": npv,
-        "max_discount_break_even": max_discount
-    }
+    return max_discount
 
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
@@ -93,7 +56,7 @@ def show_discount_efficiency_ui():
 
     st.markdown("---")
 
-    results = calculate_discount_metrics(
+    max_discount = calculate_max_discount_only_extra_sales(
         current_sales,
         extra_sales,
         variable_cost_pct,
@@ -105,23 +68,8 @@ def show_discount_efficiency_ui():
         wacc
     )
 
-    st.subheader("Αποτελέσματα")
-
-    st.write(f"**Αποδέσμευση Κεφαλαίου:** {format_number_gr(results['released_capital'])} €")
-    st.write(f"**Κέρδος από Επιπλέον Πωλήσεις:** {format_number_gr(results['profit_extra_sales'])} €")
-    st.write(f"**Κέρδος από Αποδέσμευση Κεφαλαίου:** {format_number_gr(results['profit_released_capital'])} €")
-    st.write(f"**Κόστος Έκπτωσης (μόνο επί των νέων πωλήσεων):** {format_number_gr(results['discount_cost'])} €")
-    st.write(f"**Καθαρό Όφελος (Net Benefit):** {format_number_gr(results['net_benefit'])} €")
-    st.write(f"**NPV:** {format_number_gr(results['npv'])} €")
-
-    if results["max_discount_break_even"] is not None and 0 <= results["max_discount_break_even"] <= 1:
-        st.success(f"**Μέγιστη έκπτωση (NPV Break Even): {format_percentage_gr(results['max_discount_break_even'])}**")
+    st.subheader("Αποτέλεσμα")
+    if max_discount is not None and 0 <= max_discount <= 1:
+        st.success(f"Μέγιστη έκπτωση (μόνο επί των επιπλέον πωλήσεων): {format_percentage_gr(max_discount)}")
     else:
         st.error("Δεν μπορεί να υπολογιστεί έγκυρη μέγιστη έκπτωση (ελέγξτε τις τιμές εισόδου)")
-'''
-
-# Αποθήκευση αρχείου
-with open(file_path, "w", encoding="utf-8") as f:
-    f.write(full_final_code)
-
-file_path
