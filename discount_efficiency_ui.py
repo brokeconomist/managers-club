@@ -42,7 +42,7 @@ def show_discount_efficiency_ui():
 
     profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
     profit_released_capital = released_capital_after_increase * wacc
-    discount_cost = (current_sales + extra_sales) * pct_follow_new_policy * cash_discount_pct
+    discount_cost = extra_sales * cash_discount_pct
     total_profit = profit_extra_sales + profit_released_capital - discount_cost
 
     discount_rate_daily = wacc / 365
