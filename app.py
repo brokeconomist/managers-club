@@ -13,8 +13,10 @@ from supplier_credit_app import show_supplier_credit_analysis
 from cash_cycle import run_cash_cycle_app
 from discount_efficiency import show_discount_efficiency_ui  # Νέο εργαλείο
 
+# Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
+# Λεξικό εργαλείων
 tools = {
     "🏠 Αρχική": show_home,
     "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
@@ -30,7 +32,9 @@ tools = {
     "💸 Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,  # Νέο
 }
 
+# Πλευρικό μενού
 st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
 selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
+# Εκτέλεση της επιλεγμένης λειτουργίας
 tools[selected_tool]()
