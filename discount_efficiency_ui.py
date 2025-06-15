@@ -52,26 +52,18 @@ def show_discount_efficiency_ui():
         - current_sales * (1 / (1 + discount_rate_daily) ** current_avg_collection)
     )
 
-        try:
-        R = current_sales
-        ΔR = extra_sales
-        d = cash_discount_pct  # δεν το χρειαζόμαστε εδώ αλλά το κρατάμε για σύγκριση
-        p = pct_follow_new_policy
-        r = discount_rate_daily
-        t1 = days_cash_payment
-        t2 = days_reject_discount
-        t0 = current_avg_collection
-        ts = supplier_payment_days
-
-        factor1 = (1 + r) ** (t1 - t2)
-        factor2 = (1 + r) ** (t2 - t0)
-        factor3 = (1 + r) ** (t2 - ts)
-
-        numerator = (1 - (1 / p)) + (factor2 + (ΔR / R) * factor3)
-        denominator = p * (1 + ΔR / R)
-
-        max_discount_break_even = 1 - factor1 * (numerator / denominator)
-
+        
+    try:
+        max_discount_break_even = 1 - (
+        (1 + discount_rate_daily) ** (days_cash_payment - days_reject_discount)
+        * (
+            (1 - (1 / pct_follow_new_policy))
+            + (1 + discount_rate_daily) ** (days_reject_discount - current_avg_collection)
+            + (extra_sales / current_sales)
+            * (1 + discount_rate_daily) ** (days_reject_discount - supplier_payment_days)
+        )
+        / (pct_follow_new_policy * (1 + (extra_sales / current_sales)))
+    )
     except ZeroDivisionError:
         max_discount_break_even = None
 
