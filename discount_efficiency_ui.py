@@ -36,9 +36,13 @@ def show_discount_efficiency_ui():
     pct_follow_new_policy = ((current_sales * pct_accept_discount) + extra_sales) / (current_sales + extra_sales)
     pct_remain_old = 1 - pct_follow_new_policy
 
-    new_avg_collection_after_increase = pct_follow_new_policy * days_cash_payment + pct_remain_old * days_reject_discount
-    receivables_after_increase = ((current_sales + extra_sales) * new_avg_collection_after_increase) / 365
-    released_capital_after_increase = current_receivables - receivables_after_increase
+    new_avg_collection_after_increase = (
+    pct_follow_new_policy * (
+        pct_accept_discount * days_cash_payment +
+        pct_reject_discount * days_reject_discount
+    ) +
+    pct_remain_old * days_reject_discount
+)
 
     profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
     profit_released_capital = released_capital_after_increase * wacc
