@@ -66,7 +66,7 @@ def format_percentage_gr(x):
     return f"{x*100:.2f}%".replace(".", ",")
 
 def show_discount_efficiency_ui():
-    st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς (Bhattacharya Model)")
+    st.title("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς")
 
     with st.form("input_form"):
         col1, col2 = st.columns(2)
