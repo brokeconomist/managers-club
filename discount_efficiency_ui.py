@@ -42,7 +42,7 @@ def show_discount_efficiency_ui():
         pct_reject_discount * days_reject_discount
     ) +
     pct_remain_old * days_reject_discount
-)
+    )
 
     profit_extra_sales = extra_sales * (1 - cost_of_sales_pct)
     profit_released_capital = released_capital_after_increase * wacc
