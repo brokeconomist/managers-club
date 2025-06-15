@@ -1,9 +1,8 @@
-def format_number_gr(x):
-    try:
-        s = f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        return s
-    except:
-        return str(x)
+def format_number_gr(x, decimals=2):
+    return f"{x:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def format_percentage_gr(x, decimals=1):
+    return f"{x * 100:.{decimals}f}%".replace(".", ",")
 
 def parse_gr_number(x):
     try:
@@ -13,9 +12,3 @@ def parse_gr_number(x):
         return float(x.replace(".", "").replace(",", "."))
     except:
         return 0.0
-
-def format_percentage_gr(value, decimals=2):
-    if value is None:
-        return "—"
-    format_str = f"{{:,.{decimals}f}} %"
-    return format_str.format(value * 100).replace(",", "x").replace(".", ",").replace("x", ".")
