@@ -69,7 +69,7 @@ def show_discount_efficiency_ui():
     st.write(f"**Τρέχουσες απαιτήσεις πριν τη νέα πολιτική:** {format_number_gr(current_receivables)} €")
 
 
-    st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {format_percentage_gr(pct_follow_new_policy)}")
+    st.write(f"**% πελατών που ακολουθεί τη νέα πολιτική επί του νέου συνόλου:** {format_percentage_gr(pct_follow_new_policy, decimals=0)}")
     st.write(f"**% πελατών που παραμένει με την παλιά κατάσταση:** {format_percentage_gr(pct_remain_old, decimals=0)}")
 
     st.write(f"**Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων:** {format_number_gr(new_avg_collection_after_increase)} μέρες")
