@@ -36,7 +36,7 @@ def calculate_discount_efficiency(
 
 # ---- UI με Streamlit ----
 def show_dmax_calculator():
-    st.title("💸 Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
+    st.title("💸 Μέγιστη Έκπτωση Πληρωμής")
 
     st.markdown(
         "Υπολογίστε αν συμφέρει να προσφέρετε έκπτωση για άμεση πληρωμή, "
