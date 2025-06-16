@@ -12,7 +12,6 @@ from credit_policy_app import show_credit_policy_analysis
 from supplier_credit_app import show_supplier_credit_analysis
 from cash_cycle import run_cash_cycle_app
 from discount_efficiency import show_discount_efficiency_ui  # Υφιστάμενο εργαλείο
-from max_cash_discount import show_max_cash_discount_ui      # Νέο εργαλείο - Μέγιστη Έκπτωση Τοις Μετρητοίς
 
 # Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
@@ -31,7 +30,6 @@ tools = {
     "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
     "💸 Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,
-    "📉 Μέγιστη Έκπτωση Τοις Μετρητοίς": show_max_cash_discount_ui,  # Νέο εργαλείο
 }
 
 # Sidebar μενού
