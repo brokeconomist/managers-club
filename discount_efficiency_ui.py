@@ -1,5 +1,6 @@
+# discount_efficiency.py
 import streamlit as st
-from utils import format_number_gr, format_percentage_gr  # Υποθέτουμε ότι υπάρχουν αυτές οι συναρτήσεις
+from utils import format_number_gr, format_percentage_gr
 
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
@@ -10,16 +11,31 @@ def show_discount_efficiency_ui():
     with col1:
         current_sales = st.number_input("Τρέχουσες πωλήσεις", value=1000, step=1, format="%d")
         extra_sales = st.number_input("Επιπλέον πωλήσεις λόγω έκπτωσης", value=250, step=1, format="%d")
-        cash_discount_pct = st.number_input("Έκπτωση για πληρωμή τοις μετρητοίς (%)", value=2.0, min_value=0.0, max_value=100.0, step=0.1) / 100
-        pct_accept_discount = st.number_input("% πελατών που αποδέχεται την έκπτωση", value=60.0, min_value=0.0, max_value=100.0, step=0.1) / 100
+        cash_discount_pct = st.number_input(
+            "Έκπτωση για πληρωμή τοις μετρητοίς (%)",
+            value=2.0, min_value=0.0, max_value=100.0, step=0.1
+        ) / 100
+        pct_accept_discount = st.number_input(
+            "% πελατών που αποδέχεται την έκπτωση",
+            value=60.0, min_value=0.0, max_value=100.0, step=0.1
+        ) / 100
         days_accept_discount = st.number_input("Μέρες που πληρώνουν όσοι αποδέχονται την έκπτωση", value=60, step=1)
 
     with col2:
-        pct_reject_discount = st.number_input("% πελατών που δεν αποδέχεται την έκπτωση", value=40.0, min_value=0.0, max_value=100.0, step=0.1) / 100
+        pct_reject_discount = st.number_input(
+            "% πελατών που δεν αποδέχεται την έκπτωση",
+            value=40.0, min_value=0.0, max_value=100.0, step=0.1
+        ) / 100
         days_reject_discount = st.number_input("Μέρες που πληρώνουν όσοι δεν αποδέχονται την έκπτωση", value=120, step=1)
         days_cash_payment = st.number_input("Μέρες για πληρωμή τοις μετρητοίς", value=10, step=1)
-        cost_of_sales_pct = st.number_input("Κόστος πωλήσεων σε %", value=80.0, min_value=0.0, max_value=100.0, step=0.1) / 100
-        wacc = st.number_input("Κόστος κεφαλαίου (WACC) σε %", value=20.0, min_value=0.0, max_value=100.0, step=0.1) / 100
+        cost_of_sales_pct = st.number_input(
+            "Κόστος πωλήσεων σε %",
+            value=80.0, min_value=0.0, max_value=100.0, step=0.1
+        ) / 100
+        wacc = st.number_input(
+            "Κόστος κεφαλαίου (WACC) σε %",
+            value=20.0, min_value=0.0, max_value=100.0, step=0.1
+        ) / 100
         supplier_payment_days = st.number_input("Μέση περίοδος αποπληρωμής προμηθευτών (σε μέρες)", value=30, step=1)
 
     st.markdown("---")
