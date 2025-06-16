@@ -12,6 +12,7 @@ from credit_policy_app import show_credit_policy_analysis
 from supplier_credit_app import show_supplier_credit_analysis  # ✅ Νέο
 from cash_cycle import run_cash_cycle_app  # ✅ Νέο
 from discount_efficiency_app import show_discount_efficiency_ui  # ✅ Νέο
+from property_vs_lease_calculator import show_property_vs_lease_calculator  # ✅ Προσθήκη
 
 # Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
@@ -29,7 +30,8 @@ tools = {
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
     "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
-    "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui
+    "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,
+    "🏡 Ανάλυση Ακινήτου vs Μίσθωσης": show_property_vs_lease_calculator  # ✅ Νέα προσθήκη
 }
 
 # Πλευρικό μενού
