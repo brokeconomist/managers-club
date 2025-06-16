@@ -20,7 +20,6 @@ def show_property_vs_lease_calculator():
         acquisition_costs = parse_gr_number(st.text_input("Λοιπά έξοδα απόκτησης (€)", "10000"))
         annual_maintenance = parse_gr_number(st.text_input("Ετήσιο κόστος συντήρησης (€)", "1000"))
 
-    # Υπολογισμός
     results = calculate_property_vs_lease(
         rent_per_month, duration_years, interest_rate_annual,
         property_price, acquisition_costs, annual_maintenance, tax_rate
