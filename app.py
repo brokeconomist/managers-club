@@ -31,7 +31,7 @@ tools = {
     "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
     "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,
-    "🏡 Ανάλυση Δανείου vs Μίσθωσης": show_property_vs_lease_calculator  # ✅ Νέα προσθήκη
+    "🏡 Ανάλυση Δανείου vs Μίσθωσης (σύντομα διαθέσιμο)": show_property_vs_lease_calculator  # ✅ Νέα προσθήκη
 }
 
 # Πλευρικό μενού
