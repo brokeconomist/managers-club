@@ -1,4 +1,3 @@
-# max_cash_discount.py
 import streamlit as st
 
 def calculate_max_cash_discount_advanced(
@@ -55,7 +54,7 @@ def show_max_cash_discount_ui():
         new_days_payment_clients_take_discount = st.number_input("Νέες Μέρες Πληρωμής πελατών με έκπτωση", value=10, step=1)
         COGS = st.number_input("Κόστος Πωληθέντων (%)", value=80.0, step=0.1, format="%.1f")
         WACC = st.number_input("WACC (%)", value=20.0, step=0.1, format="%.1f")
-        avg_days_pay_suppliers = st.number_input("Μέσες Μέρες Πληρωμής Προμηθευτών", value=30.0, step=1)
+        avg_days_pay_suppliers = st.number_input("Μέσες Μέρες Πληρωμής Προμηθευτών", value=30, step=1)
         avg_current_collection_days = st.number_input("Μέσες Μέρες Είσπραξης", value=60, step=1)
 
     if st.button("Υπολογισμός"):
