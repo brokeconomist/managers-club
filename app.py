@@ -30,7 +30,7 @@ tools = {
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
     "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,  # ✅ Νέο
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app  # ✅ Νέο
-    "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,  # ✅ Νέο
+    "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui  # ✅ Νέο
 
 }
 
