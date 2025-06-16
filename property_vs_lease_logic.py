@@ -1,4 +1,5 @@
 import numpy as np
+import numpy_financial as npf
 
 def calculate_property_vs_lease(
     rent_per_month, years, annual_rate, property_price,
@@ -11,22 +12,22 @@ def calculate_property_vs_lease(
     # Μίσθωση
     total_rent = rent_per_month * 12 * years
     rent_cashflows = np.full(months, -rent_per_month)
-    rent_npv = np.npv(monthly_rate, rent_cashflows)
+    rent_npv = npf.npv(monthly_rate, rent_cashflows)
 
     # Δάνειο για αγορά
     loan_amount = property_price
-    monthly_payment = np.pmt(monthly_rate, months, -loan_amount)
+    monthly_payment = npf.pmt(monthly_rate, months, -loan_amount)
     total_loan_payments = monthly_payment * months
     total_interest = total_loan_payments - loan_amount
 
     # Φορολογικά εκπιπτόμενα
     annual_depreciation = (property_price + acquisition_costs) / years
     annual_tax_shield = (
-        total_interest / years + annual_depreciation + annual_maintenance
+        (total_interest / years) + annual_depreciation + annual_maintenance
     ) * tax_rate_decimal
     total_tax_savings = annual_tax_shield * years
 
-    # Συνολικό κόστος απόκτησης
+    # Συνολικό κόστος απόκτησης (με φόρους)
     net_acquisition_cost = total_loan_payments + acquisition_costs - total_tax_savings
 
     return {
