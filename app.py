@@ -11,10 +11,14 @@ from credit_extension_analysis import show_credit_extension_analysis
 from credit_policy_app import show_credit_policy_analysis
 from supplier_credit_app import show_supplier_credit_analysis
 from cash_cycle import run_cash_cycle_app
-from discount_efficiency import show_discount_efficiency_ui  # Νέο εργαλείο
+from discount_efficiency import show_discount_efficiency_ui  # ✅ Νέο εργαλείο
 
 # Ρυθμίσεις σελίδας
-st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
+st.set_page_config(
+    page_title="Managers’ Club",
+    page_icon="📊",
+    layout="centered"
+)
 
 # Λεξικό εργαλείων
 tools = {
@@ -29,7 +33,7 @@ tools = {
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
     "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
-    "💸 Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,  # Νέο
+    "💸 Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui  # ✅ Νέο εργαλείο
 }
 
 # Πλευρικό μενού
