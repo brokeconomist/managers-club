@@ -13,7 +13,6 @@ from supplier_credit_app import show_supplier_credit_analysis  # ✅ Νέο
 from cash_cycle import run_cash_cycle_app  # ✅ Νέο
 from discount_efficiency_app import show_discount_efficiency_ui  # ✅ Νέο
 
-
 # Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
@@ -28,10 +27,9 @@ tools = {
     "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": show_loss_threshold_before_price_cut,
     "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
-    "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,  # ✅ Νέο
-    "📊 Ταμειακός Κύκλος": run_cash_cycle_app,  # ✅ Νέο
-    "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui  # ✅ Νέο
-
+    "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
+    "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
+    "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui
 }
 
 # Πλευρικό μενού
@@ -40,4 +38,3 @@ selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(
 
 # Εκτέλεση της επιλεγμένης λειτουργίας
 tools[selected_tool]()
-
