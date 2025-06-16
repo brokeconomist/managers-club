@@ -29,7 +29,7 @@ def show_supplier_credit_analysis():
         with col1:
             SupplierCreditDays = st.number_input("📆 Ημέρες Πίστωσης από Προμηθευτή", min_value=0, value=60)
             Discount = st.number_input("💸 Ποσοστό Έκπτωσης για Πληρωμή Μετρητοίς (%)", min_value=0.0, value=2.0)
-            Clients = st.number_input("👥 Ποσοστό Πελατών που Πληρώνουν Μετρητοίς (%)", min_value=0.0, max_value=100.0, value=50.0)
+            Clients = st.number_input("👥 Ποσοστό Πωλήσεων που Πληρώνοναι Μετρητοίς (%)", min_value=0.0, max_value=100.0, value=50.0)
 
         with col2:
             CurrentSales = st.number_input("💰 Τρέχουσες Πωλήσεις (€)", min_value=0, value=2_000_000)
