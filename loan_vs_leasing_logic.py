@@ -1,18 +1,24 @@
-from utils import format_number_gr, parse_gr_number
+from utils import parse_gr_number
 
 def pv(rate, nper, pmt, fv=0, when=1):
-    """Υπολογισμός παρούσας αξίας ταμειακών ροών"""
+    """Υπολογισμός παρούσας αξίας (πάντα θετική τιμή)"""
     if rate == 0:
-        return pmt * nper + fv
-    return pmt * (((1 - (1 + rate) ** -nper) / rate) * (1 + rate) if when else (1 - (1 + rate) ** -nper) / rate) + fv / ((1 + rate) ** nper)
+        return abs(pmt * nper + fv)
+    pv_val = pmt * (((1 - (1 + rate) ** -nper) / rate) * (1 + rate) if when else (1 - (1 + rate) ** -nper) / rate)
+    pv_val += fv / ((1 + rate) ** nper)
+    return abs(pv_val)
 
-def limited_depreciation(asset_value, additional_costs, dep_years, finance_years):
-    total_cost = asset_value + additional_costs
-    return min(dep_years, finance_years) * (total_cost / dep_years)
+def total_depreciation(asset_value, extra_costs, dep_years, total_years):
+    """Συνολικές αποσβέσεις: περιορισμένες στην μικρότερη διάρκεια"""
+    total_cost = asset_value + extra_costs
+    dep_years_effective = min(dep_years, total_years)
+    return dep_years_effective * (total_cost / dep_years)
 
-def tax_savings(rate, years, interest, depreciation, tax_rate):
-    annual_deductible = (interest + depreciation) / years
-    return pv(rate, years, annual_deductible, 0, 0) * tax_rate
+def tax_savings(interest_costs, depreciation, tax_rate):
+    """Φορολογικό όφελος από εκπιπτόμενες δαπάνες"""
+    deductible_total = interest_costs + depreciation
+    return deductible_total * tax_rate
 
-def total_cost(pv_installments, pv_working_cap, extra_costs, tax_benefit):
-    return pv_installments + pv_working_cap + extra_costs - tax_benefit
+def final_burden(total_payment, tax_savings):
+    """Τελική επιβάρυνση = πληρωμές - φορολογικό όφελος"""
+    return total_payment - tax_savings
