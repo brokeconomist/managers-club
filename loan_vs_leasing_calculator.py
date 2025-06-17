@@ -23,7 +23,7 @@ def loan_vs_leasing_ui():
     with col2:
         st.markdown("### 🚗 Leasing")
         leasing_rate = st.number_input("Επιτόκιο Leasing (%)", value=6.0) / 100
-        leasing_monthly = st.number_input("Μηνιαία Δόση Leasing (€)", value=2044.0)
+        leasing_monthly = st.number_input("Μηνιαία Δόση Leasing (€)", value=2065.0)
         residual_value = st.number_input("Υπολειμματική Αξία (€)", value=50000.0)
         leasing_extra = st.number_input("Εφάπαξ Έξοδα Leasing (€)", value=2000.0)
         leasing_working_capital = st.number_input("Δόση Κεφ. Κίνησης Leasing (€)", value=0.0)
