@@ -34,4 +34,3 @@ def calculate_loan_or_leasing(option, months, rate_main, rate_wc, when_val, dep_
         "tax_savings": tax,
         "total_cost": total
     }
-
