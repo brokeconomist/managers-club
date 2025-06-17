@@ -1,106 +1,92 @@
 import streamlit as st
-from utils import format_number_gr
-from loan_vs_leasing_logic import calculate_loan_or_leasing
+from utils import parse_gr_number, format_number_gr
+from loan_vs_leasing_logic import calculate_scenario
 
 def loan_vs_leasing_ui():
-    st.header("📊 Σύγκριση Τραπεζικού Δανεισμού με Leasing")
+    st.header("📊 Σύγκριση Τραπεζικού Δανεισμού vs Leasing")
 
-    st.markdown("**Γενικές Παράμετροι**")
+    st.markdown("Συμπλήρωσε τα στοιχεία για κάθε εναλλακτική χρηματοδότησης:")
+
     col1, col2 = st.columns(2)
     with col1:
-        interest_loan = st.number_input("Επιτόκιο Δανείου (%)", value=6.0) / 100
-        interest_wc = st.number_input("Επιτόκιο Κεφαλαίου Κίνησης (%)", value=8.0) / 100
-        years = st.number_input("Διάρκεια Χρηματοδότησης (έτη)", value=15, step=1)
-        dep_years = st.number_input("Συνολικός Χρόνος Απόσβεσης (έτη)", value=30, step=1)
-        tax_rate = st.number_input("Φορολογικός Συντελεστής (%)", value=35.0) / 100
-        when_val = st.selectbox("Πληρωμή στην αρχή του μήνα;", ["Όχι", "Ναι"]) == "Ναι"
+        st.subheader("🏦 Τραπεζικός Δανεισμός")
+        asset_value1 = parse_gr_number(st.text_input("Εμπορική αξία ακινήτου", "250000"))
+        funding_rate1 = st.slider("Ποσοστό χρηματοδότησης (%)", 0, 100, 70) / 100
+        monthly_payment1 = parse_gr_number(st.text_input("Μηνιαία δόση", "1469"))
+        extra_costs1 = parse_gr_number(st.text_input("Επιπλέον έξοδα", "35000"))
+        working_cap1 = parse_gr_number(st.text_input("Δάνειο για κεφάλαιο κίνησης", "110000"))
+        wc_payment1 = parse_gr_number(st.text_input("Μηνιαία δόση κεφαλαίου κίνησης", "1044"))
 
     with col2:
-        fv_leasing = st.number_input("Υπολειμματική αξία Leasing", value=3530.0)
-        months = years * 12
-        rate_loan_monthly = interest_loan / 12
-        rate_wc_monthly = interest_wc / 12
-        when_val = int(when_val)
+        st.subheader("📄 Leasing")
+        asset_value2 = parse_gr_number(st.text_input("Εμπορική αξία ακινήτου ", "250000", key="asset2"))
+        funding_rate2 = st.slider("Ποσοστό χρηματοδότησης (%) ", 0, 100, 100, key="funding2") / 100
+        monthly_payment2 = parse_gr_number(st.text_input("Μηνιαία δόση ", "2099", key="payment2"))
+        extra_costs2 = parse_gr_number(st.text_input("Επιπλέον έξοδα ", "30000", key="costs2"))
+        working_cap2 = parse_gr_number(st.text_input("Δάνειο για κεφάλαιο κίνησης ", "30000", key="cap2"))
+        wc_payment2 = parse_gr_number(st.text_input("Μηνιαία δόση κεφαλαίου κίνησης ", "285", key="wcp2"))
 
-    def input_option(label, defaults):
-        st.markdown(f"### {label}")
-        return {
-            "value_asset": st.number_input(f"{label} - Εμπορική αξία ακινήτου", value=defaults["value_asset"]),
-            "financing_percent": st.number_input(f"{label} - Ποσοστό Χρηματοδότησης (%)", value=defaults["financing_percent"]) / 100,
-            "monthly_installment": st.number_input(f"{label} - Μηνιαία Δόση", value=defaults["monthly_installment"]),
-            "extra_costs": st.number_input(f"{label} - Επιπλέον Έξοδα", value=defaults["extra_costs"]),
-            "working_capital": st.number_input(f"{label} - Δάνειο Κεφαλαίου Κίνησης", value=defaults["working_capital"]),
-            "working_cap_installment": st.number_input(f"{label} - Δόση Κεφαλαίου Κίνησης", value=defaults["working_cap_installment"]),
+    st.divider()
+    st.subheader("⚙️ Κοινοί Παράμετροι")
+    loan_rate = st.number_input("Επιτόκιο Δανείου (%)", value=6.0) / 100
+    wc_rate = st.number_input("Επιτόκιο Κεφαλαίου Κίνησης (%)", value=8.0) / 100
+    years = st.number_input("Διάρκεια (έτη)", value=15, step=1)
+    months = st.number_input("Μήνες ανά έτος", value=12, step=1)
+    when = st.radio("Χρόνος πληρωμής", ["Στην αρχή", "Στο τέλος"]) == "Στην αρχή"
+    depreciation_years = st.number_input("Συνολικός χρόνος απόσβεσης (έτη)", value=30, step=1)
+    residual_value = parse_gr_number(st.text_input("Υπολειμματική αξία leasing", "3530"))
+    tax_rate = st.number_input("Φορολογικός συντελεστής (%)", value=35.0) / 100
+
+    if st.button("📈 Υπολογισμός"):
+        params1 = {
+            "loan_rate": loan_rate,
+            "wc_rate": wc_rate,
+            "years": years,
+            "months": months,
+            "when": int(when),
+            "asset_value": asset_value1,
+            "funding_rate": funding_rate1,
+            "monthly_payment": monthly_payment1,
+            "extra_costs": extra_costs1,
+            "working_capital": working_cap1,
+            "working_cap_payment": wc_payment1,
+            "residual_value": 0,
+            "depreciation_years": depreciation_years,
+            "tax_rate": tax_rate
         }
 
-    loan_defaults = {
-        "value_asset": 250_000,
-        "financing_percent": 70.0,
-        "monthly_installment": 1469,
-        "extra_costs": 35_000,
-        "working_capital": 110_000,
-        "working_cap_installment": 1044,
-    }
+        params2 = {
+            **params1,
+            "asset_value": asset_value2,
+            "funding_rate": funding_rate2,
+            "monthly_payment": monthly_payment2,
+            "extra_costs": extra_costs2,
+            "working_capital": working_cap2,
+            "working_cap_payment": wc_payment2,
+            "residual_value": residual_value
+        }
 
-    leasing_defaults = {
-        "value_asset": 250_000,
-        "financing_percent": 100.0,
-        "monthly_installment": 2099,
-        "extra_costs": 30_000,
-        "working_capital": 30_000,
-        "working_cap_installment": 285,
-    }
+        result1 = calculate_scenario(params1)
+        result2 = calculate_scenario(params2)
 
-    st.markdown("---")
-    col1, col2 = st.columns(2)
-    with col1:
-        loan_data = input_option("🏦 Τραπεζικός Δανεισμός", loan_defaults)
-    with col2:
-        leasing_data = input_option("📌 Leasing", leasing_defaults)
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("🏦 Τραπεζικός Δανεισμός")
+            show_results(result1)
 
-    st.markdown("---")
-    st.subheader("📉 Αποτελέσματα")
+        with col2:
+            st.subheader("📄 Leasing")
+            show_results(result2)
 
-    res_loan = calculate_loan_or_leasing(
-        option=loan_data,
-        months=months,
-        rate_main=rate_loan_monthly,
-        rate_wc=rate_wc_monthly,
-        when_val=when_val,
-        dep_years=dep_years,
-        years=years,
-        tax_rate=tax_rate,
-        fv=0
-    )
+        st.divider()
+        better = "Leasing" if result2["total_cost"] < result1["total_cost"] else "Τραπεζικός Δανεισμός"
+        diff = abs(result1["total_cost"] - result2["total_cost"])
+        st.info(f"Διαφορά υπέρ **{better}**: **{format_number_gr(diff)} €**")
 
-    res_leasing = calculate_loan_or_leasing(
-        option=leasing_data,
-        months=months,
-        rate_main=rate_loan_monthly,
-        rate_wc=rate_wc_monthly,
-        when_val=when_val,
-        dep_years=dep_years,
-        years=years,
-        tax_rate=tax_rate,
-        fv=fv_leasing
-    )
-
-    def show_results(label, result):
-        st.markdown(f"#### {label}")
-        st.write(f"• Παρούσα αξία δόσεων: **{format_number_gr(result['pv_installments'])} €**")
-        st.write(f"• Παρούσα αξία κεφαλαίου κίνησης: **{format_number_gr(result['pv_working_cap'])} €**")
-        st.write(f"• Αποσβέσεις: **{format_number_gr(result['depreciation'])} €**")
-        st.write(f"• Συνολικοί τόκοι: **{format_number_gr(result['interest_total'])} €**")
-        st.write(f"• Φορολογικό όφελος: **{format_number_gr(result['tax_savings'])} €**")
-        st.success(f"✅ Τελική επιβάρυνση: **{format_number_gr(result['total_cost'])} €**")
-
-    col1, col2 = st.columns(2)
-    with col1:
-        show_results("🏦 Τραπεζικός Δανεισμός", res_loan)
-    with col2:
-        show_results("📌 Leasing", res_leasing)
-
-    st.markdown("---")
-    diff = res_loan["total_cost"] - res_leasing["total_cost"]
-    better_option = "📌 Leasing" if diff > 0 else "🏦 Τραπεζικός Δανεισμός"
-    st.info(f"Διαφορά υπέρ **{better_option}**: **{format_number_gr(abs(diff))} €**")
+def show_results(result):
+    st.write(f"• Παρούσα αξία δόσεων: **{format_number_gr(abs(result['pv_installments']))} €**")
+    st.write(f"• Παρούσα αξία κεφαλαίου κίνησης: **{format_number_gr(abs(result['pv_working_cap']))} €**")
+    st.write(f"• Αποσβέσεις: **{format_number_gr(abs(result['depreciation']))} €**")
+    st.write(f"• Συνολικοί τόκοι: **{format_number_gr(abs(result['interest_total']))} €**")
+    st.write(f"• Φορολογικό όφελος: **{format_number_gr(abs(result['tax_savings']))} €**")
+    st.success(f"✅ Τελική επιβάρυνση: **{format_number_gr(abs(result['total_cost']))} €**")
