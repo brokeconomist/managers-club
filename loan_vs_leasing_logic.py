@@ -1,9 +1,12 @@
+from utils import parse_gr_number
+from math import isclose
+
 def pv(rate, nper, pmt, fv=0, when=1):
     """Υπολογισμός παρούσας αξίας ταμειακών ροών"""
-    if rate == 0:
-        return -pmt * nper - fv
-    return -pmt * ((1 - (1 + rate) ** -nper) / rate) - fv / ((1 + rate) ** nper) if when == 0 else \
-           -pmt * (((1 - (1 + rate) ** -nper) / rate) * (1 + rate)) - fv / ((1 + rate) ** nper)
+    if isclose(rate, 0):
+        return pmt * nper + fv
+    return pmt * ((1 - (1 + rate) ** -nper) / rate) * (1 + rate) if when == 1 else \
+           pmt * ((1 - (1 + rate) ** -nper) / rate) + fv / ((1 + rate) ** nper)
 
 def limited_depreciation(asset_value, additional_costs, dep_years, finance_years):
     total_cost = asset_value + additional_costs
@@ -11,26 +14,37 @@ def limited_depreciation(asset_value, additional_costs, dep_years, finance_years
 
 def tax_savings(rate, years, interest, depreciation, tax_rate):
     annual_deductible = (interest + depreciation) / years
-    return pv(rate, years, -annual_deductible, 0, 0) * tax_rate
+    return pv(rate, years, annual_deductible, 0, 0) * tax_rate
 
-def total_cost(pv_installments, pv_working_cap, extra_costs, tax_benefit):
-    return pv_installments + pv_working_cap + extra_costs - tax_benefit
+def calculate_scenario(params):
+    loan_rate = params["loan_rate"]
+    wc_rate = params["wc_rate"]
+    years = params["years"]
+    months = params["months"]
+    when = params["when"]
+    asset_value = params["asset_value"]
+    funding_rate = params["funding_rate"]
+    monthly_payment = params["monthly_payment"]
+    extra_costs = params["extra_costs"]
+    working_capital = params["working_capital"]
+    working_cap_payment = params["working_cap_payment"]
+    residual_value = params.get("residual_value", 0)
+    depreciation_years = params["depreciation_years"]
+    tax_rate = params["tax_rate"]
 
-def calculate_loan_or_leasing(option, months, rate_main, rate_wc, when_val, dep_years, years, tax_rate, fv=0):
-    pv_inst = pv(rate_main, months, option["monthly_installment"], fv, when_val)
-    pv_wc = pv(rate_wc, months, option["working_cap_installment"], 0, when_val)
-    depreciation = limited_depreciation(option["value_asset"], option["extra_costs"], dep_years, years)
-    capital_financed = option["financing_percent"] * option["value_asset"]
-    total_paid = option["monthly_installment"] * months
-    interest_total = total_paid - capital_financed
-    tax = tax_savings(rate_main * 12, years, interest_total, depreciation, tax_rate)
-    total = total_cost(pv_inst, pv_wc, option["extra_costs"], tax)
+    nper = years * months
+    pv_installments = pv(loan_rate / months, nper, monthly_payment, -residual_value, when)
+    pv_working_cap = pv(wc_rate / months, nper, working_cap_payment, 0, when)
+    interest_total = monthly_payment * nper - (asset_value * funding_rate)
+    depreciation = limited_depreciation(asset_value, extra_costs, depreciation_years, years)
+    tax_benefit = tax_savings(loan_rate, years, interest_total, depreciation, tax_rate)
+    total = pv_installments + pv_working_cap + extra_costs - tax_benefit
 
     return {
-        "pv_installments": pv_inst,
-        "pv_working_cap": pv_wc,
+        "pv_installments": pv_installments,
+        "pv_working_cap": pv_working_cap,
         "depreciation": depreciation,
         "interest_total": interest_total,
-        "tax_savings": tax,
+        "tax_savings": tax_benefit,
         "total_cost": total
     }
