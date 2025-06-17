@@ -23,7 +23,7 @@ def loan_vs_leasing_ui():
     with col2:
         st.markdown("### 🚗 Leasing")
         leasing_rate = st.number_input("Επιτόκιο Leasing (%)", value=6.0) / 100
-        leasing_monthly = st.number_input("Μηνιαία Δόση Leasing (€)", value=2065.0)
+        leasing_monthly = st.number_input("Μηνιαία Δόση Leasing (€)", value=2099.0)
         residual_value = st.number_input("Υπολειμματική Αξία (€)", value=50000.0)
         leasing_extra = st.number_input("Εφάπαξ Έξοδα Leasing (€)", value=2000.0)
         leasing_working_capital = st.number_input("Δόση Κεφ. Κίνησης Leasing (€)", value=0.0)
@@ -34,18 +34,17 @@ def loan_vs_leasing_ui():
 
     st.subheader("📉 Υπολογισμός Παρούσας Αξίας")
 
-    # Δάνειο
-    pv_loan = pv(loan_rate / 12, duration_years * 12, -loan_monthly, 0, 1)
-    pv_wc_loan = pv(loan_rate / 12, duration_years * 12, -working_capital, 0, 1)
+    # Υπολογισμοί για Δάνειο
+    pv_loan = pv(loan_rate / 12, duration_years * 12, -loan_monthly, 0, when=1)
+    pv_wc_loan = pv(loan_rate / 12, duration_years * 12, -working_capital, 0, when=1)
     depreciation_loan = limited_depreciation(loan_asset_value, loan_additional_costs, loan_dep_years, duration_years)
     tax_benefit_loan = tax_savings(loan_rate, duration_years, loan_interest, depreciation_loan, tax_rate)
     total_loan = total_cost(pv_loan, pv_wc_loan, loan_extra, tax_benefit_loan)
 
-    # Leasing
-    pv_leasing = pv(leasing_rate / 12, duration_years * 12, -leasing_monthly, residual_value, 1)
-    pv_wc_leasing = pv(leasing_rate / 12, duration_years * 12, -leasing_working_capital, 0, 1)
-    # Leasing depreciation is the full amount
-    depreciation_leasing = leasing_asset_value
+    # Υπολογισμοί για Leasing
+    pv_leasing = pv(leasing_rate / 12, duration_years * 12, -leasing_monthly, residual_value, when=1)
+    pv_wc_leasing = pv(leasing_rate / 12, duration_years * 12, -leasing_working_capital, 0, when=1)
+    depreciation_leasing = leasing_asset_value  # πλήρης απόσβεση leasing asset
     tax_benefit_leasing = tax_savings(leasing_rate, duration_years, leasing_interest, depreciation_leasing, tax_rate)
     total_leasing = total_cost(pv_leasing, pv_wc_leasing, leasing_extra, tax_benefit_leasing)
 
