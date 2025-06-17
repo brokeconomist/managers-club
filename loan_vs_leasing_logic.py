@@ -2,11 +2,13 @@ from utils import parse_gr_number
 from math import isclose
 
 def pv(rate, nper, pmt, fv=0, when=1):
-    """Υπολογισμός παρούσας αξίας ταμειακών ροών"""
+    """Υπολογισμός παρούσας αξίας ταμειακών ροών ως κόστους (πάντα θετικός αριθμός)"""
     if isclose(rate, 0):
-        return pmt * nper + fv
-    return pmt * ((1 - (1 + rate) ** -nper) / rate) * (1 + rate) if when == 1 else \
-           pmt * ((1 - (1 + rate) ** -nper) / rate) + fv / ((1 + rate) ** nper)
+        return abs(pmt * nper + fv)
+    pv_val = pmt * ((1 - (1 + rate) ** -nper) / rate)
+    if when == 1:
+        pv_val *= (1 + rate)
+    return abs(pv_val + fv / ((1 + rate) ** nper))
 
 def limited_depreciation(asset_value, additional_costs, dep_years, finance_years):
     total_cost = asset_value + additional_costs
