@@ -1,105 +1,65 @@
 import streamlit as st
-from utils import format_number_gr
-from loan_vs_leasing_logic import calculate_loan_or_leasing
+from loan_vs_leasing_logic import pv, limited_depreciation, tax_savings, total_cost
+from utils import format_number_gr, parse_gr_number
 
-st.header("📊 Σύγκριση Τραπεζικού Δανεισμού με Leasing")
+def loan_vs_leasing_ui():
+    st.header("📊 Σύγκριση: Τραπεζικός Δανεισμός vs Leasing")
 
-st.markdown("**Γενικές Παράμετροι**")
-col1, col2 = st.columns(2)
-with col1:
-    interest_loan = st.number_input("Επιτόκιο Δανείου (%)", value=6.0) / 100
-    interest_wc = st.number_input("Επιτόκιο Κεφαλαίου Κίνησης (%)", value=8.0) / 100
-    years = st.number_input("Διάρκεια Χρηματοδότησης (έτη)", value=15, step=1)
-    dep_years = st.number_input("Συνολικός Χρόνος Απόσβεσης (έτη)", value=30, step=1)
+    st.subheader("⚙️ Γενικές Παράμετροι")
+    interest_rate_loan = st.number_input("Επιτόκιο Δανείου (%)", value=6.0) / 100
+    interest_rate_working = st.number_input("Επιτόκιο Κεφαλαίου Κίνησης (%)", value=8.0) / 100
+    years = st.number_input("Διάρκεια (έτη)", value=15, step=1)
+    months = st.number_input("Μήνες ανά έτος", value=12, step=1)
+    total_periods = int(years * months)
+    dep_years = st.number_input("Χρόνος Απόσβεσης", value=30, step=1)
     tax_rate = st.number_input("Φορολογικός Συντελεστής (%)", value=35.0) / 100
-    when_val = st.selectbox("Πληρωμή στην αρχή του μήνα;", ["Όχι", "Ναι"]) == "Ναι"
+    when = st.selectbox("Πληρωμή στην αρχή (1) ή στο τέλος (0);", options=[1, 0])
 
-with col2:
-    fv_leasing = st.number_input("Υπολειμματική αξία Leasing", value=3530.0)
-    months = years * 12
-    rate_loan_monthly = interest_loan / 12
-    rate_wc_monthly = interest_wc / 12
-    when_val = int(when_val)
+    st.subheader("🏦 Δανεισμός")
+    loan_asset = st.number_input("Αξία Ακινήτου (Δάνειο)", value=250000)
+    loan_rate = st.number_input("Ποσοστό Χρηματοδότησης Δανείου (%)", value=70.0) / 100
+    loan_monthly = st.number_input("Μηνιαία Δόση Δανείου", value=1469.0)
+    loan_extra_costs = st.number_input("Επιπλέον Έξοδα Δανείου", value=35000)
+    working_capital_loan = st.number_input("Δάνειο Κεφαλαίου Κίνησης (Δάνειο)", value=110000.0)
+    working_capital_monthly_loan = st.number_input("Μηνιαία Δόση Κεφαλαίου Κίνησης (Δάνειο)", value=1044.0)
 
-def input_option(label, defaults):
-    st.markdown(f"### {label}")
-    return {
-        "value_asset": st.number_input(f"{label} - Εμπορική αξία ακινήτου", value=defaults["value_asset"]),
-        "financing_percent": st.number_input(f"{label} - Ποσοστό Χρηματοδότησης (%)", value=defaults["financing_percent"]) / 100,
-        "monthly_installment": st.number_input(f"{label} - Μηνιαία Δόση", value=defaults["monthly_installment"]),
-        "extra_costs": st.number_input(f"{label} - Επιπλέον Έξοδα", value=defaults["extra_costs"]),
-        "working_capital": st.number_input(f"{label} - Δάνειο Κεφαλαίου Κίνησης", value=defaults["working_capital"]),
-        "working_cap_installment": st.number_input(f"{label} - Δόση Κεφαλαίου Κίνησης", value=defaults["working_cap_installment"]),
-    }
+    st.subheader("📄 Leasing")
+    leasing_asset = st.number_input("Αξία Ακινήτου (Leasing)", value=250000)
+    leasing_rate = 1.0  # 100%
+    leasing_monthly = st.number_input("Μηνιαία Δόση Leasing", value=2099.0)
+    leasing_extra_costs = st.number_input("Επιπλέον Έξοδα Leasing", value=30000)
+    working_capital_leasing = st.number_input("Δάνειο Κεφαλαίου Κίνησης (Leasing)", value=30000.0)
+    working_capital_monthly_leasing = st.number_input("Μηνιαία Δόση Κεφαλαίου Κίνησης (Leasing)", value=285.0)
+    residual_value = st.number_input("Υπολειμματική Αξία Leasing", value=3530.0)
 
-loan_defaults = {
-    "value_asset": 250_000,
-    "financing_percent": 70.0,
-    "monthly_installment": 1469,
-    "extra_costs": 35_000,
-    "working_capital": 110_000,
-    "working_cap_installment": 1044,
-}
+    st.markdown("---")
 
-leasing_defaults = {
-    "value_asset": 250_000,
-    "financing_percent": 100.0,
-    "monthly_installment": 2099,
-    "extra_costs": 30_000,
-    "working_capital": 30_000,
-    "working_cap_installment": 285,
-}
+    # Υπολογισμοί Δανείου
+    loan_financed = loan_asset * loan_rate
+    pv_loan_installments = pv(interest_rate_loan / months, total_periods, loan_monthly, 0, when)
+    pv_working_loan = pv(interest_rate_working / months, total_periods, working_capital_monthly_loan, 0, when)
+    loan_depr = limited_depreciation(loan_asset, loan_extra_costs, dep_years, years)
+    loan_interest_total = loan_monthly * total_periods - loan_financed
+    loan_tax = tax_savings(interest_rate_loan / months, total_periods, loan_interest_total, loan_depr, tax_rate)
+    loan_total = total_cost(pv_loan_installments, pv_working_loan, loan_extra_costs, loan_tax)
 
-st.markdown("---")
-col1, col2 = st.columns(2)
-with col1:
-    loan_data = input_option("🏦 Τραπεζικός Δανεισμός", loan_defaults)
-with col2:
-    leasing_data = input_option("📌 Leasing", leasing_defaults)
+    # Υπολογισμοί Leasing
+    leasing_financed = leasing_asset * leasing_rate
+    pv_leasing_installments = pv(interest_rate_loan / months, total_periods, leasing_monthly, -residual_value, when)
+    pv_working_leasing = pv(interest_rate_working / months, total_periods, working_capital_monthly_leasing, 0, when)
+    leasing_depr = limited_depreciation(leasing_asset, leasing_extra_costs, dep_years, years)
+    leasing_interest_total = leasing_monthly * total_periods - leasing_financed
+    leasing_tax = tax_savings(interest_rate_loan / months, total_periods, leasing_interest_total, leasing_depr, tax_rate)
+    leasing_total = total_cost(pv_leasing_installments, pv_working_leasing, leasing_extra_costs, leasing_tax)
 
-st.markdown("---")
-st.subheader("📉 Αποτελέσματα")
+    # Εμφάνιση
+    st.subheader("💰 Τελικά Αποτελέσματα")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Τελική Επιβάρυνση Δανείου", format_number_gr(loan_total))
+    with col2:
+        st.metric("Τελική Επιβάρυνση Leasing", format_number_gr(leasing_total))
 
-res_loan = calculate_loan_or_leasing(
-    option=loan_data,
-    months=months,
-    rate_main=rate_loan_monthly,
-    rate_wc=rate_wc_monthly,
-    when_val=when_val,
-    dep_years=dep_years,
-    years=years,
-    tax_rate=tax_rate,
-    fv=0
-)
-
-res_leasing = calculate_loan_or_leasing(
-    option=leasing_data,
-    months=months,
-    rate_main=rate_loan_monthly,
-    rate_wc=rate_wc_monthly,
-    when_val=when_val,
-    dep_years=dep_years,
-    years=years,
-    tax_rate=tax_rate,
-    fv=fv_leasing
-)
-
-def show_results(label, result):
-    st.markdown(f"#### {label}")
-    st.write(f"• Παρούσα αξία δόσεων: **{format_number_gr(result['pv_installments'])} €**")
-    st.write(f"• Παρούσα αξία κεφαλαίου κίνησης: **{format_number_gr(result['pv_working_cap'])} €**")
-    st.write(f"• Αποσβέσεις: **{format_number_gr(result['depreciation'])} €**")
-    st.write(f"• Συνολικοί τόκοι: **{format_number_gr(result['interest_total'])} €**")
-    st.write(f"• Φορολογικό όφελος: **{format_number_gr(result['tax_savings'])} €**")
-    st.success(f"✅ Τελική επιβάρυνση: **{format_number_gr(result['total_cost'])} €**")
-
-col1, col2 = st.columns(2)
-with col1:
-    show_results("🏦 Τραπεζικός Δανεισμός", res_loan)
-with col2:
-    show_results("📌 Leasing", res_leasing)
-
-st.markdown("---")
-diff = res_loan["total_cost"] - res_leasing["total_cost"]
-better_option = "📌 Leasing" if diff > 0 else "🏦 Τραπεζικός Δανεισμός"
-st.info(f"Διαφορά υπέρ **{better_option}**: **{format_number_gr(abs(diff))} €**")
+    diff = loan_total - leasing_total
+    if abs(diff) > 1:
+        st.success(f"👉 **Πλεονέκτημα έχει το {'Leasing' if diff > 0 else 'Δάνειο'}** κατά περίπου {format_number_gr(abs(diff))} ευρώ.")
