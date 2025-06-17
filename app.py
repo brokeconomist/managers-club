@@ -9,10 +9,10 @@ from complementary_analysis import show_complementary_analysis
 from loss_threshold import show_loss_threshold_before_price_cut
 from credit_extension_analysis import show_credit_extension_analysis
 from credit_policy_app import show_credit_policy_analysis
-from supplier_credit_app import show_supplier_credit_analysis  # ✅ Νέο
-from cash_cycle import run_cash_cycle_app  # ✅ Νέο
-from discount_efficiency_app import show_discount_efficiency_ui  # ✅ Νέο
-from property_vs_lease_calculator import show_property_vs_lease_calculator  # ✅ Προσθήκη
+from supplier_credit_app import show_supplier_credit_analysis
+from cash_cycle import run_cash_cycle_app
+from discount_efficiency_app import show_discount_efficiency_ui
+from loan_vs_leasing_calculator import loan_vs_leasing_ui  # ✅ ΝΕΑ λειτουργική προσθήκη
 
 # Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
@@ -31,7 +31,7 @@ tools = {
     "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
     "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,
-    "🏡 Ανάλυση Δανείου vs Μίσθωσης (σύντομα διαθέσιμο)": show_property_vs_lease_calculator  # ✅ Νέα προσθήκη
+    "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui  # ✅ ΝΕΟ: τελική ενεργή επιλογή
 }
 
 # Πλευρικό μενού
