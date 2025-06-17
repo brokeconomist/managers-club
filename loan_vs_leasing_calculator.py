@@ -12,23 +12,23 @@ def loan_vs_leasing_ui():
         st.markdown("### 💰 Δάνειο")
         loan_rate = st.number_input("Επιτόκιο Δανείου (%)", value=6.0) / 100
         duration_years = st.number_input("Διάρκεια (έτη)", value=15)
-        loan_monthly = st.number_input("Μηνιαία Δόση Δανείου (€)", value=2099.0)
-        working_capital = st.number_input("Μηνιαία Δόση Κεφαλαίου Κίνησης (€)", value=300.0)
-        loan_extra = st.number_input("Εφάπαξ Έξοδα (€)", value=5000.0)
-        loan_interest = st.number_input("Συνολικοί Τόκοι (€)", value=40000.0)
-        loan_asset_value = st.number_input("Εμπορική Αξία Παγίου (€)", value=250000.0)
-        loan_dep_years = st.number_input("Έτη Απόσβεσης Παγίου", value=25)
+        loan_monthly = st.number_input("Μηνιαία Δόση Δανείου (€)", value=1469.0)
+        working_capital = st.number_input("Μηνιαία Δόση Κεφαλαίου Κίνησης (€)", value=1044.0)
+        loan_extra = st.number_input("Εφάπαξ Έξοδα (€)", value=35000.0)
+        loan_interest = st.number_input("Συνολικοί Τόκοι (€)", value=202458.0)
+        loan_asset_value = st.number_input("Εμπορική Αξία Ακινήτου (€)", value=250000.0)
+        loan_dep_years = st.number_input("Συνολικός Χρόνος Απόσβεσης", value=30)
         loan_additional_costs = st.number_input("Επιπλέον Κόστη Απόκτησης (€)", value=35000.0)
 
     with col2:
         st.markdown("### 🚗 Leasing")
         leasing_rate = st.number_input("Επιτόκιο Leasing (%)", value=6.0) / 100
-        leasing_monthly = st.number_input("Μηνιαία Δόση Leasing (€)", value=2350.0)
-        residual_value = st.number_input("Υπολειμματική Αξία (€)", value=50000.0)
-        leasing_extra = st.number_input("Εφάπαξ Έξοδα Leasing (€)", value=2000.0)
-        leasing_working_capital = st.number_input("Δόση Κεφ. Κίνησης Leasing (€)", value=0.0)
-        leasing_interest = st.number_input("Συνολικοί Τόκοι Leasing (€)", value=30000.0)
-        leasing_asset_value = st.number_input("Αξία Leasing Asset (€)", value=285000.0)
+        leasing_monthly = st.number_input("Μηνιαία Δόση Leasing (€)", value=2099.0)
+        residual_value = st.number_input("Υπολειμματική Αξία (€)", value=3530.0)
+        leasing_extra = st.number_input("Εφάπαξ Έξοδα Leasing (€)", value=30000.0)
+        leasing_working_capital = st.number_input("Δόση Κεφ. Κίνησης Leasing (€)", value=285.0)
+        leasing_interest = st.number_input("Συνολικοί Τόκοι Leasing (€)", value=179110.0)
+        leasing_asset_value = st.number_input("Αξία Leasing Asset (€)", value=283530.0)
 
     tax_rate = st.number_input("Φορολογικός Συντελεστής (%)", value=35.0) / 100
 
@@ -44,7 +44,7 @@ def loan_vs_leasing_ui():
     # Υπολογισμοί για Leasing
     pv_leasing = pv(leasing_rate / 12, duration_years * 12, -leasing_monthly, residual_value, when=1)
     pv_wc_leasing = pv(leasing_rate / 12, duration_years * 12, -leasing_working_capital, 0, when=1)
-    depreciation_leasing = leasing_asset_value  # πλήρης απόσβεση leasing asset
+    depreciation_leasing = leasing_asset_value  # Πλήρης απόσβεση leasing
     tax_benefit_leasing = tax_savings(leasing_rate, duration_years, leasing_interest, depreciation_leasing, tax_rate)
     total_leasing = total_cost(pv_leasing, pv_wc_leasing, leasing_extra, tax_benefit_leasing)
 
