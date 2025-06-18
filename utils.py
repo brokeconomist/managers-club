@@ -1,9 +1,10 @@
-def format_number_gr(x):
+def format_number_gr(value, symbol=""):
+    """Μορφοποίηση αριθμού σε ελληνικό στυλ: κόμμα για δεκαδικά, τελεία για χιλιάδες"""
     try:
-        s = f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        return s
-    except:
-        return str(x)
+        formatted = f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"{formatted} {symbol}".strip()
+    except Exception:
+        return str(value)
 
 def parse_gr_number(x):
     try:
