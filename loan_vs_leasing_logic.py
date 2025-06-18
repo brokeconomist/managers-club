@@ -1,24 +1,65 @@
-from utils import parse_gr_number, format_number_gr
-from math import pow
+import numpy_financial as npf
 
-def pv(rate, nper, pmt, fv=0, when=1):
-    if rate == 0:
-        return -pmt * nper - fv
-    return (
-        -pmt * ((1 - pow(1 + rate, -nper)) / rate) - fv / pow(1 + rate, nper)
-        if when == 0 else
-        -pmt * (((1 - pow(1 + rate, -nper)) / rate) * (1 + rate)) - fv / pow(1 + rate, nper)
-    )
+def pmt(rate, nper, pv, fv=0, when=0):
+    return -npf.pmt(rate, nper, pv, fv, when)
 
-def limited_depreciation(asset_value, residual_value, extra_costs, dep_years, finance_years):
-    total_cost = asset_value + extra_costs
-    annual_dep = (total_cost - residual_value) / dep_years
-    return min(dep_years, finance_years) * annual_dep
+def calculate_final_burden(
+    loan_rate,
+    wc_rate,
+    duration_years,
+    property_value,
+    loan_financing_percent,
+    leasing_financing_percent,
+    add_expenses_loan,
+    add_expenses_leasing,
+    residual_value_leasing,
+    depreciation_years,
+    tax_rate,
+    pay_when
+):
+    months = 12
+    n_months = duration_years * months
 
-def tax_savings(rate, years, interest, depreciation, tax_rate):
-    annual_deductible = (interest + depreciation) / years
-    tax_benefit = pv(rate, years, -annual_deductible, 0, 0) * tax_rate
-    return abs(tax_benefit)
+    # Αξία απόκτησης
+    acquisition_cost_loan = property_value + add_expenses_loan
+    acquisition_cost_lease = property_value + add_expenses_leasing
 
-def total_cost(pv_installments, pv_working_capital, extra_costs, tax_benefit):
-    return abs(pv_installments + pv_working_capital + extra_costs - tax_benefit)
+    # Δάνεια κεφαλαίου κίνησης
+    wc_loan = property_value - (property_value * loan_financing_percent) + add_expenses_loan
+    wc_lease = property_value - (property_value * leasing_financing_percent) + add_expenses_leasing
+
+    # Μηνιαίες δόσεις
+    monthly_loan = pmt(loan_rate / months, n_months, property_value * loan_financing_percent, 0, pay_when)
+    monthly_lease = pmt(loan_rate / months, n_months, property_value * leasing_financing_percent, 0, pay_when)
+    monthly_wc_loan = pmt(wc_rate / months, n_months, wc_loan, 0, pay_when)
+    monthly_wc_lease = pmt(wc_rate / months, n_months, wc_lease, 0, pay_when)
+
+    # Σύνολο δόσεων
+    total_monthly_loan = monthly_loan + monthly_wc_loan
+    total_monthly_lease = monthly_lease + monthly_wc_lease
+
+    # Τόκοι
+    total_interest_loan = (total_monthly_loan * n_months) - property_value
+    total_interest_lease = (total_monthly_lease * n_months) - property_value
+
+    # Ολικό κόστος 15ετίας
+    total_cost_loan = total_interest_loan + property_value
+    total_cost_lease = total_interest_lease + property_value
+
+    # Αποσβέσεις
+    depreciation_loan = acquisition_cost_loan / depreciation_years * duration_years
+    depreciation_lease = (acquisition_cost_lease / duration_years * duration_years) + residual_value_leasing
+
+    # Εκπιπτέα έξοδα
+    deductible_loan = total_interest_loan + depreciation_loan
+    deductible_lease = (monthly_wc_lease * n_months - wc_lease) + depreciation_lease
+
+    # Φορολογική ελάφρυνση
+    tax_benefit_loan = deductible_loan * tax_rate
+    tax_benefit_lease = deductible_lease * tax_rate
+
+    # Τελική επιβάρυνση
+    final_loan = total_cost_loan - tax_benefit_loan
+    final_lease = total_cost_lease - tax_benefit_lease
+
+    return round(final_loan), round(final_lease)
