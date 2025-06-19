@@ -18,10 +18,8 @@ def calculate_unit_costs(
         labor_cost_overtime
     )
 
-    # Γενικό μέσο κόστος ανά μονάδα
     avg_cost_total = total_cost / total_units if total_units != 0 else 0
 
-    # Μέσο κόστος στο οχτάωρο
     avg_cost_regular = (
         (labor_cost_regular / sales_regular) +
         (operating_cost_regular / sales_regular) +
@@ -29,7 +27,6 @@ def calculate_unit_costs(
         if sales_regular != 0 else 0
     )
 
-    # Μέσο κόστος στις υπερωρίες
     avg_cost_overtime = (
         (labor_cost_overtime / sales_overtime) +
         (operating_cost_overtime / sales_overtime) +
@@ -40,20 +37,20 @@ def calculate_unit_costs(
     return avg_cost_total, avg_cost_regular, avg_cost_overtime
 
 
-def show_unit_cost_calculator():
-    st.title("Υπολογισμός Μέσου Κόστους Ανά Μονάδα")
+def show_unit_cost_app():
+    st.title("📦 Μέσο Κόστος Ανά Μονάδα Παραγωγής")
 
-    st.header("Εισαγωγή Στοιχείων")
+    st.header("Εισαγωγή Δεδομένων")
 
-    sales_regular = st.number_input("Ημερήσιες πωλήσεις σε μονάδες (οχτάωρο)", value=1000)
-    sales_overtime = st.number_input("Ημερήσιες πωλήσεις σε μονάδες (υπερωρίες)", value=100)
-    raw_material_cost = st.number_input("Ημερήσιο κόστος πρώτων υλών", value=1500.0)
-    operating_cost_regular = st.number_input("Λειτουργικό κόστος στο οχτάωρο", value=4000.0)
-    operating_cost_overtime = st.number_input("Λειτουργικό κόστος υπερωρίας", value=400.0)
-    labor_cost_regular = st.number_input("Εργατικό κόστος στο οχτάωρο", value=8000.0)
-    labor_cost_overtime = st.number_input("Εργατικό κόστος υπερωρίας", value=1200.0)
+    sales_regular = st.number_input("Ημερήσιες πωλήσεις (μονάδες – οχτάωρο)", value=1000)
+    sales_overtime = st.number_input("Ημερήσιες πωλήσεις (μονάδες – υπερωρίες)", value=100)
+    raw_material_cost = st.number_input("Ημερήσιο κόστος πρώτων υλών (€)", value=1500.0)
+    operating_cost_regular = st.number_input("Λειτουργικό κόστος στο οχτάωρο (€)", value=4000.0)
+    operating_cost_overtime = st.number_input("Λειτουργικό κόστος υπερωρίας (€)", value=400.0)
+    labor_cost_regular = st.number_input("Εργατικό κόστος στο οχτάωρο (€)", value=8000.0)
+    labor_cost_overtime = st.number_input("Εργατικό κόστος υπερωρίας (€)", value=1200.0)
 
-    if st.button("Υπολογισμός"):
+    if st.button("Υπολογισμός Κόστους"):
         avg_total, avg_regular, avg_overtime = calculate_unit_costs(
             sales_regular,
             sales_overtime,
@@ -64,7 +61,7 @@ def show_unit_cost_calculator():
             labor_cost_overtime
         )
 
-        st.success("Αποτελέσματα Υπολογισμών")
-        st.write(f"🔹 **Μέσο κόστος ανά μονάδα προϊόντος (γενικό):** {avg_total:.2f} €")
-        st.write(f"🔹 **Μέσο κόστος ανά μονάδα στο οχτάωρο:** {avg_regular:.2f} €")
-        st.write(f"🔹 **Μέσο κόστος ανά μονάδα στις υπερωρίες:** {avg_overtime:.2f} €")
+        st.subheader("Αποτελέσματα:")
+        st.metric("🔹 Μέσο κόστος ανά μονάδα (συνολικά)", f"{avg_total:.2f} €")
+        st.metric("🟢 Κόστος ανά μονάδα στο οχτάωρο", f"{avg_regular:.2f} €")
+        st.metric("🕐 Κόστος ανά μονάδα στις υπερωρίες", f"{avg_overtime:.2f} €")
