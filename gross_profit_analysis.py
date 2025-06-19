@@ -1,54 +1,34 @@
 import streamlit as st
 
-def format_currency(value, decimals=0):
-    try:
-        formatted = f"{value:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        return f"{formatted} €"
-    except:
-        return f"{value} €"
-
-def format_percentage_gr(value, decimals=1):
-    try:
-        sign = "-" if value < 0 else ""
-        abs_val = abs(value * 100)
-        formatted = f"{abs_val:,.{decimals}f}".replace(",", "#").replace(".", ",").replace("#", ".")
-        return f"{sign}{formatted}%"
-    except:
-        return "-"
+def format_gr_number(x):
+    """Μορφοποίηση αριθμού με κόμμα ως δεκαδικό και τελεία ως χιλιάδες"""
+    return f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def show_gross_profit_template():
-    st.title("📈 Ανάλυση Μικτού Κέρδους")
+    st.header("Ανάλυση Μικτού Κέρδους")
 
-    with st.form("gross_profit_form"):
-        st.subheader("🧾 Έσοδα Πωλήσεων")
-        unit_price = st.number_input("Τιμή Μονάδας (€)", min_value=0.01, value=12.0)
-        units_sold = st.number_input("Πωλούμενες Μονάδες", min_value=0.0, value=22500.0)
-        returns = st.number_input("Επιστροφές (€)", min_value=0.0, value=1000.0)
-        discounts = st.number_input("Εκπτώσεις (€)", min_value=0.0, value=2000.0)
+    # Εισαγωγή δεδομένων
+    τιμη_μοναδας = st.number_input("Τιμή Μονάδας (€)", value=12.00, min_value=0.0, step=0.01, format="%.2f")
+    πωλουμενες_μοναδες = st.number_input("Πωλούμενες Μονάδες", value=22500, min_value=0, step=1)
+    επιστροφες = st.number_input("Επιστροφές (€)", value=1000.00, min_value=0.0, step=0.01, format="%.2f")
+    εκπτωσεις = st.number_input("Εκπτώσεις (€)", value=2000.00, min_value=0.0, step=0.01, format="%.2f")
 
-        st.subheader("🏭 Κόστος Πωληθέντων")
-        opening_inventory = st.number_input("Αρχικό Απόθεμα (€)", min_value=0.0, value=40000.0)
-        purchases = st.number_input("Αγορές (€)", min_value=0.0, value=132000.0)
-        closing_inventory = st.number_input("Τελικό Απόθεμα (€)", min_value=0.0, value=42000.0)
-        direct_labor = st.number_input("Άμεσα Εργατικά (€)", min_value=0.0, value=10000.0)
-        overheads = st.number_input("Γενικά Βιομηχανικά Έξοδα (€)", min_value=0.0, value=30000.0)
-        depreciation = st.number_input("Αποσβέσεις (€)", min_value=0.0, value=20000.0)
+    αρχικο_αποθεμα = st.number_input("Αρχικό Απόθεμα (€)", value=40000.00, min_value=0.0, step=0.01, format="%.2f")
+    αγορες = st.number_input("Αγορές (€)", value=132000.00, min_value=0.0, step=0.01, format="%.2f")
+    τελικο_αποθεμα = st.number_input("Τελικό Απόθεμα (€)", value=42000.00, min_value=0.0, step=0.01, format="%.2f")
 
-        submitted = st.form_submit_button("Υπολογισμός")
+    αμεσα_εργατικα = st.number_input("Άμεσα Εργατικά (€)", value=10000.00, min_value=0.0, step=0.01, format="%.2f")
+    γεν_βιομηχανικα = st.number_input("Γενικά Βιομηχανικά (€)", value=30000.00, min_value=0.0, step=0.01, format="%.2f")
+    αποσβεσεις = st.number_input("Αποσβέσεις (€)", value=20000.00, min_value=0.0, step=0.01, format="%.2f")
 
-    if submitted:
-        sales = unit_price * units_sold
-        net_sales = sales - returns - discounts
-        finished_goods = opening_inventory + purchases
-        cost_of_goods_sold = (finished_goods - closing_inventory) + direct_labor + overheads + depreciation
-        gross_profit = net_sales - cost_of_goods_sold
-        gross_margin = gross_profit / net_sales if net_sales != 0 else 0
+    # Υπολογισμοί
+    καθαρές_πωλήσεις = τιμη_μοναδας * πωλουμενες_μοναδες - επιστροφες - εκπτωσεις
+    κόστος_πωληθέντων = (αρχικο_αποθεμα + αγορες + αμεσα_εργατικα + γεν_βιομηχανικα + αποσβεσεις) - τελικο_αποθεμα
+    μικτό_κέρδος = καθαρές_πωλήσεις - κόστος_πωληθέντων
+    μικτό_κέρδος_ποσοστό = (μικτό_κέρδος / καθαρές_πωλήσεις * 100) if καθαρές_πωλήσεις != 0 else 0
 
-        st.markdown("---")
-        st.subheader("📊 Αποτελέσματα")
-
-        st.metric("Καθαρές Πωλήσεις", format_currency(net_sales))
-        st.metric("Κόστος Πωληθέντων", format_currency(cost_of_goods_sold))
-        st.metric("Μικτό Κέρδος", format_currency(gross_profit))
-        st.metric("Μικτό Κέρδος %", format_percentage_gr(gross_margin))
-
+    st.markdown("---")
+    st.write(f"**Καθαρές Πωλήσεις:** € {format_gr_number(καθαρές_πωλήσεις)}")
+    st.write(f"**Κόστος Πωληθέντων:** € {format_gr_number(κόστος_πωληθέντων)}")
+    st.write(f"**Μικτό Κέρδος:** € {format_gr_number(μικτό_κέρδος)}")
+    st.write(f"**Μικτό Κέρδος %:** {μικτό_κέρδος_ποσοστό:.2f}%")
