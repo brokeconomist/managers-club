@@ -68,21 +68,24 @@ def calculate_discount_analysis(
     )
     
     # Μέγιστη έκπτωση που μπορεί να δοθεί
+        # Διορθωμένος υπολογισμός Μέγιστης Έκπτωσης (από Excel)
     max_discount = 1 - (
         (1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - days_collection_undiscounted)
     ) * (
         1 - (1 / pct_sales_with_discount_after_increase) +
-        (1 - pct_current_bad_debts) *
-        ((1 + (cost_of_capital / 365)) ** (pct_sales_without_discount * days_collection_undiscounted - current_avg_collection_days)) +
-        (cost_of_sales / current_sales) *
-        (additional_sales_discount / current_sales) *
-        ((1 + (cost_of_capital / 365)) ** (pct_sales_without_discount * days_collection_undiscounted - avg_supplier_payment_days))
+        (
+            (1 - pct_current_bad_debts) *
+            ((1 + (cost_of_capital / 365)) ** (days_collection_undiscounted - current_avg_collection_days)) +
+            (cost_of_sales / current_sales) *
+            (additional_sales_discount / current_sales) *
+            ((1 + (cost_of_capital / 365)) ** (days_collection_undiscounted - avg_supplier_payment_days))
+        )
     ) / (
         pct_sales_with_discount_after_increase *
         ((current_sales + additional_sales_discount) / current_sales) *
         (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
     )
-    
+
     # Εκτιμώμενη βέλτιστη έκπτωση
     estimated_best_discount = (1 - ((1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - current_avg_collection_days))) / 2
     
