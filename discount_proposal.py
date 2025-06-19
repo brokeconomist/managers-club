@@ -29,6 +29,7 @@ def show_discount_proposal_ui():
             days_discount_after = parse_gr_number(st.text_input("Μέρες πληρωμής μετρητοίς (μετά)", "10"))
             share_discount_after = parse_gr_number(st.text_input("Ποσοστό Πωλήσεων με Έκπτωση (μετά)", "70")) / 100
             share_no_discount_after = parse_gr_number(st.text_input("Ποσοστό Πωλήσεων χωρίς Έκπτωση (μετά)", "30")) / 100
+            days_no_discount_after = parse_gr_number(st.text_input("Μέρες είσπραξης χωρίς Έκπτωση (μετά)", "60"))
             bad_debt_rate = parse_gr_number(st.text_input("% Επισφαλειών (τρέχον)", "1")) / 100
             bad_debt_reduction_rate = parse_gr_number(st.text_input("% Επισφαλειών (μετά την αλλαγή)", "0.5")) / 100
             wacc = parse_gr_number(st.text_input("Κόστος Κεφαλαίου (WACC, %)", "20")) / 100
@@ -47,6 +48,7 @@ def show_discount_proposal_ui():
             days_discount_after,
             share_discount_after,
             share_no_discount_after,
+            days_no_discount_after,
             bad_debt_rate,
             bad_debt_reduction_rate,
             wacc,
