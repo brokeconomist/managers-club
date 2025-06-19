@@ -1,15 +1,4 @@
 def calculate_discount_analysis(
-    print("CC:", cost_of_capital)
-    print("D_cash:", days_cash_payment_deadline)
-    print("D_undiscounted:", days_collection_undiscounted)
-    print("P_discount_after:", pct_sales_with_discount_after_increase)
-    print("P_bad:", pct_current_bad_debts)
-    print("D_avg:", current_avg_collection_days)
-    print("C_sales:", cost_of_sales)
-    print("Sales:", current_sales)
-    print("Add_sales:", additional_sales_discount)
-    print("D_sup:", avg_supplier_payment_days)
-    print("P_bad_red:", pct_bad_debt_reduction_after_discount)
     current_sales,
     cost_of_sales,
     additional_sales_discount,
@@ -26,51 +15,48 @@ def calculate_discount_analysis(
     cost_of_capital,
     avg_supplier_payment_days,
 ):
-
-    # Υπολογισμοί
-
     # Τρέχουσα μέση περίοδος είσπραξης απαιτήσεων
     current_avg_collection_days = (
         days_collection_discounted * pct_sales_with_discount +
         days_collection_undiscounted * pct_sales_without_discount
     )
-    
+
     # Τρέχουσες απαιτήσεις
     current_receivables = current_sales * current_avg_collection_days / 365
-    
+
     # Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων
     new_avg_collection_days = (
         pct_sales_with_discount_after_increase * days_cash_payment_deadline +
         pct_sales_without_discount_after_increase * days_collection_undiscounted
     )
-    
+
     # Απαιτήσεις μετά την αύξηση πωλήσεων
     new_receivables = (
         (current_sales + additional_sales_discount) * new_avg_collection_days / 365
     )
-    
+
     # Αποδέσμευση κεφαλαίων
     released_capital = current_receivables - new_receivables
-    
+
     # Κέρδος από επιπλέον πωλήσεις
     profit_from_additional_sales = additional_sales_discount * ((current_sales - cost_of_sales) / current_sales)
-    
+
     # Κέρδος από αποδέσμευση
     profit_from_released_capital = released_capital * cost_of_capital
-    
+
     # Κέρδος μείωσης επισφαλειών
     profit_from_bad_debt_reduction = (
         (current_sales * pct_current_bad_debts) -
         ((current_sales + additional_sales_discount) * pct_bad_debt_reduction_after_discount)
     )
-    
+
     # Κόστος έκπτωσης
     discount_cost = (
         (current_sales + additional_sales_discount) *
         pct_sales_with_discount_after_increase *
         cash_discount_rate
     )
-    
+
     # Εκτιμώμενο συνολικό κέρδος
     total_estimated_profit = (
         profit_from_additional_sales +
@@ -78,9 +64,8 @@ def calculate_discount_analysis(
         profit_from_bad_debt_reduction -
         discount_cost
     )
-    
-    # Μέγιστη έκπτωση που μπορεί να δοθεί
-        # Διορθωμένος υπολογισμός Μέγιστης Έκπτωσης (από Excel)
+
+    # Μέγιστη έκπτωση που μπορεί να δοθεί (ακριβής Excel τύπος)
     max_discount = 1 - (
         (1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - days_collection_undiscounted)
     ) * (
@@ -99,9 +84,10 @@ def calculate_discount_analysis(
     )
 
     # Εκτιμώμενη βέλτιστη έκπτωση
-    estimated_best_discount = (1 - ((1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - current_avg_collection_days))) / 2
-    
-    # Επιστροφή αποτελεσμάτων (στρογγυλοποιημένα για καλύτερη εμφάνιση)
+    estimated_best_discount = (
+        1 - ((1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - current_avg_collection_days))
+    ) / 2
+
     return {
         "current_avg_collection_days": round(current_avg_collection_days, 0),
         "current_receivables": round(current_receivables, 0),
