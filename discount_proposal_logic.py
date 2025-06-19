@@ -65,28 +65,30 @@ def calculate_discount_analysis(
         discount_cost
     )
 
-    # Μέγιστη έκπτωση που μπορεί να δοθεί (ακριβής Excel τύπος σε Python)
-    part1 = (1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - days_collection_undiscounted)
+    # Μέγιστη έκπτωση που μπορεί να δοθεί (διορθωμένος τύπος)
+    growth_factor = 1 + (cost_of_capital / 365)
 
-    numerator = (
-        1 - (1 / pct_sales_with_discount_after_increase)
-        + (1 - pct_current_bad_debts) * (1 + (cost_of_capital / 365)) ** (days_collection_undiscounted - current_avg_collection_days)
-        + (cost_of_sales / current_sales)
-        * (additional_sales_discount / current_sales)
-        * (1 + (cost_of_capital / 365)) ** (days_collection_undiscounted - avg_supplier_payment_days)
+    part1 = growth_factor ** (days_cash_payment_deadline - days_collection_undiscounted)
+
+    inner_sum = (
+        (1 - (1 / pct_sales_with_discount_after_increase)) +
+        ((1 - pct_current_bad_debts) * (growth_factor ** (days_collection_undiscounted - current_avg_collection_days))) +
+        ((cost_of_sales / current_sales) *
+         (additional_sales_discount / current_sales) *
+         (growth_factor ** (days_collection_undiscounted - avg_supplier_payment_days)))
     )
 
     denominator = (
-        pct_sales_with_discount_after_increase
-        * ((current_sales + additional_sales_discount) / current_sales)
-        * (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
+        pct_sales_with_discount_after_increase *
+        ((current_sales + additional_sales_discount) / current_sales) *
+        (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
     )
 
-    max_discount = 1 - (part1 * numerator / denominator)
+    max_discount = 1 - (part1 * inner_sum / denominator)
 
     # Εκτιμώμενη βέλτιστη έκπτωση
     estimated_best_discount = (
-        1 - ((1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - current_avg_collection_days))
+        1 - (growth_factor ** (days_cash_payment_deadline - current_avg_collection_days))
     ) / 2
 
     return {
