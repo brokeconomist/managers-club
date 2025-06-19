@@ -21,6 +21,7 @@ def show_discount_proposal_ui():
             extra_sales = parse_gr_number(st.text_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", "250"))
             discount_rate = parse_gr_number(st.text_input("Έκπτωση για πληρωμή τοις μετρητοίς (%)", "2")) / 100
             share_discount_before = parse_gr_number(st.text_input("Ποσοστό Πωλήσεων με Έκπτωση (πριν)", "40")) / 100
+            share_no_discount_before = parse_gr_number(st.text_input("Ποσοστό Πωλήσεων χωρίς Έκπτωση (πριν)", "60")) / 100
             days_discount_before = parse_gr_number(st.text_input("Μέρες είσπραξης με Έκπτωση (πριν)", "30"))
             days_no_discount_before = parse_gr_number(st.text_input("Μέρες είσπραξης χωρίς Έκπτωση (πριν)", "60"))
             supplier_payment_days = parse_gr_number(st.text_input("Μέρες πληρωμής προμηθευτών", "30"))
@@ -43,6 +44,7 @@ def show_discount_proposal_ui():
             extra_sales,
             discount_rate,
             share_discount_before,
+            share_no_discount_before,
             days_discount_before,
             days_no_discount_before,
             days_discount_after,
