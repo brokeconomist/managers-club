@@ -48,7 +48,9 @@ def show_gross_profit_template():
     st.write(f"**Καθαρές Πωλήσεις:** € {format_gr_number(καθαρές_πωλήσεις)}")
     st.write(f"**Κόστος Πωληθέντων:** € {format_gr_number(κόστος_πωληθέντων)}")
     st.write(f"**Μικτό Κέρδος:** € {format_gr_number(μικτό_κέρδος)}")
-    st.write(f"**Μικτό Κέρδος %:** {μικτό_κέρδος_ποσοστό:.2f}%")
+
+    μικτό_κέρδος_ποσοστό_str = f"{μικτό_κέρδος_ποσοστό:.2f}".replace('.', ',')
+    st.write(f"**Μικτό Κέρδος %:** {μικτό_κέρδος_ποσοστό_str}%")
 
 if __name__ == "__main__":
     show_gross_profit_template()
