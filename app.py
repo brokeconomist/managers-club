@@ -38,7 +38,7 @@ tools = {
     "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui,
     "📈 Ανάλυση Μικτού Κέρδους": show_gross_profit_template,
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
-    "⚖️ Μέσο Κόστος Ανά Μονάδα Παραγωγής": show_unit_cost_app
+    "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app
 
 }
 
