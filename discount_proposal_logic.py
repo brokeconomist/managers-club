@@ -1,15 +1,3 @@
-print("CC:", cost_of_capital)
-print("D_cash:", days_cash_payment_deadline)
-print("D_undiscounted:", days_collection_undiscounted)
-print("P_discount_after:", pct_sales_with_discount_after_increase)
-print("P_bad:", pct_current_bad_debts)
-print("D_avg:", current_avg_collection_days)
-print("C_sales:", cost_of_sales)
-print("Sales:", current_sales)
-print("Add_sales:", additional_sales_discount)
-print("D_sup:", avg_supplier_payment_days)
-print("P_bad_red:", pct_bad_debt_reduction_after_discount)
-
 def calculate_discount_analysis(
     current_sales,
     cost_of_sales,
