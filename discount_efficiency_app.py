@@ -1,6 +1,14 @@
 import streamlit as st
 from utils import format_number_gr, format_percentage_gr  # Υποθέτουμε ότι υπάρχουν αυτές οι συναρτήσεις
 
+def format_percentage_gr(value, decimals=2):
+    if value is None:
+        return "-"
+    sign = "-" if value < 0 else ""
+    abs_val = abs(value * 100)  # <-- μετατροπή από δεκαδικό σε ποσοστό
+    formatted = f"{abs_val:,.{decimals}f}".replace(",", "#").replace(".", ",").replace("#", ".")
+    return f"{sign}{formatted}%"
+
 def show_discount_efficiency_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
 
