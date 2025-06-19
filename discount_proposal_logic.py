@@ -65,41 +65,7 @@ def calculate_discount_analysis(
         discount_cost
     )
 
-    # Μέγιστη έκπτωση που μπορεί να δοθεί (ακριβής Excel τύπος)
-    max_discount = 1 - (
-        (1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - days_collection_undiscounted)
-    ) * (
-        1 - (1 / pct_sales_with_discount_after_increase) +
-        (
-            (1 - pct_current_bad_debts) *
-            ((1 + (cost_of_capital / 365)) ** (days_collection_undiscounted - current_avg_collection_days)) +
-            (cost_of_sales / current_sales) *
-            (additional_sales_discount / current_sales) *
-            ((1 + (cost_of_capital / 365)) ** (days_collection_undiscounted - avg_supplier_payment_days))
-        )
-    ) / (
-        pct_sales_with_discount_after_increase *
-        ((current_sales + additional_sales_discount) / current_sales) *
-        (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
-    )
-
-    # Εκτιμώμενη βέλτιστη έκπτωση
-    estimated_best_discount = (
-        1 - ((1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - current_avg_collection_days))
-    ) / 2
-
-    return {
-        "current_avg_collection_days": round(current_avg_collection_days, 0),
-        "current_receivables": round(current_receivables, 0),
-        "new_avg_collection_days": round(new_avg_collection_days, 0),
-        "new_receivables": round(new_receivables, 0),
-        "released_capital": round(released_capital, 0),
-        "profit_from_additional_sales": round(profit_from_additional_sales, 0),
-        "profit_from_released_capital": round(profit_from_released_capital, 0),
-        "profit_from_bad_debt_reduction": round(profit_from_bad_debt_reduction, 0),
-        "discount_cost": round(discount_cost, 0),
-        "total_estimated_profit": round(total_estimated_profit, 0),
-            # Μέγιστη έκπτωση που μπορεί να δοθεί (ακριβής Excel τύπος σε Python)
+    # Μέγιστη έκπτωση που μπορεί να δοθεί (ακριβής Excel τύπος σε Python)
     part1 = (1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - days_collection_undiscounted)
 
     numerator = (
@@ -118,6 +84,22 @@ def calculate_discount_analysis(
 
     max_discount = 1 - (part1 * numerator / denominator)
 
+    # Εκτιμώμενη βέλτιστη έκπτωση
+    estimated_best_discount = (
+        1 - ((1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - current_avg_collection_days))
+    ) / 2
+
+    return {
+        "current_avg_collection_days": round(current_avg_collection_days, 0),
+        "current_receivables": round(current_receivables, 0),
+        "new_avg_collection_days": round(new_avg_collection_days, 0),
+        "new_receivables": round(new_receivables, 0),
+        "released_capital": round(released_capital, 0),
+        "profit_from_additional_sales": round(profit_from_additional_sales, 0),
+        "profit_from_released_capital": round(profit_from_released_capital, 0),
+        "profit_from_bad_debt_reduction": round(profit_from_bad_debt_reduction, 0),
+        "discount_cost": round(discount_cost, 0),
+        "total_estimated_profit": round(total_estimated_profit, 0),
         "max_discount_pct": round(max_discount * 100, 2),
         "estimated_best_discount_pct": round(estimated_best_discount * 100, 2),
     }
