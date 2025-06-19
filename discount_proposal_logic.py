@@ -1,105 +1,103 @@
-def υπολογισμός_έκπτωσης(
-    τρέχουσες_πωλήσεις,
-    κόστος_πωλήσεων,
-    επιπλέον_πωλήσεις_λόγω_έκπτωσης,
-    έκπτωση_πληρωμή_τοις_μετρητοίς,
-    ποσοστό_πωλήσεων_με_έκπτωση,
-    μέρες_είσπραξης_με_έκπτωση,
-    ποσοστό_πωλήσεων_χωρίς_έκπτωση,
-    μέρες_είσπραξης_χωρίς_έκπτωση,
-    μέρες_προθεσμίας_πληρωμής_τοις_μετρητοίς,
-    ποσοστό_πωλήσεων_με_έκπτωση_μετά_την_αύξηση,
-    ποσοστό_πωλήσεων_χωρίς_έκπτωση_μετά_την_αύξηση,
-    %_τρέχουσες_επισφάλειες,
-    %_μείωσης_επισφαλειών_λόγω_μετρητών,
-    κόστος_κεφαλαίου,
-    μέση_περίοδος_αποπληρωμής_προμηθευτών
+def calculate_discount_analysis(
+    current_sales,
+    cost_of_sales,
+    additional_sales_discount,
+    cash_discount_rate,
+    pct_sales_with_discount,
+    days_collection_discounted,
+    pct_sales_without_discount,
+    days_collection_undiscounted,
+    days_cash_payment_deadline,
+    pct_sales_with_discount_after_increase,
+    pct_sales_without_discount_after_increase,
+    pct_current_bad_debts,
+    pct_bad_debt_reduction_after_discount,
+    cost_of_capital,
+    avg_supplier_payment_days,
 ):
-    # Μέση περίοδος είσπραξης απαιτήσεων τώρα
-    μέση_περίοδος_είσπραξης_απαιτήσεων = (
-        μέρες_είσπραξης_με_έκπτωση * ποσοστό_πωλήσεων_με_έκπτωση
-        + μέρες_είσπραξης_χωρίς_έκπτωση * ποσοστό_πωλήσεων_χωρίς_έκπτωση
-    )
+    # Υπολογισμοί
 
+    # Τρέχουσα μέση περίοδος είσπραξης απαιτήσεων
+    current_avg_collection_days = (
+        days_collection_discounted * pct_sales_with_discount +
+        days_collection_undiscounted * pct_sales_without_discount
+    )
+    
     # Τρέχουσες απαιτήσεις
-    τρέχουσες_απαιτήσεις = τρέχουσες_πωλήσεις * μέση_περίοδος_είσπραξης_απαιτήσεων / 365
-
+    current_receivables = current_sales * current_avg_collection_days / 365
+    
     # Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων
-    μέση_περίοδος_είσπραξης_μετά = (
-        μέρες_προθεσμίας_πληρωμής_τοις_μετρητοίς * ποσοστό_πωλήσεων_με_έκπτωση_μετά_την_αύξηση
-        + μέρες_είσπραξης_χωρίς_έκπτωση * ποσοστό_πωλήσεων_χωρίς_έκπτωση_μετά_την_αύξηση
+    new_avg_collection_days = (
+        pct_sales_with_discount_after_increase * days_cash_payment_deadline +
+        pct_sales_without_discount_after_increase * days_collection_undiscounted
     )
-
+    
     # Απαιτήσεις μετά την αύξηση πωλήσεων
-    απαιτήσεις_μετά = (
-        (τρέχουσες_πωλήσεις + επιπλέον_πωλήσεις_λόγω_έκπτωσης) * μέση_περίοδος_είσπραξης_μετά
-    ) / 365
-
+    new_receivables = (
+        (current_sales + additional_sales_discount) * new_avg_collection_days / 365
+    )
+    
     # Αποδέσμευση κεφαλαίων
-    αποδέσμευση_κεφαλαίων = τρέχουσες_απαιτήσεις - απαιτήσεις_μετά
-
+    released_capital = current_receivables - new_receivables
+    
     # Κέρδος από επιπλέον πωλήσεις
-    κέρδος_επιπλέον_πωλήσεων = επιπλέον_πωλήσεις_λόγω_έκπτωσης * (
-        (τρέχουσες_πωλήσεις - κόστος_πωλήσεων) / τρέχουσες_πωλήσεις
-    )
-
-    # Κέρδος αποδέσμευσης κεφαλαίων
-    κέρδος_αποδέσμευσης = αποδέσμευση_κεφαλαίων * κόστος_κεφαλαίου
-
+    profit_from_additional_sales = additional_sales_discount * ((current_sales - cost_of_sales) / current_sales)
+    
+    # Κέρδος από αποδέσμευση
+    profit_from_released_capital = released_capital * cost_of_capital
+    
     # Κέρδος μείωσης επισφαλειών
-    κέρδος_μείωσης_επισφαλειών = (
-        τρέχουσες_πωλήσεις * %_τρέχουσες_επισφάλειες
-        - (τρέχουσες_πωλήσεις + επιπλέον_πωλήσεις_λόγω_έκπτωσης) * %_μείωσης_επισφαλειών_λόγω_μετρητών
+    profit_from_bad_debt_reduction = (
+        (current_sales * pct_current_bad_debts) -
+        ((current_sales + additional_sales_discount) * pct_bad_debt_reduction_after_discount)
     )
-
+    
     # Κόστος έκπτωσης
-    κόστος_έκπτωσης = (
-        (τρέχουσες_πωλήσεις + επιπλέον_πωλήσεις_λόγω_έκπτωσης)
-        * ποσοστό_πωλήσεων_με_έκπτωση_μετά_την_αύξηση
-        * έκπτωση_πληρωμή_τοις_μετρητοίς
+    discount_cost = (
+        (current_sales + additional_sales_discount) *
+        pct_sales_with_discount_after_increase *
+        cash_discount_rate
     )
-
+    
     # Εκτιμώμενο συνολικό κέρδος
-    συνολικό_κέρδος = (
-        κέρδος_επιπλέον_πωλήσεων
-        + κέρδος_αποδέσμευσης
-        + κέρδος_μείωσης_επισφαλειών
-        - κόστος_έκπτωσης
+    total_estimated_profit = (
+        profit_from_additional_sales +
+        profit_from_released_capital +
+        profit_from_bad_debt_reduction -
+        discount_cost
     )
-
-    # Μέγιστη έκπτωση που μπορεί να δοθεί επί των πωλήσεων
-    μέγιστη_έκπτωση = 1 - (
-        (1 + (κόστος_κεφαλαίου / 365)) ** (μέρες_προθεσμίας_πληρωμής_τοις_μετρητοίς - μέρες_είσπραξης_χωρίς_έκπτωση)
+    
+    # Μέγιστη έκπτωση που μπορεί να δοθεί
+    max_discount = 1 - (
+        (1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - days_collection_undiscounted)
     ) * (
-        1
-        - (1 / ποσοστό_πωλήσεων_με_έκπτωση_μετά_την_αύξηση)
-        + (
-            (1 - %_τρέχουσες_επισφάλειες)
-            * ((1 + (κόστος_κεφαλαίου / 365)) ** (μέρες_είσπραξης_χωρίς_έκπτωση - μέση_περίοδος_είσπραξης_απαιτήσεων))
-            + (κόστος_πωλήσεων / τρέχουσες_πωλήσεις)
-            * (επιπλέον_πωλήσεις_λόγω_έκπτωσης / τρέχουσες_πωλήσεις)
-            * ((1 + (κόστος_κεφαλαίου / 365)) ** (μέρες_είσπραξης_χωρίς_έκπτωση - μέρες_προθεσμίας_πληρωμής_προμηθευτών))
-        )
+        1 - (1 / pct_sales_with_discount_after_increase) +
+        (1 - pct_current_bad_debts) *
+        ((1 + (cost_of_capital / 365)) ** (pct_sales_without_discount * days_collection_undiscounted - current_avg_collection_days)) +
+        (cost_of_sales / current_sales) *
+        (additional_sales_discount / current_sales) *
+        ((1 + (cost_of_capital / 365)) ** (pct_sales_without_discount * days_collection_undiscounted - avg_supplier_payment_days))
     ) / (
-        ποσοστό_πωλήσεων_με_έκπτωση_μετά_την_αύξηση
-        * ((τρέχουσες_πωλήσεις + επιπλέον_πωλήσεις_λόγω_έκπτωσης) / τρέχουσες_πωλήσεις)
-        * (1 - %_τρέχουσες_επισφάλειες + %_μείωσης_επισφαλειών_λόγω_μετρητών)
+        pct_sales_with_discount_after_increase *
+        ((current_sales + additional_sales_discount) / current_sales) *
+        (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
     )
-
-    # Εκτιμώμενη βέλτιστη έκπτωση που πρέπει να δοθεί
-    βέλτιστη_έκπτωση = (1 - ((1 + (κόστος_κεφαλαίου / 365)) ** (μέρες_προθεσμίας_πληρωμής_τοις_μετρητοίς - μέση_περίοδος_είσπραξης_απαιτήσεων))) / 2
-
+    
+    # Εκτιμώμενη βέλτιστη έκπτωση
+    estimated_best_discount = (1 - ((1 + (cost_of_capital / 365)) ** (days_cash_payment_deadline - current_avg_collection_days))) / 2
+    
+    # Επιστροφή αποτελεσμάτων (στρογγυλοποιημένα για καλύτερη εμφάνιση)
     return {
-        "Μέση περίοδος είσπραξης απαιτήσεων": μέση_περίοδος_είσπραξης_απαιτήσεων,
-        "Τρέχουσες απαιτήσεις": τρέχουσες_απαιτήσεις,
-        "Μέση περίοδος είσπραξης μετά αύξηση": μέση_περίοδος_είσπραξης_μετά,
-        "Απαιτήσεις μετά αύξηση": απαιτήσεις_μετά,
-        "Αποδέσμευση κεφαλαίων": αποδέσμευση_κεφαλαίων,
-        "Κέρδος από επιπλέον πωλήσεις": κέρδος_επιπλέον_πωλήσεων,
-        "Κέρδος αποδέσμευσης": κέρδος_αποδέσμευσης,
-        "Κέρδος μείωσης επισφαλειών": κέρδος_μείωσης_επισφαλειών,
-        "Κόστος έκπτωσης": κόστος_έκπτωσης,
-        "Συνολικό κέρδος": συνολικό_κέρδος,
-        "Μέγιστη έκπτωση": μέγιστη_έκπτωση,
-        "Βέλτιστη έκπτωση": βέλτιστη_έκπτωση,
+        "current_avg_collection_days": round(current_avg_collection_days, 0),
+        "current_receivables": round(current_receivables, 0),
+        "new_avg_collection_days": round(new_avg_collection_days, 0),
+        "new_receivables": round(new_receivables, 0),
+        "released_capital": round(released_capital, 0),
+        "profit_from_additional_sales": round(profit_from_additional_sales, 0),
+        "profit_from_released_capital": round(profit_from_released_capital, 0),
+        "profit_from_bad_debt_reduction": round(profit_from_bad_debt_reduction, 0),
+        "discount_cost": round(discount_cost, 0),
+        "total_estimated_profit": round(total_estimated_profit, 0),
+        "max_discount_pct": round(max_discount * 100, 2),
+        "estimated_best_discount_pct": round(estimated_best_discount * 100, 2),
     }
