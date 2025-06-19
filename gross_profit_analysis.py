@@ -45,6 +45,3 @@ def show_gross_profit_template():
         st.metric("Κόστος Πωληθέντων", format_currency(cost_of_goods_sold))
         st.metric("Μικτό Κέρδος", format_currency(gross_profit))
         st.metric("Μικτό Κέρδος %", format_percentage_gr(gross_margin))
-
-# Εκτέλεση
-show_gross_profit_template()
