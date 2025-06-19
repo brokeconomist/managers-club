@@ -17,52 +17,37 @@ def format_percentage_gr(value, decimals=1):
         return "-"
 
 def show_gross_profit_template():
-    st.title("📊 Ανάλυση Μικτού Κέρδους")
+    st.title("📈 Ανάλυση Μικτού Κέρδους")
 
-    st.subheader("🧾 Έσοδα Πωλήσεων")
-    unit_price = 12
-    units_sold = 22500
-    sales = unit_price * units_sold
-    returns = 1000
-    discounts = 2000
-    net_sales = sales - returns - discounts
+    with st.form("gross_profit_form"):
+        st.subheader("🧾 Έσοδα Πωλήσεων")
+        unit_price = st.number_input("Τιμή Μονάδας (€)", min_value=0.01, value=12.0)
+        units_sold = st.number_input("Πωλούμενες Μονάδες", min_value=0.0, value=22500.0)
+        returns = st.number_input("Επιστροφές (€)", min_value=0.0, value=1000.0)
+        discounts = st.number_input("Εκπτώσεις (€)", min_value=0.0, value=2000.0)
 
-    with st.container():
-        st.write(f"**Τιμή Μονάδας**: {format_currency(unit_price, 0)}")
-        st.write(f"**Πωλούμενες μονάδες**: {format_currency(units_sold, 0)}")
-        st.write(f"**Πωλήσεις**: {format_currency(sales)}")
-        st.write(f"**Επιστροφές**: {format_currency(returns)}")
-        st.write(f"**Εκπτώσεις**: {format_currency(discounts)}")
-        st.write(f"**Καθαρές Πωλήσεις**: ✅ **{format_currency(net_sales)}**")
+        st.subheader("🏭 Κόστος Πωληθέντων")
+        opening_inventory = st.number_input("Αρχικό Απόθεμα (€)", min_value=0.0, value=40000.0)
+        purchases = st.number_input("Αγορές (€)", min_value=0.0, value=132000.0)
+        closing_inventory = st.number_input("Τελικό Απόθεμα (€)", min_value=0.0, value=42000.0)
+        direct_labor = st.number_input("Άμεσα Εργατικά (€)", min_value=0.0, value=10000.0)
+        overheads = st.number_input("Γενικά Βιομηχανικά Έξοδα (€)", min_value=0.0, value=30000.0)
+        depreciation = st.number_input("Αποσβέσεις (€)", min_value=0.0, value=20000.0)
 
-    st.markdown("---")
-    st.subheader("🏭 Κόστος Πωληθέντων")
+        submitted = st.form_submit_button("Υπολογισμός")
 
-    opening_inventory = 40000
-    purchases = 132000
-    finished_goods = 172000  # opening + purchases
-    closing_inventory = 42000
-    direct_labor = 10000
-    overheads = 30000
-    depreciation = 20000
+    if submitted:
+        sales = unit_price * units_sold
+        net_sales = sales - returns - discounts
+        finished_goods = opening_inventory + purchases
+        cost_of_goods_sold = (finished_goods - closing_inventory) + direct_labor + overheads + depreciation
+        gross_profit = net_sales - cost_of_goods_sold
+        gross_margin = gross_profit / net_sales if net_sales != 0 else 0
 
-    cost_of_goods_sold = (finished_goods - closing_inventory) + direct_labor + overheads + depreciation
+        st.markdown("---")
+        st.subheader("📊 Αποτελέσματα")
 
-    with st.container():
-        st.write(f"**Αρχικό Απόθεμα**: {format_currency(opening_inventory)}")
-        st.write(f"**Αγορές**: {format_currency(purchases)}")
-        st.write(f"**Έτοιμα Προϊόντα**: {format_currency(finished_goods)}")
-        st.write(f"**Τελικό Απόθεμα**: {format_currency(closing_inventory)}")
-        st.write(f"**Άμεσα Εργατικά**: {format_currency(direct_labor)}")
-        st.write(f"**Γενικά Βιομηχανικά Έξοδα**: {format_currency(overheads)}")
-        st.write(f"**Αποσβέσεις**: {format_currency(depreciation)}")
-        st.write(f"**Κόστος Πωληθέντων**: ✅ **{format_currency(cost_of_goods_sold)}**")
-
-    st.markdown("---")
-    st.subheader("💰 Μικτό Κέρδος")
-
-    gross_profit = net_sales - cost_of_goods_sold
-    gross_margin = gross_profit / net_sales if net_sales != 0 else 0
-
-    st.metric("Μικτό Κέρδος", format_currency(gross_profit))
-    st.metric("Μικτό Κέρδος %", format_percentage_gr(gross_margin))
+        st.metric("Καθαρές Πωλήσεις", format_currency(net_sales))
+        st.metric("Κόστος Πωληθέντων", format_currency(cost_of_goods_sold))
+        st.metric("Μικτό Κέρδος", format_currency(gross_profit))
+        st.metric("Μικτό Κέρδος %", format_percentage_gr(gross_margin))
