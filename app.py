@@ -15,10 +15,11 @@ from discount_efficiency_app import show_discount_efficiency_ui
 from loan_vs_leasing_calculator import loan_vs_leasing_ui
 from gross_profit_analysis import show_gross_profit_template
 
-# Ρυθμίσεις σελίδας
+# ΝΕΟ ΕΙΣΑΓΩΓΗ ΕΡΓΑΛΕΙΟΥ
+from economic_order_quantity import show_economic_order_quantity
+
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
-# Λεξικό εργαλείων
 tools = {
     "🏠 Αρχική": show_home,
     "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
@@ -33,12 +34,12 @@ tools = {
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
     "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,
     "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui,
-    "📈 Ανάλυση Μικτού Κέρδους": show_gross_profit_template
+    "📈 Ανάλυση Μικτού Κέρδους": show_gross_profit_template,
+    # ΝΕΟ ΕΡΓΑΛΕΙΟ ΠΡΟΣΘΗΚΗ ΕΔΩ:
+    "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity
 }
 
-# Πλευρικό μενού
 st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
 selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-# Εκτέλεση της επιλεγμένης λειτουργίας
 tools[selected_tool]()
