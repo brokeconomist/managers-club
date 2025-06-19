@@ -2,14 +2,11 @@ import streamlit as st
 import math
 
 def format_number_gr(num, decimals=0):
-    # Με κόμμα δεκαδικό και τελεία χιλιάδες (πχ 26.683,00)
     formatted = f"{num:,.{decimals}f}"
-    # Αντικαθιστούμε: κόμμα-> προσωρινό, τελεία-> κόμμα, προσωρινό->τελεία
     formatted = formatted.replace(',', 'X').replace('.', ',').replace('X', '.')
     return formatted
 
 def format_percentage_gr(num):
-    # num είναι δεκαδικός, πχ 0.05
     perc = f"{num*100:.2f}"
     return perc.replace('.', ',') + '%'
 
@@ -34,8 +31,12 @@ def show_economic_order_quantity():
     storage_cost_percentage = (monthly_maintenance / period_months) + ((kf * annual_interest) / period_months)
     maintenance_expense_for_period = monthly_maintenance * period_months
 
-    denom = M * (kf + insurance) if r == 0 else M * (insurance + (1 - r) * kf)
-    EOQ = math.sqrt((2 * M * kf) / denom) if denom != 0 else 0
+    # Σωστός υπολογισμός EOQ (B)
+    if r == 0:
+        EOQ = math.sqrt((2 * M * kf) / (kf + insurance))
+    else:
+        EOQ = math.sqrt((2 * M * kf) / (insurance + (1 - r) * kf))
+
     num_orders = M / EOQ if EOQ != 0 else 0
 
     st.subheader("Αποτελέσματα")
