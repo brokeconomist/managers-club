@@ -1,36 +1,38 @@
 import streamlit as st
 
-def show_gross_profit_template():
-    st.title("📈 Ανάλυση Μικτού Κέρδους")
+def main():
+    st.title("Έσοδα Πωλήσεων & Κόστος Πωληθέντων")
 
-    unit_price = st.number_input("Τιμή Μονάδας (€)", min_value=0.01, value=12.0)
-    units_sold = st.number_input("Πωλούμενες Μονάδες", min_value=0.0, value=22500.0)
-
-    returns = st.number_input("Επιστροφές (€)", min_value=0.0, value=1000.0)
-    discounts = st.number_input("Εκπτώσεις (€)", min_value=0.0, value=2000.0)
-
-    opening_inventory = st.number_input("Αρχικό Απόθεμα (€)", min_value=0.0, value=40000.0)
-    purchases = st.number_input("Αγορές (€)", min_value=0.0, value=132000.0)
-
-    closing_inventory = st.number_input("Τελικό Απόθεμα (€)", min_value=0.0, value=42000.0)
-    direct_labor = st.number_input("Άμεσα Εργατικά (€)", min_value=0.0, value=10000.0)
-
-    overheads = st.number_input("Γενικά Βιομηχανικά Έξοδα (€)", min_value=0.0, value=30000.0)
-    depreciation = st.number_input("Αποσβέσεις (€)", min_value=0.0, value=20000.0)
-
+    st.header("Έσοδα Πωλήσεων")
+    unit_price = st.number_input("Τιμή Μονάδας", value=12, step=1)
+    units_sold = st.number_input("Πωλούμενες μονάδες", value=22500, step=100)
     sales = unit_price * units_sold
+    returns = st.number_input("Επιστροφές (€)", value=1000)
+    discounts = st.number_input("Εκπτώσεις (€)", value=2000)
     net_sales = sales - returns - discounts
-    finished_goods = opening_inventory + purchases
-    cost_of_goods_sold = (finished_goods - closing_inventory) + direct_labor + overheads + depreciation
-    gross_profit = net_sales - cost_of_goods_sold
-    gross_margin = gross_profit / net_sales if net_sales != 0 else 0
 
-    st.markdown("---")
-    st.subheader("📊 Αποτελέσματα")
-    st.write("Καθαρές Πωλήσεις:", f"{net_sales:,.2f} €")
-    st.write("Κόστος Πωληθέντων:", f"{cost_of_goods_sold:,.2f} €")
-    st.write("Μικτό Κέρδος:", f"{gross_profit:,.2f} €")
-    st.write("Μικτό Κέρδος %:", f"{gross_margin*100:.2f} %")
+    st.write(f"Πωλήσεις: {sales:,.2f} €")
+    st.write(f"Καθαρές Πωλήσεις: {net_sales:,.2f} €")
+
+    st.header("Κόστος Πωληθέντων")
+    beginning_inventory = st.number_input("Αρχικό Απόθεμα (€)", value=40000)
+    purchases = st.number_input("Αγορές (€)", value=132000)
+    finished_goods = beginning_inventory + purchases
+    ending_inventory = st.number_input("Τελικό Απόθεμα (€)", value=42000)
+    direct_labor = st.number_input("Άμμεσα Εργατικά (€)", value=10000)
+    factory_overhead = st.number_input("Γεν. Βιομηχανικά (€)", value=30000)
+    depreciation = st.number_input("Αποσβέσεις (€)", value=20000)
+    cogs = finished_goods - ending_inventory + direct_labor + factory_overhead + depreciation
+
+    st.write(f"Έτοιμα Προϊόντα: {finished_goods:,.2f} €")
+    st.write(f"Κόστος Πωληθέντων: {cogs:,.2f} €")
+
+    gross_profit = net_sales - cogs
+    gross_profit_percent = (gross_profit / net_sales) * 100 if net_sales else 0
+
+    st.header("Μικτό Κέρδος")
+    st.write(f"Μικτό Κέρδος: {gross_profit:,.2f} €")
+    st.write(f"Μικτό Κέρδος %: {gross_profit_percent:.1f}%")
 
 if __name__ == "__main__":
-    show_gross_profit_template()
+    main()
