@@ -65,31 +65,25 @@ def calculate_discount_analysis(
         discount_cost
     )
 
-    # Μέγιστη έκπτωση που μπορεί να δοθεί (διορθωμένος τύπος)
+    # Υπολογισμός Μέγιστης Έκπτωσης (σύμφωνα με τον Excel τύπο)
     growth_factor = 1 + (cost_of_capital / 365)
 
     part1 = growth_factor ** (days_cash_payment_deadline - days_collection_undiscounted)
 
-    inner_sum = (
-        (1 - (1 / pct_sales_with_discount_after_increase)) +
-        ((1 - pct_current_bad_debts) * (growth_factor ** (days_collection_undiscounted - current_avg_collection_days))) +
-        ((cost_of_sales / current_sales) *
-         (additional_sales_discount / current_sales) *
-         (growth_factor ** (days_collection_undiscounted - avg_supplier_payment_days)))
-    )
+    term1 = 1 - (1 / pct_sales_with_discount_after_increase)
 
-    denominator = (
-        pct_sales_with_discount_after_increase *
-        ((current_sales + additional_sales_discount) / current_sales) *
-        (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
-    )
+    term2 = (1 - pct_current_bad_debts) * (growth_factor ** (days_collection_undiscounted - current_avg_collection_days))
 
-    max_discount = 1 - (part1 * inner_sum / denominator)
+    term3 = (cost_of_sales / current_sales) * (additional_sales_discount / current_sales) * (growth_factor ** (days_collection_undiscounted - avg_supplier_payment_days))
+
+    numerator = term1 + term2 + term3
+
+    denominator = pct_sales_with_discount_after_increase * ((current_sales + additional_sales_discount) / current_sales) * (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
+
+    max_discount = 1 - (part1 * numerator / denominator)
 
     # Εκτιμώμενη βέλτιστη έκπτωση
-    estimated_best_discount = (
-        1 - (growth_factor ** (days_cash_payment_deadline - current_avg_collection_days))
-    ) / 2
+    estimated_best_discount = (1 - (growth_factor ** (days_cash_payment_deadline - current_avg_collection_days))) / 2
 
     return {
         "current_avg_collection_days": round(current_avg_collection_days, 0),
@@ -105,3 +99,26 @@ def calculate_discount_analysis(
         "max_discount_pct": round(max_discount * 100, 2),
         "estimated_best_discount_pct": round(estimated_best_discount * 100, 2),
     }
+
+
+# Δοκιμή με τα δικά σου δεδομένα:
+
+results = calculate_discount_analysis(
+    current_sales=1000,
+    cost_of_sales=800,
+    additional_sales_discount=250,
+    cash_discount_rate=0.02,
+    pct_sales_with_discount=0.40,
+    days_collection_discounted=30,
+    pct_sales_without_discount=0.60,
+    days_collection_undiscounted=60,
+    days_cash_payment_deadline=10,
+    pct_sales_with_discount_after_increase=0.70,
+    pct_sales_without_discount_after_increase=0.30,
+    pct_current_bad_debts=0.01,
+    pct_bad_debt_reduction_after_discount=0.005,
+    cost_of_capital=0.20,
+    avg_supplier_payment_days=30,
+)
+
+print("Μέγιστη Έκπτωση που μπορεί να δοθεί: ", results["max_discount_pct"], "%")
