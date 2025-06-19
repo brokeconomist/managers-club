@@ -1,12 +1,17 @@
 import streamlit as st
 
 def format_gr_number(x):
+    """
+    Μορφοποίηση αριθμού με κόμμα ως δεκαδικό και τελεία ως χιλιάδες
+    πχ 1234567.89 -> '1.234.567,89'
+    """
     return f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def show_gross_profit_template():
     st.title("Ανάλυση Μικτού Κέρδους")
 
     col1, col2 = st.columns(2)
+
     with col1:
         τιμη_μοναδας = st.number_input("Τιμή Μονάδας (€)", value=12.00, min_value=0.0, step=0.01)
         πωλουμενες_μοναδες = st.number_input("Πωλούμενες Μονάδες", value=22500, min_value=0, step=1)
@@ -34,5 +39,7 @@ def show_gross_profit_template():
     st.write(f"**Μικτό Κέρδος:** € {format_gr_number(μικτό_κέρδος)}")
     st.write(f"**Μικτό Κέρδος %:** {μικτό_κέρδος_ποσοστό:.2f}%")
 
+# Αν θέλεις να το τρέξεις standalone, άνοιξε το terminal και κάνε:
+# streamlit run gross_profit_analysis.py
 if __name__ == "__main__":
     show_gross_profit_template()
