@@ -11,7 +11,7 @@ def calculate_credit_extension_simple(unit_price, variable_cost, sales_increase_
     contribution_margin = unit_price - variable_cost
     profit_from_new_sales = additional_sales * contribution_margin
 
-    financing_cost = current_sales * (new_credit_days / 360) * cost_of_capital_pct
+    financing_cost = current_sales * (new_credit_days / 365) * cost_of_capital_pct
     bad_debt_cost = current_sales * bad_debt_pct
 
     total_cost = financing_cost + bad_debt_cost
