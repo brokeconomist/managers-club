@@ -13,19 +13,21 @@ def calculate_sales_loss_threshold(
         if bottom == 0:
             return None
         result = top / bottom
-        return result * 100  # Ποσοστό
+        return result * 100  # επιστρέφεται ως ποσοστό
     except ZeroDivisionError:
         return None
 
 def show_loss_threshold_before_price_cut():
     st.header("📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών")
     st.title("Πόσες πωλήσεις μπορώ να χάσω πριν σκεφτώ μείωση τιμής; ⚖️")
+
     st.markdown("""
-    Έριξαν την τιμή στο προϊόν οι ανταγωνιστές και σκέφτεστε να κάνετε το ίδιο;
+    🧠 Οι ανταγωνιστές μείωσαν την τιμή και αναρωτιέστε αν πρέπει να κάνετε το ίδιο;
 
-    👉 Αυτό το εργαλείο σάς δείχνει μια εκτίμηση του **πόσες** πωλήσεις μπορείτε να χάσετε πριν αρχίσετε να σκέφτεστε τη **μείωση τιμής** του προϊόνος.
-
+    👉 Αυτό το εργαλείο σάς δείχνει **πόσο ποσοστό πωλήσεων μπορείτε να χάσετε**
+    πριν χρειαστεί να μειώσετε την τιμή σας για να παραμείνετε ανταγωνιστικοί.
     """)
+
     with st.form("loss_threshold_form"):
         col1, col2 = st.columns(2)
 
@@ -58,8 +60,9 @@ def show_loss_threshold_before_price_cut():
 
         if result is None:
             st.error("⚠️ Δεν μπορεί να υπολογιστεί. Έλεγξε τις τιμές.")
+        elif result <= 0:
+            st.warning("❗ Δεν υπάρχει περιθώριο απώλειας πωλήσεων. Η τιμή σας είναι ήδη λιγότερο ανταγωνιστική.")
         else:
             st.success(f"✅ Μέγιστο % Πωλήσεων που μπορεί να χαθεί πριν μειωθεί η τιμή: {format_percentage_gr(result)}")
 
     st.markdown("---")
-    st.markdown(" ")
