@@ -1,20 +1,15 @@
+# test_app.py
 import streamlit as st
 
 def format_currency(value, decimals=0):
-    try:
-        formatted = f"{value:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        return f"{formatted} €"
-    except:
-        return f"{value} €"
+    formatted = f"{value:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"{formatted} €"
 
 def format_percentage_gr(value, decimals=1):
-    try:
-        sign = "-" if value < 0 else ""
-        abs_val = abs(value * 100)
-        formatted = f"{abs_val:,.{decimals}f}".replace(",", "#").replace(".", ",").replace("#", ".")
-        return f"{sign}{formatted}%"
-    except:
-        return "-"
+    sign = "-" if value < 0 else ""
+    abs_val = abs(value * 100)
+    formatted = f"{abs_val:,.{decimals}f}".replace(",", "#").replace(".", ",").replace("#", ".")
+    return f"{sign}{formatted}%"
 
 def show_gross_profit_template():
     st.title("📈 Ανάλυση Μικτού Κέρδους")
@@ -42,12 +37,14 @@ def show_gross_profit_template():
         finished_goods = opening_inventory + purchases
         cost_of_goods_sold = (finished_goods - closing_inventory) + direct_labor + overheads + depreciation
         gross_profit = net_sales - cost_of_goods_sold
-        gross_margin = gross_profit / net_sales if net_sales != 0 else 0
+        gross_margin = gross_profit / net_sales if net_sales else 0
 
         st.markdown("---")
         st.subheader("📊 Αποτελέσματα")
-
         st.metric("Καθαρές Πωλήσεις", format_currency(net_sales))
         st.metric("Κόστος Πωληθέντων", format_currency(cost_of_goods_sold))
         st.metric("Μικτό Κέρδος", format_currency(gross_profit))
         st.metric("Μικτό Κέρδος %", format_percentage_gr(gross_margin))
+
+# Εκτέλεση
+show_gross_profit_template()
