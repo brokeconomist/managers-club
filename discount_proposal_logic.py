@@ -4,6 +4,7 @@ def calculate_discount_analysis(
     extra_sales,
     discount_rate,
     share_discount_before,
+    share_no_discount_before,
     days_discount_before,
     days_no_discount_before,
     days_discount_after,
@@ -32,7 +33,7 @@ def calculate_discount_analysis(
     capital_release = current_receivables - new_receivables
 
     # 6. Κέρδος από επιπλέον πωλήσεις
-    margin = (current_sales - cogs) / current_sales
+    margin = (current_sales - cogs) / current_sales if current_sales != 0 else 0
     profit_extra_sales = extra_sales * margin
 
     # 7. Κέρδος από αποδέσμευση κεφαλαίων
@@ -59,7 +60,7 @@ def calculate_discount_analysis(
             (1 - bad_debt_rate) * (1 + r_daily) ** (days_no_discount_before - avg_days_before) +
             (cogs / current_sales) * (extra_sales / current_sales) * (1 + r_daily) ** (days_no_discount_before - supplier_payment_days)
         )
-        part3 = share_discount_after * ((total_sales_after) / current_sales) * (1 - bad_debt_rate + bad_debt_reduction_rate)
+        part3 = share_discount_after * (total_sales_after / current_sales) * (1 - bad_debt_rate + bad_debt_reduction_rate)
         dmax = 1 - part1 * (part2 / part3)
     except:
         dmax = 0.0
