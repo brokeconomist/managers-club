@@ -17,26 +17,23 @@ def show_economic_order_quantity():
     M = st.number_input("Ανάγκες μιας Περιόδου (M)", value=10000, step=100)
     kf = st.number_input("Σταθερό Κόστος Προμηθειών ανά Παραγγελία (kf)", value=600.0, format="%.2f")
     r = st.number_input("Ποσοστιαία Έκπτωση (%)", value=0.0, format="%.2f") / 100
-    insurance_monthly = st.number_input("Ασφάλιστρα ανά Μήνα", value=150.0, format="%.2f")
     annual_interest = st.number_input("Ετήσιο Επιτόκιο", value=0.05, format="%.4f")
-    months = st.number_input("Υπολογιζόμενη Περίοδος (Μήνες)", value=12, step=1)
-    maintenance_monthly = st.number_input("Μηνιαία Έξοδα Συντήρησης", value=600.0, format="%.2f")
+    storage_cost_rate = st.number_input("Ποσοστό Κόστους Αποθήκευσης (%)", value=3.0, format="%.2f") / 100
 
     # Υπολογισμοί
-    KV = M * q
-    KL = (insurance_monthly + maintenance_monthly) * months
-    i = annual_interest
-    j = (KL / KV) + i
+    KV = M * q                              # Κόστος εμπορεύματος
+    i = annual_interest                     # Τόκος
+    j = i + storage_cost_rate               # Συνολικό ποσοστό κόστους αποθήκευσης
+    KL = j * KV                             # Κόστος αποθήκευσης και τόκων
 
     if r == 0:
-        B = math.sqrt((2 * M * kf) / (q * j))
+        B = math.sqrt((2 * M * kf) / (q * j)) if j != 0 else 0
     else:
-        B = math.sqrt((2 * M * kf) / (maintenance_monthly + (1 - r) * kf))
+        B = math.sqrt((2 * M * kf) / (storage_cost_rate + (1 - r) * kf))  # προσαρμοσμένο για έκπτωση
 
     orders = M / B if B != 0 else 0
     KF = orders * kf
     K = KF + KL
-    maintenance_total = maintenance_monthly * months
 
     # Εμφάνιση αποτελεσμάτων
     st.subheader("📊 Αποτελέσματα")
@@ -46,6 +43,5 @@ def show_economic_order_quantity():
     st.write(f"**ΚΟΣΤΟΣ ΑΠΟΘΗΚΕΥΣΗΣ ΚΑΙ ΤΟΚΩΝ (KL):** {format_number_gr(KL, 0)}")
     st.write(f"**ΤΟΚΟΣ ΣΕ % (i):** {format_percentage_gr(i)}")
     st.write(f"**ΚΟΣΤΟΣ ΑΠΟΘΗΚΕΥΣΗΣ ΣΕ % (j):** {format_percentage_gr(j)}")
-    st.write(f"**ΕΞΟΔΑ ΣΥΝΤΗΡΗΣΗΣ ΑΠΟΘΗΚΕΥΤΙΚΟΥ ΧΩΡΟΥ:** {format_number_gr(maintenance_total, 0)}")
     st.write(f"**ΒΕΛΤΙΣΤΗ ΠΟΣΟΤΗΤΑ ΠΡΟΜΗΘΕΙΑΣ (B):** {format_number_gr(B, 0)}")
     st.write(f"**ΑΡΙΘΜΟΣ ΠΑΡΑΓΓΕΛΙΩΝ ΠΕΡΙΟΔΟΥ:** {format_number_gr(orders, 2)}")
