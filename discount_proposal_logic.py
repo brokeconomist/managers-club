@@ -5,11 +5,11 @@ def calculate_discount_analysis(
     discount_rate,
     share_discount_before,
     days_discount_before,
-    share_no_discount_before,
     days_no_discount_before,
     days_discount_after,
     share_discount_after,
     share_no_discount_after,
+    days_no_discount_after,
     bad_debt_rate,
     bad_debt_reduction_rate,
     wacc,
@@ -22,7 +22,7 @@ def calculate_discount_analysis(
     current_receivables = current_sales * avg_days_before / 365
 
     # 3. Νέα μέση περίοδος είσπραξης
-    avg_days_after = share_discount_after * days_discount_after + share_no_discount_after * days_no_discount_before
+    avg_days_after = share_discount_after * days_discount_after + share_no_discount_after * days_no_discount_after
 
     # 4. Νέες απαιτήσεις
     total_sales_after = current_sales + extra_sales
@@ -35,7 +35,7 @@ def calculate_discount_analysis(
     margin = (current_sales - cogs) / current_sales
     profit_extra_sales = extra_sales * margin
 
-    # 7. Κέρδος από αποδέσμευση
+    # 7. Κέρδος από αποδέσμευση κεφαλαίων
     profit_from_release = capital_release * wacc
 
     # 8. Κέρδος από μείωση επισφαλειών
@@ -54,15 +54,12 @@ def calculate_discount_analysis(
     try:
         r_daily = wacc / 365
         part1 = (1 + r_daily) ** (days_discount_after - days_no_discount_before)
-
         part2 = (
             1 - (1 / share_discount_after) +
             (1 - bad_debt_rate) * (1 + r_daily) ** (days_no_discount_before - avg_days_before) +
             (cogs / current_sales) * (extra_sales / current_sales) * (1 + r_daily) ** (days_no_discount_before - supplier_payment_days)
         )
-
         part3 = share_discount_after * ((total_sales_after) / current_sales) * (1 - bad_debt_rate + bad_debt_reduction_rate)
-
         dmax = 1 - part1 * (part2 / part3)
     except:
         dmax = 0.0
