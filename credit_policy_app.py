@@ -1,7 +1,11 @@
 import streamlit as st
 
-def format_currency(value):
-    return f"{value:,.0f} €".replace(",", ".").replace(".", ",", 1)
+def format_currency(value, decimals=2):
+    try:
+        formatted = f"{value:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"{formatted} €"
+    except Exception:
+        return f"{value} €"
 
 def show_credit_policy_analysis():
     st.title("🕵️‍♂️ Αξιολόγηση Πολιτικής Πίστωσης")
