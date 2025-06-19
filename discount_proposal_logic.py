@@ -1,4 +1,4 @@
-def calculate_discount_analysis_strict(
+def calculate_discount_analysis(
     current_sales,
     cogs,
     extra_sales,
