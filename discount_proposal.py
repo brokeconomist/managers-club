@@ -52,3 +52,5 @@ def show_discount_proposal_ui():
         st.write(f"Κόστος Έκπτωσης: {results['discount_cost']} €")
         st.write(f"Μέγιστη Έκπτωση που μπορεί να δοθεί: {results['max_discount_pct']}%")
         st.write(f"Εκτιμώμενη Βέλτιστη Έκπτωση που πρέπει να δοθεί: {results['estimated_best_discount_pct']}%")
+        st.write(f"Καθαρή Παρούσα Αξία (NPV): {results['npv']} €")
+
