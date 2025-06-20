@@ -96,6 +96,18 @@ def calculate_discount_analysis(
 
     # Εκτιμώμενη βέλτιστη έκπτωση
     estimated_best_discount = (Decimal('1') - (base ** (M - N))) / Decimal('2')
+        # === Υπολογισμός NPV με Decimal ===
+    total_sales = Decimal(str(current_sales)) + Decimal(str(additional_sales_discount))
+    pct_new_policy = p  # pct_sales_with_discount_after_increase
+    pct_old_policy = Decimal('1') - pct_new_policy
+
+    npv = (
+        total_sales * pct_new_policy * (Decimal('1') - Decimal(str(cash_discount_rate))) * (Decimal('1') / (base ** M)) +
+        total_sales * pct_old_policy * (Decimal('1') / (base ** Decimal(str(days_collection_undiscounted)))) -
+        V * Decimal(str(additional_sales_discount)) * (Decimal('1') / (base ** D)) -
+        Decimal(str(current_sales)) * (Decimal('1') / (base ** N))
+    )
+
 
     return {
         "current_avg_collection_days": round(current_avg_collection_days, 0),
@@ -110,4 +122,6 @@ def calculate_discount_analysis(
         "total_estimated_profit": round(total_estimated_profit, 0),
         "max_discount_pct": round(max_discount * 100, 2),
         "estimated_best_discount_pct": round(estimated_best_discount * 100, 2),
+        "npv": round(npv, 2),
+
     }
