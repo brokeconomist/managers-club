@@ -42,7 +42,7 @@ def show_discount_proposal_ui():
 
         st.subheader("Αποτελέσματα")
         st.write(f"Τρέχουσα Μέση Περίοδος Είσπραξης Απαιτήσεων: {results['current_avg_collection_days']} ημέρες")
-        st.write(f"Τρέχουσες Απαιτήσεις: {results['current_receivables']} μονάδες")
+        st.write(f"Τρέχουσες Απαιτήσεις: {results['current_receivables']} €")
         st.write(f"Μέση Περίοδος Είσπραξης μετά την Αύξηση Πωλήσεων: {results['new_avg_collection_days']} ημέρες")
         st.write(f"Απαιτήσεις μετά την Αύξηση Πωλήσεων: {results['new_receivables']} €")
         st.write(f"Αποδέσμευση Κεφαλαίων: {results['released_capital']} €")
