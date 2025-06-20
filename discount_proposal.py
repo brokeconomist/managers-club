@@ -45,12 +45,10 @@ def show_discount_proposal_ui():
         st.write(f"Τρέχουσες Απαιτήσεις: {results['current_receivables']} μονάδες")
         st.write(f"Μέση Περίοδος Είσπραξης μετά την Αύξηση Πωλήσεων: {results['new_avg_collection_days']} ημέρες")
         st.write(f"Απαιτήσεις μετά την Αύξηση Πωλήσεων: {results['new_receivables']} €")
-        st.write(f"Αποδέσμευση Κεφαλαίων: {results['released_capital']} €")
+        st.write(f"Αποδέσμευση Κεφαλαίων: {results['released_capital']} μονάδες")
         st.write(f"Κέρδος από Επιπλέον Πωλήσεις: {results['profit_from_additional_sales']} €")
         st.write(f"Κέρδος από Αποδέσμευση Κεφαλαίων: {results['profit_from_released_capital']} €")
         st.write(f"Κέρδος από Μείωση Επισφαλειών: {results['profit_from_bad_debt_reduction']} €")
         st.write(f"Κόστος Έκπτωσης: {results['discount_cost']} €")
         st.write(f"Μέγιστη Έκπτωση που μπορεί να δοθεί: {results['max_discount_pct']}%")
         st.write(f"Εκτιμώμενη Βέλτιστη Έκπτωση που πρέπει να δοθεί: {results['estimated_best_discount_pct']}%")
-        st.write(f"Καθαρή Παρούσα Αξία (NPV): {results['npv']} €")
-
