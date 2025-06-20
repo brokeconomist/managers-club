@@ -1,3 +1,8 @@
+from decimal import Decimal, getcontext
+
+# Ορίζουμε υψηλή ακρίβεια (όπως στο Excel)
+getcontext().prec = 20
+
 def calculate_discount_analysis(
     current_sales,
     cost_of_sales,
@@ -15,7 +20,7 @@ def calculate_discount_analysis(
     cost_of_capital,
     avg_supplier_payment_days,
 ):
-    # === Υπολογισμός της ΤΡΕΧΟΥΣΑΣ μέσης περιόδου είσπραξης (σύμφωνα με Excel) ===
+    # === Υπολογισμός της τρέχουσας μέσης περιόδου είσπραξης (όπως στο Excel) ===
     current_avg_collection_days = (
         pct_sales_with_discount * days_collection_discounted +
         pct_sales_without_discount * days_collection_undiscounted
@@ -24,7 +29,7 @@ def calculate_discount_analysis(
     # Τρέχουσες απαιτήσεις
     current_receivables = current_sales * current_avg_collection_days / 365
 
-    # Νέα μέση περίοδος είσπραξης μετά την αύξηση πωλήσεων
+    # Νέα μέση περίοδος είσπραξης
     new_avg_collection_days = (
         pct_sales_with_discount_after_increase * days_cash_payment_deadline +
         pct_sales_without_discount_after_increase * days_collection_undiscounted
@@ -42,7 +47,7 @@ def calculate_discount_analysis(
     # Κέρδος από αποδέσμευση
     profit_from_released_capital = released_capital * cost_of_capital
 
-    # Κέρδος μείωσης επισφαλειών
+    # Κέρδος από μείωση επισφαλειών
     profit_from_bad_debt_reduction = (
         (current_sales * pct_current_bad_debts) -
         ((current_sales + additional_sales_discount) * pct_bad_debt_reduction_after_discount)
@@ -63,32 +68,34 @@ def calculate_discount_analysis(
         discount_cost
     )
 
-    # === Διορθωμένος υπολογισμός Μέγιστης Έκπτωσης ===
-    i = cost_of_capital / 365
-    M = days_cash_payment_deadline
-    N = current_avg_collection_days
-    D = avg_supplier_payment_days
-    C = avg_supplier_payment_days  # υποθέτουμε ίδιο με D
-    p = pct_sales_with_discount_after_increase
-    b = pct_current_bad_debts
-    k = pct_bad_debt_reduction_after_discount
-    V = cost_of_sales / current_sales
-    g = additional_sales_discount / current_sales
+    # === Μέγιστη Έκπτωση με χρήση Decimal για ακρίβεια ===
+    # Μετατροπή όλων των τιμών σε Decimal
+    i = Decimal(str(cost_of_capital)) / Decimal('365')
+    M = Decimal(str(days_cash_payment_deadline))
+    N = Decimal(str(current_avg_collection_days))
+    D = Decimal(str(avg_supplier_payment_days))
+    C = D
+    p = Decimal(str(pct_sales_with_discount_after_increase))
+    b = Decimal(str(pct_current_bad_debts))
+    k = Decimal(str(pct_bad_debt_reduction_after_discount))
+    V = Decimal(str(cost_of_sales)) / Decimal(str(current_sales))
+    g = Decimal(str(additional_sales_discount)) / Decimal(str(current_sales))
 
     time_diff1 = M - N
     time_diff2 = N - D
     time_diff3 = N - C
 
+    base = Decimal('1') + i
     numerator = (
-        1 - (1 / p)
-        + ((1 - b) * (1 + i) ** time_diff2 + V * g * (1 + i) ** time_diff3)
-        / (p * (1 + g) * (1 - b + k))
+        Decimal('1') - (Decimal('1') / p)
+        + ((Decimal('1') - b) * base ** time_diff2 + V * g * base ** time_diff3)
+        / (p * (Decimal('1') + g) * (Decimal('1') - b + k))
     )
 
-    max_discount = 1 - ((1 + i) ** time_diff1) * numerator
+    max_discount = Decimal('1') - (base ** time_diff1) * numerator
 
-    # Εκτιμώμενη βέλτιστη έκπτωση (όπως στο βιβλίο)
-    estimated_best_discount = (1 - ((1 + i) ** (M - N))) / 2
+    # Εκτιμώμενη βέλτιστη έκπτωση
+    estimated_best_discount = (Decimal('1') - (base ** (M - N))) / Decimal('2')
 
     return {
         "current_avg_collection_days": round(current_avg_collection_days, 0),
