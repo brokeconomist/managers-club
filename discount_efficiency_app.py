@@ -62,17 +62,5 @@ def show_discount_efficiency_ui():
 
     st.header("Αποτελέσματα")
 
-    st.write(f"**Μέση περίοδος είσπραξης πριν:** {format_number_gr(current_avg_collection)} μέρες")
-    st.write(f"**Τρέχουσες απαιτήσεις:** {format_number_gr(current_receivables)} €")
-    st.write(f"**Νέα μέση περίοδος είσπραξης:** {format_number_gr(new_avg_collection)} μέρες")
-    st.write(f"**Νέες απαιτήσεις:** {format_number_gr(new_receivables)} €")
-    st.write(f"**Αποδέσμευση κεφαλαίου:** {format_number_gr(released_capital)} €")
-    st.write("---")
-
-    st.write(f"**Μικτό κέρδος από επιπλέον πωλήσεις:** {format_number_gr(gross_profit_extra_sales)} €")
-    st.write(f"**Απόδοση αποδέσμευσης κεφαλαίου:** {format_number_gr(value_of_released_capital)} €")
-    st.write(f"**Κόστος έκπτωσης:** {format_number_gr(discount_cost)} €")
-    st.write("---")
-
     st.write(f"**NPV:** {format_number_gr(npv)} €")
     st.write(f"**Βέλτιστη έκπτωση:** {format_percentage_gr(optimal_discount)}")
