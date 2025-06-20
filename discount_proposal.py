@@ -16,8 +16,8 @@ def show_discount_proposal_ui():
     days_cash_payment_deadline = st.number_input("Μέρες Προθεσμία για Πληρωμή τοις Μετρητοίς", value=10)
     pct_sales_with_discount_after_increase = st.number_input("Ποσοστό Πωλήσεων με Έκπτωση μετά την Αύξηση (0.70 = 70%)", value=0.70, step=0.05)
     pct_sales_without_discount_after_increase = st.number_input("Ποσοστό Πωλήσεων χωρίς Έκπτωση μετά την Αύξηση (0.30 = 30%)", value=0.30, step=0.05)
-    pct_current_bad_debts = st.number_input("Ποσοστό Τρεχουσών Επισφαλειών (0.01 = 1%)", value=0.01, step=0.005)
-    pct_bad_debt_reduction_after_discount = st.number_input("Μείωση Επισφαλειών λόγω Μετρητών (0.005 = 0.5%)", value=0.005, step=0.001)
+    pct_current_bad_debts = st.number_input("Ποσοστό Τρεχουσών Επισφαλειών (0.02 = 2%)", value=0.02, step=0.01)
+    pct_bad_debt_reduction_after_discount = st.number_input("Μείωση Επισφαλειών λόγω Μετρητών (0.01 = 1%)", value=0.01, step=0.01)
     cost_of_capital = st.number_input("Κόστος Κεφαλαίου (0.20 = 20%)", value=0.20, step=0.01)
     avg_supplier_payment_days = st.number_input("Μέση Περίοδος Αποπληρωμής Προμηθευτών", value=30)
 
