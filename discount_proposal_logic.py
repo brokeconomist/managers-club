@@ -65,33 +65,27 @@ def calculate_discount_analysis(
         discount_cost
     )
 
-    # --- Υπολογισμός Μέγιστης Έκπτωσης με ακριβή τύπο Excel ---
-
+    # === Μέγιστη Έκπτωση με τον Ακριβή Τύπο από το Βιβλίο ===
     r = cost_of_capital / 365
+    M = days_cash_payment_deadline
+    Q = days_collection_undiscounted
+    P = pct_sales_with_discount_after_increase
+    Y = pct_current_bad_debts
+    N = current_avg_collection_days
+    C = avg_supplier_payment_days
+    G = additional_sales_discount / current_sales
+    Z = pct_bad_debt_reduction_after_discount
 
-    part1 = (1 + r) ** (days_cash_payment_deadline - days_collection_undiscounted)
+    term1 = 1 - (1 / P)
+    term2 = (1 - Y) * ((1 + r) ** (Q - N))
+    term3 = (cost_of_sales / current_sales) * G * ((1 + r) ** (Q - C))
+    denominator = P * (1 + G) * (1 - Y + Z)
+    bracket = term1 + term2 + (term3 / denominator)
+    max_discount = 1 - ((1 + r) ** (M - Q)) * bracket
 
-    numerator = (
-        1
-        - (1 / pct_sales_with_discount_after_increase)
-        + (1 - pct_current_bad_debts)
-        * (1 + r) ** (days_collection_undiscounted - current_avg_collection_days)
-        + (cost_of_sales / current_sales)
-        * (additional_sales_discount / current_sales)
-        * (1 + r) ** (days_collection_undiscounted - avg_supplier_payment_days)
-    )
-
-    denominator = (
-        pct_sales_with_discount_after_increase
-        * ((current_sales + additional_sales_discount) / current_sales)
-        * (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
-    )
-
-    max_discount = 1 - (part1 * numerator / denominator)
-
-    # Εκτιμώμενη βέλτιστη έκπτωση (όπως πριν)
+    # Βέλτιστη Έκπτωση
     estimated_best_discount = (
-        1 - ((1 + r) ** (days_cash_payment_deadline - current_avg_collection_days))
+        1 - ((1 + r) ** (M - N))
     ) / 2
 
     return {
