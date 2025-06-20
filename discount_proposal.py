@@ -50,6 +50,5 @@ def show_discount_proposal_ui():
         st.write(f"Κέρδος από Αποδέσμευση Κεφαλαίων: {results['profit_from_released_capital']} μονάδες")
         st.write(f"Κέρδος από Μείωση Επισφαλειών: {results['profit_from_bad_debt_reduction']} μονάδες")
         st.write(f"Κόστος Έκπτωσης: {results['discount_cost']} μονάδες")
-        st.write(f"Εκτιμώμενο Συνολικό Κέρδος: {results['total_estimated_profit']} μονάδες")
         st.write(f"Μέγιστη Έκπτωση που μπορεί να δοθεί: {results['max_discount_pct']}%")
         st.write(f"Εκτιμώμενη Βέλτιστη Έκπτωση που πρέπει να δοθεί: {results['estimated_best_discount_pct']}%")
