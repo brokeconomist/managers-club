@@ -1,54 +1,74 @@
 import streamlit as st
 from discount_proposal_logic import calculate_discount_analysis
+from utils import parse_gr_number, format_number_gr, format_percentage_gr
 
 def show_discount_proposal_ui():
-    st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
+    st.header("💸 Ανάλυση Πρότασης Έκπτωσης Τοις Μετρητοίς")
 
-    # Εισαγωγή δεδομένων
-    current_sales = st.number_input("Τρέχουσες Πωλήσεις", value=1000.0, step=100.0)
-    cost_of_sales = st.number_input("Κόστος Πωλήσεων", value=800.0, step=100.0)
-    additional_sales_discount = st.number_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης", value=250.0, step=10.0)
-    cash_discount_rate = st.number_input("Έκπτωση για Πληρωμή τοις Μετρητοίς (0.02 = 2%)", value=0.02, step=0.01)
-    pct_sales_with_discount = st.number_input("Ποσοστό Πωλήσεων με Έκπτωση (0.40 = 40%)", value=0.40, step=0.05)
-    days_collection_discounted = st.number_input("Μέρες Είσπραξης Πωλήσεων με Έκπτωση", value=30)
-    pct_sales_without_discount = st.number_input("Ποσοστό Πωλήσεων χωρίς Έκπτωση (0.60 = 60%)", value=0.60, step=0.05)
-    days_collection_undiscounted = st.number_input("Μέρες Είσπραξης Πωλήσεων χωρίς Έκπτωση", value=60)
-    days_cash_payment_deadline = st.number_input("Μέρες Προθεσμία για Πληρωμή τοις Μετρητοίς", value=10)
-    pct_sales_with_discount_after_increase = st.number_input("Ποσοστό Πωλήσεων με Έκπτωση μετά την Αύξηση (0.70 = 70%)", value=0.70, step=0.05)
-    pct_sales_without_discount_after_increase = st.number_input("Ποσοστό Πωλήσεων χωρίς Έκπτωση μετά την Αύξηση (0.30 = 30%)", value=0.30, step=0.05)
-    pct_current_bad_debts = st.number_input("Ποσοστό Τρεχουσών Επισφαλειών (0.02 = 2%)", value=0.02, step=0.01)
-    pct_bad_debt_reduction_after_discount = st.number_input("Μείωση Επισφαλειών λόγω Μετρητών (0.01 = 1%)", value=0.01, step=0.01)
-    cost_of_capital = st.number_input("Κόστος Κεφαλαίου (0.20 = 20%)", value=0.20, step=0.01)
-    avg_supplier_payment_days = st.number_input("Μέση Περίοδος Αποπληρωμής Προμηθευτών", value=30)
+    st.markdown("""
+    Η ανάλυση υπολογίζει αν μια έκπτωση για πληρωμή τοις μετρητοίς οδηγεί σε συνολικό οικονομικό όφελος,
+    λαμβάνοντας υπόψη τις επιπλέον πωλήσεις, τη μείωση επισφαλειών, την αποδέσμευση κεφαλαίων και το κόστος της έκπτωσης.
+    """)
 
-    if st.button("Υπολογισμός"):
-        results = calculate_discount_analysis(
+    with st.form("discount_form"):
+        st.subheader("📥 Είσοδοι")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            current_sales = parse_gr_number(st.text_input("Τρέχουσες Πωλήσεις (€)", "1.000"))
+            cogs = parse_gr_number(st.text_input("Κόστος Πωλήσεων (€)", "800"))
+            extra_sales = parse_gr_number(st.text_input("Επιπλέον Πωλήσεις λόγω Έκπτωσης (€)", "250"))
+            discount_rate = parse_gr_number(st.text_input("Έκπτωση για πληρωμή τοις μετρητοίς (%)", "2")) / 100
+            share_discount_before = parse_gr_number(st.text_input("Ποσοστό Πωλήσεων με Έκπτωση (πριν)", "40")) / 100
+            share_no_discount_before = parse_gr_number(st.text_input("Ποσοστό Πωλήσεων χωρίς Έκπτωση (πριν)", "60")) / 100
+            days_discount_before = parse_gr_number(st.text_input("Μέρες είσπραξης με Έκπτωση (πριν)", "30"))
+            days_no_discount_before = parse_gr_number(st.text_input("Μέρες είσπραξης χωρίς Έκπτωση (πριν)", "60"))
+            supplier_payment_days = parse_gr_number(st.text_input("Μέρες πληρωμής προμηθευτών", "30"))
+
+        with col2:
+            days_discount_after = parse_gr_number(st.text_input("Μέρες πληρωμής μετρητοίς (μετά)", "10"))
+            share_discount_after = parse_gr_number(st.text_input("Ποσοστό Πωλήσεων με Έκπτωση (μετά)", "70")) / 100
+            share_no_discount_after = parse_gr_number(st.text_input("Ποσοστό Πωλήσεων χωρίς Έκπτωση (μετά)", "30")) / 100
+            days_no_discount_after = parse_gr_number(st.text_input("Μέρες είσπραξης χωρίς Έκπτωση (μετά)", "60"))
+            bad_debt_rate = parse_gr_number(st.text_input("% Επισφαλειών (τρέχον)", "1")) / 100
+            bad_debt_reduction_rate = parse_gr_number(st.text_input("% Επισφαλειών (μετά την αλλαγή)", "0.5")) / 100
+            wacc = parse_gr_number(st.text_input("Κόστος Κεφαλαίου (WACC, %)", "20")) / 100
+
+        submitted = st.form_submit_button("Υπολογισμός")
+
+    if submitted:
+        result = calculate_discount_analysis(
             current_sales,
-            cost_of_sales,
-            additional_sales_discount,
-            cash_discount_rate,
-            pct_sales_with_discount,
-            days_collection_discounted,
-            pct_sales_without_discount,
-            days_collection_undiscounted,
-            days_cash_payment_deadline,
-            pct_sales_with_discount_after_increase,
-            pct_sales_without_discount_after_increase,
-            pct_current_bad_debts,
-            pct_bad_debt_reduction_after_discount,
-            cost_of_capital,
-            avg_supplier_payment_days,
+            cogs,
+            extra_sales,
+            discount_rate,
+            share_discount_before,
+            share_no_discount_before,
+            days_discount_before,
+            days_no_discount_before,
+            days_discount_after,
+            share_discount_after,
+            share_no_discount_after,
+            days_no_discount_after,
+            bad_debt_rate,
+            bad_debt_reduction_rate,
+            wacc,
+            supplier_payment_days
         )
 
-        st.subheader("Αποτελέσματα")
-        st.write(f"Τρέχουσα Μέση Περίοδος Είσπραξης Απαιτήσεων: {results['current_avg_collection_days']} ημέρες")
-        st.write(f"Τρέχουσες Απαιτήσεις: {results['current_receivables']} €")
-        st.write(f"Μέση Περίοδος Είσπραξης μετά την Αύξηση Πωλήσεων: {results['new_avg_collection_days']} ημέρες")
-        st.write(f"Απαιτήσεις μετά την Αύξηση Πωλήσεων: {results['new_receivables']} €")
-        st.write(f"Αποδέσμευση Κεφαλαίων: {results['released_capital']} €")
-        st.write(f"Κέρδος από Επιπλέον Πωλήσεις: {results['profit_from_additional_sales']} €")
-        st.write(f"Κέρδος από Αποδέσμευση Κεφαλαίων: {results['profit_from_released_capital']} €")
-        st.write(f"Κέρδος από Μείωση Επισφαλειών: {results['profit_from_bad_debt_reduction']} €")
-        st.write(f"Κόστος Έκπτωσης: {results['discount_cost']} €")
-        st.write(f"Μέγιστη Έκπτωση που μπορεί να δοθεί: {results['max_discount_pct']}%")
-        st.write(f"Εκτιμώμενη Βέλτιστη Έκπτωση που πρέπει να δοθεί: {results['estimated_best_discount_pct']}%")
+        st.subheader("📊 Αποτελέσματα")
+
+        st.markdown(f"• **Μέση περίοδος είσπραξης (πριν):** {format_number_gr(result['avg_days_before'])} ημέρες")
+        st.markdown(f"• **Μέση περίοδος είσπραξης (μετά):** {format_number_gr(result['avg_days_after'])} ημέρες")
+        st.markdown(f"• **Αποδέσμευση Κεφαλαίων:** {format_number_gr(result['capital_release'])} €")
+        st.markdown(f"• **Κέρδος από επιπλέον πωλήσεις:** {format_number_gr(result['profit_extra_sales'])} €")
+        st.markdown(f"• **Κέρδος από αποδέσμευση κεφαλαίων:** {format_number_gr(result['profit_from_release'])} €")
+        st.markdown(f"• **Κέρδος από μείωση επισφαλειών:** {format_number_gr(result['profit_from_risk_reduction'])} €")
+        st.markdown(f"• **Κόστος έκπτωσης:** {format_number_gr(result['discount_cost'])} €")
+        st.success(f"🧾 **Καθαρό όφελος από την πρόταση:** {format_number_gr(result['total_profit'])} €")
+
+        st.markdown("---")
+        st.subheader("📌 Εκπτώσεις")
+        st.markdown(f"• **Μέγιστη αποδεκτή έκπτωση (Dmax):** {format_percentage_gr(result['dmax'])}")
+        st.markdown(f"• **Προτεινόμενη έκπτωση (ασφαλής):** {format_percentage_gr(result['suggested_discount'])}")
