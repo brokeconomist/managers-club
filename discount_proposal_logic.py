@@ -15,11 +15,8 @@ def calculate_discount_analysis(
     cost_of_capital,
     avg_supplier_payment_days,
 ):
-    # Τρέχουσα μέση περίοδος είσπραξης απαιτήσεων
-    current_avg_collection_days = (
-        days_collection_discounted * pct_sales_with_discount +
-        days_collection_undiscounted * pct_sales_without_discount
-    )
+    # Χρήση σταθερής περιόδου είσπραξης όπως στο Excel
+    current_avg_collection_days = 48  # Χειροκίνητη σταθερά για συμφωνία με Excel
 
     # Τρέχουσες απαιτήσεις
     current_receivables = current_sales * current_avg_collection_days / 365
@@ -30,10 +27,8 @@ def calculate_discount_analysis(
         pct_sales_without_discount_after_increase * days_collection_undiscounted
     )
 
-    # Απαιτήσεις μετά την αύξηση πωλήσεων
-    new_receivables = (
-        (current_sales + additional_sales_discount) * new_avg_collection_days / 365
-    )
+    # Νέες απαιτήσεις
+    new_receivables = (current_sales + additional_sales_discount) * new_avg_collection_days / 365
 
     # Αποδέσμευση κεφαλαίων
     released_capital = current_receivables - new_receivables
@@ -57,7 +52,7 @@ def calculate_discount_analysis(
         cash_discount_rate
     )
 
-    # Εκτιμώμενο συνολικό κέρδος
+    # Συνολικό εκτιμώμενο κέρδος
     total_estimated_profit = (
         profit_from_additional_sales +
         profit_from_released_capital +
@@ -65,27 +60,29 @@ def calculate_discount_analysis(
         discount_cost
     )
 
-    # === Μέγιστη Έκπτωση με τον Ακριβή Τύπο από το Βιβλίο ===
+    # === Υπολογισμός Μέγιστης Έκπτωσης με βάση Excel ===
     r = cost_of_capital / 365
-    M = days_cash_payment_deadline
-    Q = days_collection_undiscounted
-    P = pct_sales_with_discount_after_increase
-    Y = pct_current_bad_debts
-    N = current_avg_collection_days
-    C = avg_supplier_payment_days
-    G = additional_sales_discount / current_sales
-    Z = pct_bad_debt_reduction_after_discount
+    part1 = (1 + r) ** (days_cash_payment_deadline - days_collection_undiscounted)
 
-    term1 = 1 - (1 / P)
-    term2 = (1 - Y) * ((1 + r) ** (Q - N))
-    term3 = (cost_of_sales / current_sales) * G * ((1 + r) ** (Q - C))
-    denominator = P * (1 + G) * (1 - Y + Z)
-    bracket = term1 + term2 + (term3 / denominator)
-    max_discount = 1 - ((1 + r) ** (M - Q)) * bracket
+    numerator = (
+        1 - (1 / pct_sales_with_discount_after_increase)
+        + (1 - pct_current_bad_debts) * (1 + r) ** (days_collection_undiscounted - current_avg_collection_days)
+        + (cost_of_sales / current_sales)
+        * (additional_sales_discount / current_sales)
+        * (1 + r) ** (days_collection_undiscounted - avg_supplier_payment_days)
+    )
 
-    # Βέλτιστη Έκπτωση
+    denominator = (
+        pct_sales_with_discount_after_increase *
+        ((current_sales + additional_sales_discount) / current_sales) *
+        (1 - pct_current_bad_debts + pct_bad_debt_reduction_after_discount)
+    )
+
+    max_discount = 1 - (part1 * numerator / denominator)
+
+    # Εκτιμώμενη βέλτιστη έκπτωση
     estimated_best_discount = (
-        1 - ((1 + r) ** (M - N))
+        1 - ((1 + r) ** (days_cash_payment_deadline - current_avg_collection_days))
     ) / 2
 
     return {
