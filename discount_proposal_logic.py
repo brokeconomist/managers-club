@@ -1,6 +1,6 @@
 from decimal import Decimal, getcontext
 
-# Ορίζουμε υψηλή ακρίβεια (όπως στο Excel)
+# Υψηλή ακρίβεια για χρηματοοικονομικούς υπολογισμούς
 getcontext().prec = 20
 
 def calculate_discount_analysis(
@@ -20,47 +20,29 @@ def calculate_discount_analysis(
     cost_of_capital,
     avg_supplier_payment_days,
 ):
-    # === Υπολογισμός της τρέχουσας μέσης περιόδου είσπραξης (όπως στο Excel) ===
+    # === Υφιστάμενα ===
     current_avg_collection_days = (
         pct_sales_with_discount * days_collection_discounted +
         pct_sales_without_discount * days_collection_undiscounted
     )
-
-    # Τρέχουσες απαιτήσεις
     current_receivables = current_sales * current_avg_collection_days / 365
-
-    # Νέα μέση περίοδος είσπραξης
     new_avg_collection_days = (
         pct_sales_with_discount_after_increase * days_cash_payment_deadline +
         pct_sales_without_discount_after_increase * days_collection_undiscounted
     )
-
-    # Νέες απαιτήσεις
     new_receivables = (current_sales + additional_sales_discount) * new_avg_collection_days / 365
-
-    # Αποδέσμευση κεφαλαίων
     released_capital = current_receivables - new_receivables
-
-    # Κέρδος από επιπλέον πωλήσεις
     profit_from_additional_sales = additional_sales_discount * ((current_sales - cost_of_sales) / current_sales)
-
-    # Κέρδος από αποδέσμευση
     profit_from_released_capital = released_capital * cost_of_capital
-
-    # Κέρδος από μείωση επισφαλειών
     profit_from_bad_debt_reduction = (
         (current_sales * pct_current_bad_debts) -
         ((current_sales + additional_sales_discount) * pct_bad_debt_reduction_after_discount)
     )
-
-    # Κόστος έκπτωσης
     discount_cost = (
         (current_sales + additional_sales_discount) *
         pct_sales_with_discount_after_increase *
         cash_discount_rate
     )
-
-    # Συνολικό εκτιμώμενο κέρδος
     total_estimated_profit = (
         profit_from_additional_sales +
         profit_from_released_capital +
@@ -68,8 +50,7 @@ def calculate_discount_analysis(
         discount_cost
     )
 
-    # === Μέγιστη Έκπτωση με χρήση Decimal για ακρίβεια ===
-    # Μετατροπή όλων των τιμών σε Decimal
+    # === Μέγιστη & Βέλτιστη Έκπτωση με Decimal ===
     i = Decimal(str(cost_of_capital)) / Decimal('365')
     M = Decimal(str(days_cash_payment_deadline))
     N = Decimal(str(current_avg_collection_days))
@@ -91,12 +72,27 @@ def calculate_discount_analysis(
         + ((Decimal('1') - b) * base ** time_diff2 + V * g * base ** time_diff3)
         / (p * (Decimal('1') + g) * (Decimal('1') - b + k))
     )
-
     max_discount = Decimal('1') - (base ** time_diff1) * numerator
-
-    # Εκτιμώμενη βέλτιστη έκπτωση
     estimated_best_discount = (Decimal('1') - (base ** (M - N))) / Decimal('2')
 
+    # === Υπολογισμός NPV ===
+    total_sales = current_sales + additional_sales_discount
+    daily_discount_rate = Decimal(str(cost_of_capital)) / Decimal('365')
+
+    npv = (
+        Decimal(str(total_sales)) * Decimal(str(p)) * (Decimal('1') - Decimal(str(cash_discount_rate))) *
+        (Decimal('1') / (Decimal('1') + daily_discount_rate) ** Decimal(str(days_cash_payment_deadline)))
+        +
+        Decimal(str(total_sales)) * (Decimal('1') - Decimal(str(p))) *
+        (Decimal('1') / (Decimal('1') + daily_discount_rate) ** Decimal(str(days_collection_undiscounted)))
+        -
+        Decimal(str(cost_of_sales)) * Decimal(str(additional_sales_discount / current_sales)) *
+        (Decimal('1') / (Decimal('1') + daily_discount_rate) ** Decimal(str(avg_supplier_payment_days)))
+        -
+        Decimal(str(current_sales)) * (Decimal('1') / (Decimal('1') + daily_discount_rate) ** Decimal(str(current_avg_collection_days)))
+    )
+
+    # === Επιστροφή αποτελεσμάτων ===
     return {
         "current_avg_collection_days": round(current_avg_collection_days, 0),
         "current_receivables": round(current_receivables, 0),
@@ -110,4 +106,5 @@ def calculate_discount_analysis(
         "total_estimated_profit": round(total_estimated_profit, 0),
         "max_discount_pct": round(max_discount * 100, 2),
         "estimated_best_discount_pct": round(estimated_best_discount * 100, 2),
+        "npv": round(npv, 0),
     }
