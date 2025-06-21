@@ -1,5 +1,6 @@
 import streamlit as st
 from discount_proposal_logic import calculate_discount_analysis
+from utils import format_number_gr
 
 def show_discount_proposal_ui():
     st.title("Ανάλυση Απόδοσης Έκπτωσης Τοις Μετρητοίς")
