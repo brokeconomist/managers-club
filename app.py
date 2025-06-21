@@ -14,7 +14,6 @@ from cash_cycle import run_cash_cycle_app
 from loan_vs_leasing_calculator import loan_vs_leasing_ui
 from gross_profit_analysis import show_gross_profit_template
 from unit_cost_app import show_unit_cost_app
-from discount_proposal import show_discount_proposal_ui
 from discount_npv_ui import show_discount_npv_ui  # <--- προστίθεται αυτό
 from economic_order_quantity import show_economic_order_quantity
 
@@ -36,7 +35,6 @@ tools = {
     "📈 Ανάλυση Μικτού Κέρδους": show_gross_profit_template,
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
     "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
-    "📈 Πρόταση Έκπτωσης Τοις Μετρητοίς (Ανάλυση)": show_discount_proposal_ui,
     "💰 Ανάλυση NPV Έκπτωσης Τοις Μετρητοίς": show_discount_npv_ui  # <--- προστίθεται αυτό
 
 }
