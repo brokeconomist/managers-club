@@ -11,7 +11,6 @@ from credit_extension_analysis import show_credit_extension_analysis
 from credit_policy_app import show_credit_policy_analysis
 from supplier_credit_app import show_supplier_credit_analysis
 from cash_cycle import run_cash_cycle_app
-from discount_efficiency_app import show_discount_efficiency_ui
 from loan_vs_leasing_calculator import loan_vs_leasing_ui
 from gross_profit_analysis import show_gross_profit_template
 from unit_cost_app import show_unit_cost_app
@@ -35,7 +34,6 @@ tools = {
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
     "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
-    "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,
     "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui,
     "📈 Ανάλυση Μικτού Κέρδους": show_gross_profit_template,
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
