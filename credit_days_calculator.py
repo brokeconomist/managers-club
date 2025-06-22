@@ -20,7 +20,7 @@ def show_credit_days_calculator():
     with col1:
         st.markdown("### Πελάτες")
         for i in range(num_categories):
-            value = st.number_input(f"Κατηγορία {i+1}", key=f"cust_{i}", min_value=0)
+            value = st.number_input(f"Αριθμός πελατών {i+1}", key=f"cust_{i}", min_value=0)
             customers.append(value)
 
     with col2:
