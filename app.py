@@ -31,7 +31,7 @@ tools = {
     "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
     "🏦 Ανάλυση Έκπτωσης Πληρωμής Προμηθευτών Τοις Μετρητοίς": show_supplier_credit_analysis,
-    "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
+    "📊 Μέσος Ταμειακός Κύκλος": run_cash_cycle_app,
     "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui,
     "📈 Υπολογισμός Μικτού Κέρδους": show_gross_profit_template,
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
