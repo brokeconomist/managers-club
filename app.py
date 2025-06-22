@@ -29,10 +29,10 @@ tools = {
     "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": show_loss_threshold_before_price_cut,
     "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
     "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
-    "🏦 Ανάλυση Έκπτωσης Πληρωμής Προμηθευτών": show_supplier_credit_analysis,
+    "🏦 Ανάλυση Έκπτωσης Πληρωμής Προμηθευτών Τοις Μετρητοίς": show_supplier_credit_analysis,
     "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
     "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui,
-    "📈 Ανάλυση Μικτού Κέρδους": show_gross_profit_template,
+    "📈 Υπολογισμός Μικτού Κέρδους": show_gross_profit_template,
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
     "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
     "💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς": show_discount_npv_ui  # <--- προστίθεται αυτό
