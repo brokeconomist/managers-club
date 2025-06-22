@@ -35,7 +35,7 @@ tools = {
     "📈 Ανάλυση Μικτού Κέρδους": show_gross_profit_template,
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
     "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
-    "💰 Ανάλυση NPV Έκπτωσης Τοις Μετρητοίς": show_discount_npv_ui  # <--- προστίθεται αυτό
+    "💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς": show_discount_npv_ui  # <--- προστίθεται αυτό
 
 }
 
