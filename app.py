@@ -37,7 +37,7 @@ tools = {
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
     "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
     "💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς": show_discount_npv_ui,
-    "Μεσοσταθνικός Υπολογισμος Ημερών Πίστωσης": show_credit_days_calculator
+    "Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης": show_credit_days_calculator
 
 }
 
