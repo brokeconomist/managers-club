@@ -17,6 +17,8 @@ from unit_cost_app import show_unit_cost_app
 from discount_npv_ui import show_discount_npv_ui  # <--- προστίθεται αυτό
 from economic_order_quantity import show_economic_order_quantity
 from credit_days_calculator import show_credit_days_calculator
+from inventory_turnover_calculator import show_inventory_turnover_calculator
+
 
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
@@ -37,7 +39,8 @@ tools = {
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
     "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
     "💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς": show_discount_npv_ui,
-    "🏛️ Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης": show_credit_days_calculator
+    "🏛️ Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης": show_credit_days_calculator,
+    "🔁 Ταχύτητα Κυκλοφορίας Αποθεμάτων (ποσότητα/αξία)": show_inventory_turnover_calculator,
 
 }
 
