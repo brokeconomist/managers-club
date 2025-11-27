@@ -49,19 +49,25 @@ tools = {
 st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
 selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-# Κεντραρισμένα κουμπιά για άμεση επιλογή εργαλείων στη home page
+# Αρχική σελίδα με περιγραφή + κουμπιά
 if selected_tool == "🏠 Αρχική":
-    st.title("📊 Επιλέξτε εργαλείο")
-    cols = st.columns(3)  # 3 κουμπιά ανά γραμμή
+    st.title("Καλώς ήρθατε στο Managers’ Club 📊")
+    st.write("""
+        Αυτό το εργαλείο συγκεντρώνει όλα τα χρηματοοικονομικά modules σας σε ένα σημείο.
+        Επιλέξτε οποιοδήποτε εργαλείο από τα παρακάτω κουμπιά για να ξεκινήσετε:
+    """)
+
+    # Κουμπιά εργαλείων κεντραρισμένα
+    cols = st.columns(3)
     i = 0
     for name, func in tools.items():
         if name == "🏠 Αρχική":
             continue
         with cols[i % 3]:
             if st.button(name, key=name):
-                # Εκτέλεση του εργαλείου απευθείας από την αρχική σελίδα
-                func()
+                func()  # Εκτέλεση εργαλείου απευθείας
         i += 1
+
 else:
     # Εμφάνιση του επιλεγμένου εργαλείου από το sidebar
     tools[selected_tool]()
