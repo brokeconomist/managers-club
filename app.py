@@ -20,8 +20,10 @@ from economic_order_quantity import show_economic_order_quantity
 from credit_days_calculator import show_credit_days_calculator
 from inventory_turnover_calculator import show_inventory_turnover_calculator
 
+# Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
+# Λεξικό εργαλείων
 tools = {
     "🏠 Αρχική": show_home,
     "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
@@ -45,29 +47,8 @@ tools = {
 
 # Sidebar με επιλογή εργαλείου
 st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
-selected_tool_sidebar = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
+selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-# Αν δεν υπάρχει, αρχικά επιλεγμένο εργαλείο
-if "selected_tool" not in st.session_state:
-    st.session_state.selected_tool = selected_tool_sidebar
+# Εμφάνιση του επιλεγμένου εργαλείου
+tools[selected_tool]()
 
-# ---- Αρχική σελίδα με κουτάκια ----
-if st.session_state.selected_tool == "🏠 Αρχική":
-    # Εμφάνιση καλωσορίσματος / περιγραφής
-    show_home()
-
-    st.markdown("---")
-    st.subheader("Τι μπορείς να κάνεις εδώ:")
-
-    # Δημιουργία κουμπιών για κάθε εργαλείο (εκτός Αρχικής)
-    cols = st.columns(3)
-    tool_list = list(tools.keys())[1:]  # παραλείπουμε την Αρχική
-    for i, tool_name in enumerate(tool_list):
-        if cols[i % 3].button(tool_name):
-            # Επιλογή εργαλείου για full-page εμφάνιση
-            st.session_state.selected_tool = tool_name
-            st.experimental_rerun()  # ανανεώνει τη σελίδα για να φορτωθεί το εργαλείο
-
-# ---- Εμφάνιση εργαλείου full-page ----
-if st.session_state.selected_tool != "🏠 Αρχική":
-    tools[st.session_state.selected_tool]()
