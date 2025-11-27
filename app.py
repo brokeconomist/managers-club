@@ -1,4 +1,5 @@
 import streamlit as st
+from urllib.parse import urlencode
 
 # Import όλων των modules
 from home import show_home
@@ -20,7 +21,6 @@ from economic_order_quantity import show_economic_order_quantity
 from credit_days_calculator import show_credit_days_calculator
 from inventory_turnover_calculator import show_inventory_turnover_calculator
 
-# Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
 # Λεξικό εργαλείων
@@ -45,9 +45,25 @@ tools = {
     "🔁 Ταχύτητα Κυκλοφορίας Αποθεμάτων (ποσότητα/αξία)": show_inventory_turnover_calculator,
 }
 
-# Sidebar με επιλογή εργαλείου
+# Sidebar menu
 st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
-selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
+selected_tool_sidebar = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-# Εμφάνιση του επιλεγμένου εργαλείου
+# Κεντρικό menu buttons στην αρχική σελίδα
+if selected_tool_sidebar == "🏠 Αρχική":
+    show_home()
+    
+    st.markdown("---")
+    st.subheader("Τι μπορείς να κάνεις εδώ:")
+
+    # Δημιουργία κουμπιών για κάθε εργαλείο
+    cols = st.columns(3)
+    tool_list = list(tools.keys())[1:]  # παραλείπουμε την Αρχική
+    for i, tool_name in enumerate(tool_list):
+        if cols[i % 3].button(tool_name):
+            # Όταν πατηθεί, ανοίγει ολόκληρη σελίδα του εργαλείου
+            st.session_state.selected_tool = tool_name
+
+# Αν έχει επιλεχθεί εργαλείο είτε από sidebar είτε από κουμπί
+selected_tool = st.session_state.get("selected_tool", selected_tool_sidebar)
 tools[selected_tool]()
