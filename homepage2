@@ -1,0 +1,45 @@
+import streamlit as st
+
+# --- Τίτλος της σελίδας ---
+st.set_page_config(page_title="Managers' Club", layout="wide")
+st.title("Managers’ Club")
+st.markdown("Καλώς ήρθατε! Επιλέξτε ένα εργαλείο για να ξεκινήσετε.")
+
+# --- Ορισμός modules ---
+modules = [
+    {
+        "title": "Υπολογιστής Break-Even",
+        "description": "Υπολόγισε το σημείο ισορροπίας των προϊόντων σου.",
+        "key": "breakeven"
+    },
+    {
+        "title": "Αξία Πελάτη (CLV)",
+        "description": "Υπολόγισε τη συνολική αξία ενός πελάτη με βάση έσοδα και κόστη.",
+        "key": "clv"
+    },
+    {
+        "title": "Ανάλυση Υποκατάστασης Προϊόντων",
+        "description": "Δες πώς η αλλαγή τιμής επηρεάζει τις πωλήσεις άλλων προϊόντων.",
+        "key": "substitutes"
+    },
+    {
+        "title": "Ανάλυση Συμπληρωματικών Προϊόντων",
+        "description": "Κατανόησε πώς τα συμπληρωματικά προϊόντα επηρεάζουν τα έσοδα.",
+        "key": "complements"
+    },
+    {
+        "title": "Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς",
+        "description": "Υπολόγισε την επίδραση της παροχής εκπτώσεων στα ταμειακά διαθέσιμα.",
+        "key": "cash_discount"
+    }
+]
+
+# --- Δημιουργία grid με 2 στήλες για τις κάρτες ---
+cols = st.columns(2)
+
+for i, module in enumerate(modules):
+    with cols[i % 2]:
+        st.subheader(module["title"])
+        st.write(module["description"])
+        st.button("Ξεκίνα", key=module["key"])
+        st.markdown("---")  # Διαχωριστικό για κάρτες
