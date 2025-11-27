@@ -1,6 +1,7 @@
 import streamlit as st
 
-# Εδώ κάνουμε import όλα τα εργαλεία όπως στο app.py
+# Import όλων των modules
+from home import show_home
 from break_even_calculator import show_break_even_calculator
 from break_even_shift_calculator import show_break_even_shift_calculator
 from clv_calculator import show_clv_calculator
@@ -19,8 +20,12 @@ from economic_order_quantity import show_economic_order_quantity
 from credit_days_calculator import show_credit_days_calculator
 from inventory_turnover_calculator import show_inventory_turnover_calculator
 
-# Λεξικό εργαλείων για εύκολη αναφορά
+# Ρυθμίσεις σελίδας
+st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
+
+# Λεξικό εργαλείων
 tools = {
+    "🏠 Αρχική": show_home,
     "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
     "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)": show_break_even_shift_calculator,
     "👥 CLV - Αξία Πελάτη": show_clv_calculator,
@@ -40,12 +45,10 @@ tools = {
     "🔁 Ταχύτητα Κυκλοφορίας Αποθεμάτων (ποσότητα/αξία)": show_inventory_turnover_calculator,
 }
 
-# Περιγραφές εργαλείων για την αρχική σελίδα
-tool_descriptions = {
-    "🟢 Νεκρό Σημείο (Break-Even)": "Υπολογισμός σημείου ισορροπίας πωλήσεων / κόστους.",
-    "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)": "Δείτε πώς μεταβάλλεται το Νεκρό Σημείο με αλλαγές τιμής, κόστους ή επένδυσης.",
-    "👥 CLV - Αξία Πελάτη": "Υπολογισμός μακροχρόνιας αξίας πελάτη.",
-    "🔄 Ανάλυση Υποκατάστασης Προϊόντων": "Προσομοιώστε τον αντίκτυπο υποκατάστασης προϊόντων στις πωλήσεις.",
-    "➕ Ανάλυση Συμπληρωματικών Προϊόντων": "Δείτε πώς τα συμπληρωματικά προϊόντα επηρεάζουν τα κέρδη σας.",
-    "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": "Υπολογίστε πόση απώλεια πωλήσεων μπορείτε να αντέξετε πριν μειώσετε τιμές.",
-    "🕒 Ανάλυση Αύξησης Πίστωσης": "Αξιολογήστε την επίδραση της αύξησης πιστωτικών ορίων στους πελάτες σας.",
+# Sidebar με επιλογή εργαλείου
+st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
+selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
+
+# Εμφάνιση του επιλεγμένου εργαλείου
+tools[selected_tool]()
+
