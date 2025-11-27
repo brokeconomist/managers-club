@@ -1,6 +1,6 @@
 import streamlit as st
 
-from home import show_home
+from home_redesign import show_home_redesign as show_home
 from break_even_calculator import show_break_even_calculator
 from break_even_shift_calculator import show_break_even_shift_calculator
 from clv_calculator import show_clv_calculator
