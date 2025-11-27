@@ -1,7 +1,7 @@
 import streamlit as st
 
-# Εισαγωγή των modules / εργαλείων
-from home_redesign import show_homepage
+# Import όλων των modules
+from home import show_home
 from break_even_calculator import show_break_even_calculator
 from break_even_shift_calculator import show_break_even_shift_calculator
 from clv_calculator import show_clv_calculator
@@ -23,9 +23,9 @@ from inventory_turnover_calculator import show_inventory_turnover_calculator
 # Ρυθμίσεις σελίδας
 st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
-# Λεξικό εργαλείων (sidebar)
+# Λεξικό εργαλείων
 tools = {
-    "🏠 Αρχική": show_homepage,
+    "🏠 Αρχική": show_home,
     "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
     "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)": show_break_even_shift_calculator,
     "👥 CLV - Αξία Πελάτη": show_clv_calculator,
@@ -41,13 +41,13 @@ tools = {
     "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
     "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
     "💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς": show_discount_npv_ui,
-    "🏛️ Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης": show_credit_days_calculator,
+    "⚖️ Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης": show_credit_days_calculator,
     "🔁 Ταχύτητα Κυκλοφορίας Αποθεμάτων (ποσότητα/αξία)": show_inventory_turnover_calculator,
 }
 
-# Sidebar
+# Sidebar με επιλογή εργαλείου
 st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
 selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-# Εκτέλεση επιλεγμένου εργαλείου
+# Εμφάνιση του επιλεγμένου εργαλείου
 tools[selected_tool]()
