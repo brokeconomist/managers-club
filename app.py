@@ -1,68 +1,54 @@
 import streamlit as st
 
-# ----------------------------
-# WELCOME SECTION
-# ----------------------------
-st.title("🎯 Καλωσόρισες στο Managers’ Club!")
-st.write("Το έξυπνο εργαλείο για σύγχρονες και τεκμηριωμένες οικονομικές αποφάσεις")
-st.write("""
-Το Managers’ Club είναι μια διαδικτυακή πλατφόρμα που σου δίνει τη δυνατότητα να κάνεις πιο γρήγορα, 
-ξεκάθαρα και τεκμηριωμένα οικονομικές επιλογές για την επιχείρησή σου.
+# Import όλων των modules
+from home import show_home
+from break_even_calculator import show_break_even_calculator
+from break_even_shift_calculator import show_break_even_shift_calculator
+from clv_calculator import show_clv_calculator
+from substitution_analysis import show_substitution_analysis
+from complementary_analysis import show_complementary_analysis
+from loss_threshold import show_loss_threshold_before_price_cut
+from credit_extension_analysis import show_credit_extension_analysis
+from credit_policy_app import show_credit_policy_analysis
+from supplier_credit_app import show_supplier_credit_analysis
+from cash_cycle import run_cash_cycle_app
+from loan_vs_leasing_calculator import loan_vs_leasing_ui
+from gross_profit_analysis import show_gross_profit_template
+from unit_cost_app import show_unit_cost_app
+from discount_npv_ui import show_discount_npv_ui
+from economic_order_quantity import show_economic_order_quantity
+from credit_days_calculator import show_credit_days_calculator
+from inventory_turnover_calculator import show_inventory_turnover_calculator
 
-Δεν χρειάζεσαι πολύπλοκα φύλλα Excel, όλα τα εργαλεία είναι στη διάθεσή σου με ελληνικό περιβάλλον και απλές ερωτήσεις.
-""")
+# Ρυθμίσεις σελίδας
+st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
-st.write("---")
+# Λεξικό εργαλείων
+tools = {
+    "🏠 Αρχική": show_home,
+    "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
+    "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)": show_break_even_shift_calculator,
+    "👥 CLV - Αξία Πελάτη": show_clv_calculator,
+    "🔄 Ανάλυση Υποκατάστασης Προϊόντων": show_substitution_analysis,
+    "➕ Ανάλυση Συμπληρωματικών Προϊόντων": show_complementary_analysis,
+    "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": show_loss_threshold_before_price_cut,
+    "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
+    "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
+    "🏦 Ανάλυση Έκπτωσης Πληρωμής Προμηθευτών Τοις Μετρητοίς": show_supplier_credit_analysis,
+    "📊 Μέσος Ταμειακός Κύκλος": run_cash_cycle_app,
+    "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui,
+    "📈 Υπολογισμός Μικτού Κέρδους": show_gross_profit_template,
+    "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
+    "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
+    "💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς": show_discount_npv_ui,
+    "🏛️ Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης": show_credit_days_calculator,
+    "🔁 Ταχύτητα Κυκλοφορίας Αποθεμάτων (ποσότητα/αξία)": show_inventory_turnover_calculator,
+}
 
-# ----------------------------
-# TOOLS HUB (MINI SIDEBAR)
-# ----------------------------
-st.header("📌 Τι μπορείς να κάνεις εδώ:")
+# Sidebar με επιλογή εργαλείου
+st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
+selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-tools = [
-    {"title": "Υπολογισμός Νεκρού Σημείου (Break-Even)", "icon": "📈"},
-    {"title": "Μεταβολή Νεκρού Σημείου (Τιμή/Κόστος/Επένδυση)", "icon": "🔄"},
-    {"title": "Ανάλυση Αξίας Πελάτη (CLV)", "icon": "💰"},
-    {"title": "Ανάλυση Υποκατάστασης Προϊόντων", "icon": "⚖️"},
-    {"title": "Ανάλυση Συμπληρωματικών Προϊόντων", "icon": "🧩"},
-    {"title": "Μέγιστη Επιτρεπτή Μεταβολή Τιμών", "icon": "📊"},
-    {"title": "Αποδοτικότητα Αλλαγής Πιστωτικής Πολιτικής", "icon": "💳"},
-    {"title": "Διαχείριση πληρωμών σε προμηθευτές", "icon": "🏦"},
-    {"title": "Απόδοση για έκπτωση και πληρωμές τοις μετρητοίς", "icon": "💵"},
-    {"title": "Υπολογισμός Ταμειακού Κύκλου", "icon": "🔁"},
-    {"title": "Εκτίμηση μικτού κέρδους", "icon": "📉"},
-    {"title": "Οικονομικότερη Παραγγελία Εμπορευμάτων (EOQ)", "icon": "📦"},
-    {"title": "Κόστος Δανείου ή Leasing", "icon": "🏁"},
-    {"title": "Μέσο Κόστος Παραγωγής ανά Μονάδα", "icon": "🏭"},
-    {"title": "Χρηματοδοτικές Ανάγκες & Ρευστότητα", "icon": "💡"},
-]
+# Εμφάνιση του επιλεγμένου εργαλείου
+tools[selected_tool]()
 
-for tool in tools:
-    st.markdown(f"{tool['icon']} **{tool['title']}**")
-    st.info(f"Άνοιξε αυτό το εργαλείο από το sidebar για να το χρησιμοποιήσεις.")
-
-st.write("---")
-
-# ----------------------------
-# ΟΔΗΓΙΕΣ ΧΡΗΣΗΣ
-# ----------------------------
-st.subheader("🧭 Πώς να ξεκινήσεις:")
-st.write("""
-1. Διάλεξε εργαλείο από τα κουμπιά παραπάνω ή από το μενού στα αριστερά.
-2. Συμπλήρωσε τα πεδία με τα δικά σου δεδομένα.
-3. Δες άμεσα αριθμούς, γραφήματα και συμπεράσματα.
-""")
-st.write("📘 Θες βοήθεια ή παράδειγμα;")
-st.write("📄 Δες ένα demo παράδειγμα χρήσης (Excel) (Έρχεται σύντομα)")
-st.write("🧑‍🏫 Οδηγός: Πώς χρησιμοποιώ τα εργαλεία (PDF) (Έρχεται σύντομα)")
-
-# ----------------------------
-# ΕΠΙΚΟΙΝΩΝΙΑ
-# ----------------------------
-st.subheader("📬 Επικοινώνησε μαζί μας")
-st.write("Αν έχεις ερωτήσεις, ιδέες ή θέλεις να συνεργαστούμε, στείλε email στο:")
-st.write("✉️ managersclub2025@gmail.com")
-
-st.write("---")
-st.write("🚀 Έτοιμος να πάρεις τον έλεγχο στα χέρια σου;")
-st.write("👉 Ξεκίνα από τα κουμπιά παραπάνω ή από το sidebar και δες τις δυνατότητες του Managers’ Club στην πράξη.")
