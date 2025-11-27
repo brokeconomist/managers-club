@@ -1,41 +1,52 @@
 import streamlit as st
 
-# Εδώ κάνουμε import όλα τα modules σου
-from break_even import break_even_ui
-from clv_calculator import clv_ui
-from substitution_analysis import substitution_ui
-from complementary_analysis import complementary_ui
-from price_impact import price_impact_ui
-from cash_discount import cash_discount_ui
+def show_home_redesign():
+    st.title("📊 Managers’ Club")
+    st.markdown("""
+Καλωσήρθατε στο Managers’ Club!  
+Εδώ θα βρείτε όλα τα χρηματοοικονομικά και επιχειρησιακά εργαλεία για να διαχειριστείτε τις επιχειρήσεις σας με ευκολία και αποτελεσματικότητα.  
+Διαλέξτε την κατηγορία που σας ενδιαφέρει για να ξεκινήσετε.
+""")
 
-def show_homepage():
-    st.title("👋 Καλώς ήρθες στο Managers’ Club")
+    # --- Ανάλυση Πωλήσεων ---
+    with st.expander("👥 Ανάλυση Πωλήσεων", expanded=True):
+        st.markdown("""
+- 🟢 Νεκρό Σημείο (Break-Even)  
+- ⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)  
+- 👥 CLV - Αξία Πελάτη  
+- 🔄 Ανάλυση Υποκατάστασης Προϊόντων  
+- ➕ Ανάλυση Συμπληρωματικών Προϊόντων  
+        """)
 
-    st.write("""
-    Αυτό είναι το προσωπικό σου dashboard.  
-    Εδώ μπορείς να επιλέξεις γρήγορα ποιο εργαλείο θέλεις να χρησιμοποιήσεις.
-    """)
+    # --- Διαχείριση Κεφαλαίου ---
+    with st.expander("💰 Διαχείριση Κεφαλαίου", expanded=False):
+        st.markdown("""
+- 📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών  
+- 🕒 Ανάλυση Αύξησης Πίστωσης  
+- 🏛️ Ανάλυση Πολιτικής Πίστωσης  
+- 🏦 Ανάλυση Έκπτωσης Πληρωμής Προμηθευτών Τοις Μετρητοίς  
+- 💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς  
+        """)
 
-    # Tabs για κάθε ομάδα εργαλείων
-    tab1, tab2, tab3 = st.tabs(["Οικονομικά & CLV", "Ανάλυση προϊόντων", "Ταμειακά & Τιμές"])
+    # --- Παραγωγή & Απόδοση ---
+    with st.expander("🏭 Παραγωγή & Απόδοση", expanded=False):
+        st.markdown("""
+- ⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα  
+- 📦 Οικονομικότερη Παραγγελία Εμπορευμάτων  
+- 🔁 Ταχύτητα Κυκλοφορίας Αποθεμάτων (ποσότητα/αξία)  
+- 📈 Υπολογισμός Μικτού Κέρδους  
+        """)
 
-    # --- Οικονομικά & CLV ---
-    with tab1:
-        if st.button("Break-Even"):
-            break_even_ui()
-        if st.button("CLV - Αξία Πελάτη"):
-            clv_ui()
+    # --- Χρηματοοικονομικά / Δανεισμός ---
+    with st.expander("🏦 Χρηματοοικονομικά / Δανεισμός", expanded=False):
+        st.markdown("""
+- 🏡 Ανάλυση Δανείου vs Leasing  
+- 📊 Μέσος Ταμειακός Κύκλος  
+- ⚖️ Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης  
+        """)
 
-    # --- Ανάλυση προϊόντων ---
-    with tab2:
-        if st.button("Υποκατάστατα"):
-            substitution_ui()
-        if st.button("Συμπληρωματικά"):
-            complementary_ui()
+    st.markdown("""
+---
 
-    # --- Ταμειακά & Τιμές ---
-    with tab3:
-        if st.button("Επίδραση Τιμής"):
-            price_impact_ui()
-        if st.button("Αποδοτικότητα Έκπτωσης Μετρητοίς"):
-            cash_discount_ui()
+💡 Συμβουλή: Κάθε εργαλείο είναι πλήρως λειτουργικό. Επιλέξτε αυτό που θέλετε από το **sidebar** ή από τα expanders για γρήγορη πρόσβαση.
+""")
