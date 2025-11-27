@@ -1,45 +1,41 @@
 import streamlit as st
 
-st.set_page_config(page_title="Managers' Club", layout="wide")
+# Εδώ κάνουμε import όλα τα modules σου
+from break_even import break_even_ui
+from clv_calculator import clv_ui
+from substitution_analysis import substitution_ui
+from complementary_analysis import complementary_ui
+from price_impact import price_impact_ui
+from cash_discount import cash_discount_ui
 
-st.title("📊 Managers' Club - Οικονομικά Εργαλεία")
+def show_homepage():
+    st.title("👋 Καλώς ήρθες στο Managers’ Club")
 
-st.write("""
-Καλωσήρθατε! Επιλέξτε ένα εργαλείο για να ξεκινήσετε την ανάλυση.
-""")
+    st.write("""
+    Αυτό είναι το προσωπικό σου dashboard.  
+    Εδώ μπορείς να επιλέξεις γρήγορα ποιο εργαλείο θέλεις να χρησιμοποιήσεις.
+    """)
 
-# Tabs για ομάδες εργαλείων
-tabs = st.tabs(["Ανάλυση Κερδών", "CLV & Τιμολόγηση", "Cash Flow & Διαχείριση"])
+    # Tabs για κάθε ομάδα εργαλείων
+    tab1, tab2, tab3 = st.tabs(["Οικονομικά & CLV", "Ανάλυση προϊόντων", "Ταμειακά & Τιμές"])
 
-# --- Tab 1: Ανάλυση Κερδών ---
-with tabs[0]:
-    st.subheader("Ανάλυση Κερδών")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Υπολογισμός Break-Even"):
-            st.write("Πηγαίνει στο module Break-Even")
-    with col2:
-        if st.button("Ανάλυση Υποκατάστατων / Συμπληρωματικών"):
-            st.write("Πηγαίνει στο module Ανάλυση Προϊόντων")
+    # --- Οικονομικά & CLV ---
+    with tab1:
+        if st.button("Break-Even"):
+            break_even_ui()
+        if st.button("CLV - Αξία Πελάτη"):
+            clv_ui()
 
-# --- Tab 2: CLV & Τιμολόγηση ---
-with tabs[1]:
-    st.subheader("CLV & Τιμολόγηση")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Υπολογισμός CLV"):
-            st.write("Πηγαίνει στο module CLV")
-    with col2:
-        if st.button("Ανάλυση Τιμής & Μεταβολής Κερδών"):
-            st.write("Πηγαίνει στο module Τιμολόγησης")
+    # --- Ανάλυση προϊόντων ---
+    with tab2:
+        if st.button("Υποκατάστατα"):
+            substitution_ui()
+        if st.button("Συμπληρωματικά"):
+            complementary_ui()
 
-# --- Tab 3: Cash Flow & Διαχείριση ---
-with tabs[2]:
-    st.subheader("Cash Flow & Διαχείριση")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Ανάλυση Ταμειακού Κύκλου"):
-            st.write("Πηγαίνει στο module Ταμειακού Κύκλου")
-    with col2:
-        if st.button("Αποδοτικότητα Έκπτωσης Τοις Μετρητοίς"):
-            st.write("Πηγαίνει στο module Αποδοτικότητας Εκπτώσεων")
+    # --- Ταμειακά & Τιμές ---
+    with tab3:
+        if st.button("Επίδραση Τιμής"):
+            price_impact_ui()
+        if st.button("Αποδοτικότητα Έκπτωσης Μετρητοίς"):
+            cash_discount_ui()
