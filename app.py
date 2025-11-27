@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Import όλων των modules
-from home import show_home
+from home_redesign import show_homepage
 from break_even_calculator import show_break_even_calculator
 from break_even_shift_calculator import show_break_even_shift_calculator
 from clv_calculator import show_clv_calculator
