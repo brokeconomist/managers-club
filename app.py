@@ -21,7 +21,7 @@ from credit_days_calculator import show_credit_days_calculator
 from inventory_turnover_calculator import show_inventory_turnover_calculator
 
 # Ρυθμίσεις σελίδας
-st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
+st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="wide")
 
 # Λεξικό εργαλείων
 tools = {
@@ -49,6 +49,19 @@ tools = {
 st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
 selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-# Εμφάνιση του επιλεγμένου εργαλείου
-tools[selected_tool]()
-
+# Κεντραρισμένα κουμπιά για άμεση επιλογή εργαλείων στη home page
+if selected_tool == "🏠 Αρχική":
+    st.title("📊 Επιλέξτε εργαλείο")
+    cols = st.columns(3)  # 3 κουμπιά ανά γραμμή
+    i = 0
+    for name, func in tools.items():
+        if name == "🏠 Αρχική":
+            continue
+        with cols[i % 3]:
+            if st.button(name, key=name):
+                # Εκτέλεση του εργαλείου απευθείας από την αρχική σελίδα
+                func()
+        i += 1
+else:
+    # Εμφάνιση του επιλεγμένου εργαλείου από το sidebar
+    tools[selected_tool]()
