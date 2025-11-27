@@ -25,7 +25,7 @@ st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="cent
 
 # Λεξικό εργαλείων
 tools = {
-    "🏠 Αρχική": show_home,
+    "🏠 Αρχική": show_homepage,
     "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
     "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)": show_break_even_shift_calculator,
     "👥 CLV - Αξία Πελάτη": show_clv_calculator,
