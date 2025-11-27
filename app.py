@@ -1,51 +1,53 @@
 import streamlit as st
 
-from home import show_home
-from break_even_calculator import show_break_even_calculator
-from break_even_shift_calculator import show_break_even_shift_calculator
-from clv_calculator import show_clv_calculator
-from substitution_analysis import show_substitution_analysis
-from complementary_analysis import show_complementary_analysis
-from loss_threshold import show_loss_threshold_before_price_cut
-from credit_extension_analysis import show_credit_extension_analysis
-from credit_policy_app import show_credit_policy_analysis
-from supplier_credit_app import show_supplier_credit_analysis
-from cash_cycle import run_cash_cycle_app
-from discount_efficiency_app import show_discount_efficiency_ui
-from loan_vs_leasing_calculator import loan_vs_leasing_ui
-from gross_profit_analysis import show_gross_profit_template
-from unit_cost_app import show_unit_cost_app
-from discount_proposal import show_discount_proposal_ui
+def show_home_redesign():
+    st.title("📊 Managers’ Club")
+    st.markdown("""
+Καλωσήρθατε στο Managers’ Club!  
+Εδώ θα βρείτε όλα τα χρηματοοικονομικά και επιχειρησιακά εργαλεία για να διαχειριστείτε τις επιχειρήσεις σας με ευκολία και αποτελεσματικότητα.  
+Διαλέξτε την κατηγορία που σας ενδιαφέρει για να ξεκινήσετε.
+""")
 
+    # --- Ανάλυση Πωλήσεων ---
+    with st.expander("👥 Ανάλυση Πωλήσεων", expanded=True):
+        st.markdown("""
+- 🟢 Νεκρό Σημείο (Break-Even)  
+- ⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)  
+- 👥 CLV - Αξία Πελάτη  
+- 🔄 Ανάλυση Υποκατάστασης Προϊόντων  
+- ➕ Ανάλυση Συμπληρωματικών Προϊόντων  
+        """)
 
-# ΝΕΟ ΕΙΣΑΓΩΓΗ ΕΡΓΑΛΕΙΟΥ
-from economic_order_quantity import show_economic_order_quantity
+    # --- Διαχείριση Κεφαλαίου ---
+    with st.expander("💰 Διαχείριση Κεφαλαίου", expanded=False):
+        st.markdown("""
+- 📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών  
+- 🕒 Ανάλυση Αύξησης Πίστωσης  
+- 🏛️ Ανάλυση Πολιτικής Πίστωσης  
+- 🏦 Ανάλυση Έκπτωσης Πληρωμής Προμηθευτών Τοις Μετρητοίς  
+- 💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς  
+        """)
 
-st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
+    # --- Παραγωγή & Απόδοση ---
+    with st.expander("🏭 Παραγωγή & Απόδοση", expanded=False):
+        st.markdown("""
+- ⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα  
+- 📦 Οικονομικότερη Παραγγελία Εμπορευμάτων  
+- 🔁 Ταχύτητα Κυκλοφορίας Αποθεμάτων (ποσότητα/αξία)  
+- 📈 Υπολογισμός Μικτού Κέρδους  
+        """)
 
-tools = {
-    "🏠 Αρχική": show_home,
-    "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
-    "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)": show_break_even_shift_calculator,
-    "👥 CLV - Αξία Πελάτη": show_clv_calculator,
-    "🔄 Ανάλυση Υποκατάστασης Προϊόντων": show_substitution_analysis,
-    "➕ Ανάλυση Συμπληρωματικών Προϊόντων": show_complementary_analysis,
-    "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": show_loss_threshold_before_price_cut,
-    "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
-    "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
-    "🏦 Ανάλυση Πίστωσης Προμηθευτών (Έκπτωση)": show_supplier_credit_analysis,
-    "📊 Ταμειακός Κύκλος": run_cash_cycle_app,
-    "💶 Απόδοση Έκπτωσης Τοις Μετρητοίς": show_discount_efficiency_ui,
-    "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui,
-    "📈 Ανάλυση Μικτού Κέρδους": show_gross_profit_template,
-    "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
-    "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
-    "📈 Πρόταση Έκπτωσης Τοις Μετρητοίς (Ανάλυση)": show_discount_proposal_ui
+    # --- Χρηματοοικονομικά / Δανεισμός ---
+    with st.expander("🏦 Χρηματοοικονομικά / Δανεισμός", expanded=False):
+        st.markdown("""
+- 🏡 Ανάλυση Δανείου vs Leasing  
+- 📊 Μέσος Ταμειακός Κύκλος  
+- ⚖️ Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης  
+        """)
 
-}
+    st.markdown("""
+---
 
-st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
-selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
-
-tools[selected_tool]()
+💡 Συμβουλή: Κάθε εργαλείο είναι πλήρως λειτουργικό. Επιλέξτε αυτό που θέλετε από το **sidebar** ή από τα expanders για γρήγορη πρόσβαση.
+""")
 
