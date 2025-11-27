@@ -1,4 +1,15 @@
 import streamlit as st
+from home_redesign import show_homepage
+
+def main():
+    # Εδώ εμφανίζεται η νέα αρχική σελίδα
+    show_homepage()
+
+if __name__ == "__main__":
+    main()
+
+
+import streamlit as st
 
 from home import show_home
 from break_even_calculator import show_break_even_calculator
