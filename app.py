@@ -12,7 +12,7 @@ st.write("""
 
 st.write("---")
 
-# 🟩 ΕΝΟΤΗΤΑ “Τι μπορείς να κάνεις εδώ” (Πρακτικά κουμπιά)
+# 🟩 ΕΝΟΤΗΤΑ “Τι μπορείς να κάνεις εδώ” (Compact δύο στήλες)
 st.header("📌 Τι μπορείς να κάνεις εδώ:")
 
 tools = [
@@ -30,17 +30,20 @@ tools = [
     {"title": "Οικονομικότερη Παραγγελία Εμπορευμάτων (EOQ)", "page": "economic_order_quantity"},
     {"title": "Κόστος Δανείου ή Leasing", "page": "loan_vs_leasing_calculator"},
     {"title": "Μέσο Κόστος Παραγωγής ανά Μονάδα", "page": "unit_cost_app"},
-    {"title": "Χρηματοδοτικές Ανάγκες & Ρευστότητα", "page": "credit_days_calculator"},  # placeholder για “σε ανάπτυξη”
+    {"title": "Χρηματοδοτικές Ανάγκες & Ρευστότητα", "page": "credit_days_calculator"},  # placeholder
 ]
 
-# 🔵 Εμφάνιση κουμπιών για κάθε εργαλείο
-for tool in tools:
-    with st.container():
-        st.write(f"🔹 {tool['title']}")
+# Δημιουργία δύο στηλών
+cols = st.columns(2)
+
+for i, tool in enumerate(tools):
+    col = cols[i % 2]
+    with col:
+        st.markdown(f"**{tool['title']}**")
         if st.button("Άνοιγμα →", key=tool["title"]):
             st.session_state["selected_tool"] = tool["page"]
 
-# 🔧 Redirect σε σελίδα εργαλείου
+# 🔧 Redirect σε εργαλείο
 if "selected_tool" in st.session_state:
     st.switch_page(st.session_state["selected_tool"])
 
