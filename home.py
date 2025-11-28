@@ -1,52 +1,54 @@
-# home.py
 import streamlit as st
 
-def show_home():
-    st.title("🎯 Καλωσόρισες στο Managers’ Club!")
-    st.subheader("Το έξυπνο εργαλείο για σύγχρονες και τεκμηριωμένες οικονομικές αποφάσεις")
+# Import όλων των modules
+from home import show_home
+from break_even_calculator import show_break_even_calculator
+from break_even_shift_calculator import show_break_even_shift_calculator
+from clv_calculator import show_clv_calculator
+from substitution_analysis import show_substitution_analysis
+from complementary_analysis import show_complementary_analysis
+from loss_threshold import show_loss_threshold_before_price_cut
+from credit_extension_analysis import show_credit_extension_analysis
+from credit_policy_app import show_credit_policy_analysis
+from supplier_credit_app import show_supplier_credit_analysis
+from cash_cycle import run_cash_cycle_app
+from loan_vs_leasing_calculator import loan_vs_leasing_ui
+from gross_profit_analysis import show_gross_profit_template
+from unit_cost_app import show_unit_cost_app
+from discount_npv_ui import show_discount_npv_ui
+from economic_order_quantity import show_economic_order_quantity
+from credit_days_calculator import show_credit_days_calculator
+from inventory_turnover_calculator import show_inventory_turnover_calculator
 
-    st.markdown("""
-    Το **Managers’ Club** είναι μια διαδικτυακή πλατφόρμα που σου δίνει τη δυνατότητα να κάνεις
-    πιο γρήγορα, ξεκάθαρα και τεκμηριωμένα οικονομικές επιλογές για την επιχείρησή σου.
+# Ρυθμίσεις σελίδας
+st.set_page_config(page_title="Managers’ Club", page_icon="📊", layout="centered")
 
-    Δεν χρειάζεσαι πολύπλοκα φύλλα Excel, όλα τα εργαλεία είναι **στη διάθεσή σου με ελληνικό περιβάλλον και απλές ερωτήσεις**.
+# Λεξικό εργαλείων
+tools = {
+    "🏠 Αρχική": show_home,
+    "🟢 Νεκρό Σημείο (Break-Even)": show_break_even_calculator,
+    "⚙️ Αλλαγή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)": show_break_even_shift_calculator,
+    "👥 CLV - Αξία Πελάτη": show_clv_calculator,
+    "🔄 Ανάλυση Υποκατάστασης Προϊόντων": show_substitution_analysis,
+    "➕ Ανάλυση Συμπληρωματικών Προϊόντων": show_complementary_analysis,
+    "📉 Όριο Απώλειας Πωλήσεων πριν τη Μείωση Τιμών": show_loss_threshold_before_price_cut,
+    "🕒 Ανάλυση Αύξησης Πίστωσης": show_credit_extension_analysis,
+    "🏛️ Ανάλυση Πολιτικής Πίστωσης": show_credit_policy_analysis,
+    "🏦 Ανάλυση Έκπτωσης Πληρωμής Προμηθευτών Τοις Μετρητοίς": show_supplier_credit_analysis,
+    "📊 Μέσος Ταμειακός Κύκλος": run_cash_cycle_app,
+    "🏡 Ανάλυση Δανείου vs Leasing": loan_vs_leasing_ui,
+    "📈 Υπολογισμός Μικτού Κέρδους": show_gross_profit_template,
+    "📦 Οικονομικότερη Παραγγελία Εμπορευμάτων": show_economic_order_quantity,
+    "⚖️ Μέσο Κόστος Παραγωγής Ανά Μονάδα": show_unit_cost_app,
+    "💰 Ανάλυση NPV Για Έκπτωση Πληρωμής Τοις Μετρητοίς": show_discount_npv_ui,
+    "🏛️ Μεσοσταθμικός Υπολογισμός Ημερών Πίστωσης": show_credit_days_calculator,
+    "🔁 Ταχύτητα Κυκλοφορίας Αποθεμάτων (ποσότητα/αξία)": show_inventory_turnover_calculator,
+}
 
-    ---
-    """)
+# Sidebar με επιλογή εργαλείου
+st.sidebar.title("📊 Managers’ Club - Επιλογή Εργαλείου")
+selected_tool = st.sidebar.radio("🧰 Επιλέξτε εργαλείο", list(tools.keys()))
 
-    st.markdown("## 📌 Τι μπορείς να κάνεις εδώ:")
+# Εμφάνιση του επιλεγμένου εργαλείου
+tools[selected_tool]()
 
-    # Λίστα εργαλείων: (Label for user, page_file_name)
-    tools = [
-        ("Υπολογισμός Νεκρού Σημείου (Break-Even)", "01_Break-Even"),
-        ("Μεταβολή Νεκρού Σημείου (Τιμή / Κόστος / Επένδυση)", "02_Break-Even-Shift"),
-        ("Αξία Πελάτη (Customer Lifetime Value)", "03_CLV"),
-        ("Ανάλυση Υποκατάστασης Προϊόντων", "04_Substitution"),
-        ("Ανάλυση Συμπληρωματικών Προϊόντων", "05_Complementary"),
-        ("Όριο Απώλειας Πωλήσεων", "06_LossThreshold"),
-        ("Ανάλυση Αύξησης Πίστωσης", "07_CreditExtension"),
-        ("Ανάλυση Πολιτικής Πίστωσης", "08_CreditPolicy"),
-        ("Ανάλυση Έκπτωσης Πληρωμής Προμηθευτών", "09_SupplierCredit"),
-        ("Μέσος Ταμειακός Κύκλος", "10_CashCycle"),
-        ("Δάνειο vs Leasing", "11_LoanVsLeasing"),
-        ("Υπολογισμός Μικτού Κέρδους", "12_GrossProfit"),
-        ("EOQ - Οικονομικότερη Παραγγελία", "13_EOQ"),
-        ("Μέσο Κόστος Παραγωγής ανά Μονάδα", "14_UnitCost"),
-        ("NPV για έκπτωση τοις μετρητοίς", "15_DiscountNPV"),
-        ("Ημέρες Πίστωσης (μεσοσταθμικά)", "16_CreditDays"),
-        ("Ταχύτητα Κυκλοφορίας Αποθεμάτων", "17_InventoryTurnover"),
-    ]
-
-    for label, page_name in tools:
-        c1, c2 = st.columns([4, 1])
-        with c1:
-            st.markdown(f"**{label}**")
-        with c2:
-            # Κάθε κουμπί κάνει switch στην αντίστοιχη σελίδα (multipage)
-            if st.button("Άνοιγμα", key=f"home_btn_{page_name}"):
-                try:
-                    # Αυτό δουλεύει μόνο σε multipage deployment
-                    st.switch_page(page_name)
-                except Exception:
-                    # Fallback: εμφανίζουμε μήνυμα αν switch_page δεν υποστηρίζεται
-                    st.error("Η πλοήγηση αυτόματα δεν υποστηρίζεται στην τρέχουσα έκδοση. Χρησιμοποίησε το sidebar για να επιλέξεις το εργαλείο.")
